@@ -26,5 +26,10 @@ int zz_int64tohex(int argc, struct s_content argv[], struct s_content* ret);
 int zz_inttostring(int i);
 int zz_doubletofloat(int argc, struct s_content argv[], struct s_content* ret);
 
+int s_do_while_loops(int argc,struct s_content argv[],struct s_content *ret,int while_loop);
+
+int change_extension(char *fullfilename,const char *filetype);
+
+void get_extension(char *fullfilename, char *filetype);
 
 #endif // __SYS_H__

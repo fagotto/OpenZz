@@ -18,6 +18,8 @@
 */
 
 #include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
 #include "zlex.h"
 #include "rule.h"
 #include "err.h"
@@ -64,18 +66,18 @@ return pair;
 
 /*------------------------------------------------------------------------*/
 
-static free_param_pair(pair)
-struct s_param_pair *pair;
+static int free_param_pair(struct s_param_pair *pair)
 {
 pair->next=param_first_free;
 pair->name=0;
 pair->cnt.tag=tag_none;
 param_first_free = pair;
+return 0;
 }
 
 /*------------------------------------------------------------------------*/
 
-push_param_scope()
+int push_param_scope()
 {
 if(param_level>=PARAM_SCOPE_STACK_SIZE-1)
   zz_error(ERROR,"too many Zz variable scopes");
@@ -83,11 +85,12 @@ else
   {
    param_scope_stack[param_level++] = 0;
   }
+return 0;
 }
 
 /*------------------------------------------------------------------------*/
 
-pop_param_scope()
+int pop_param_scope()
 {
 struct s_param_pair *pair,*tmp;
 if(param_level>0)
@@ -103,6 +106,7 @@ if(param_level>0)
       free_param_pair(tmp);
      }
   }
+return 0;
 }
 
 /*------------------------------------------------------------------------*/
@@ -110,9 +114,7 @@ if(param_level>0)
   returns 1 if a new zz variable was crated, 0 otherwise
  */
 
-int set_param(name,cnt)
-     char *name;
-     struct s_content *cnt;
+int set_param(char *name,struct s_content *cnt)
 {
   struct s_param_pair *pair;
   struct s_content *old;
@@ -152,7 +154,7 @@ int set_param(name,cnt)
 
 /*------------------------------------------------------------------------*/
 
-gset_param(char *name, struct s_content *cnt)
+int gset_param(char *name, struct s_content *cnt)
 {
   struct s_param_pair *pair;
   struct s_content *old;
@@ -184,10 +186,7 @@ gset_param(char *name, struct s_content *cnt)
 
 /*------------------------------------------------------------------------*/
 
-gnset_param(name,cnt,delta)
-char *name;
-struct s_content *cnt;
-int delta;
+int gnset_param(char *name,struct s_content *cnt,int delta)
 {
 struct s_param_pair *pair;
 struct s_content *old;
@@ -223,15 +222,14 @@ return 1;
 
 /*------------------------------------------------------------------------*/
 
-unset_param(name)
-char *name;
+int unset_param(char *name)
 {
 struct s_param_pair *pair,**ptr;
 struct s_content *old;
 int i;
 if(strcmp(name,"$")==0) return 1;
 i=param_level-1;
-if(i<0) return;
+if(i<0) return 0;
 ptr= &(param_scope_stack[i]);
 while(*ptr && (*ptr)->name!=name) ptr= &((*ptr)->next);
 if(*ptr)
@@ -242,6 +240,7 @@ if(*ptr)
      (*pair->cnt.tag->param_off)(&(pair->cnt),pair->name);
    free_param_pair(pair);
   }
+return 0;
 }
 
 
@@ -255,9 +254,7 @@ if(*ptr)
   returns 1 if local param found
   returns 2 if global param found
  */
-param_substitute(token,paramname)
-struct s_content *token;
-char **paramname;
+int param_substitute(struct s_content *token,char **paramname)
 {
 struct s_param_pair *pair;
 struct s_content *cnt;
@@ -285,16 +282,14 @@ else
 
 /*------------------------------------------------------------------------*/
 
-local_param_substitute(token,paramname)
-struct s_content *token;
-struct s_content *paramname;
+int local_param_substitute(struct s_content *token,struct s_content *paramname)
 {
 struct s_param_pair *pair;
 struct s_content *cnt;
 char *name;
 int i;
 paramname->tag = tag_none;
-if(token->tag!=tag_ident) return;
+if(token->tag!=tag_ident) return 0;
 name = (char*)s_content_value(*token);
 if(param_level>0)
   {
@@ -307,16 +302,15 @@ if(param_level>0)
       s_content_value(*paramname) = (long)name;   /*ep*/
       cnt = &(pair->cnt);
       *token = *cnt;
-      return;
+      return 0;
      }
   }
+return 1;
 }
 
 /*------------------------------------------------------------------------*/
 
-s_param_filter(argc,argv,ret)
-int argc;
-struct s_content argv[],*ret;
+int s_param_filter(int argc,struct s_content argv[],struct s_content *ret)
 {
 struct s_param_pair *pair;
 int i,lev;
@@ -339,8 +333,7 @@ return 1;
 
 /*------------------------------------------------------------------------*/
 
-
-list_params()
+int list_params()
 {
 struct s_param_pair *pair;
 int i,lev;
@@ -372,9 +365,10 @@ int zz_get_param_stack_depth()
 
 /*---------------------------------------------------------------------------*/
 
-show_param_memory()
+int show_param_memory()
 {
 PRINTMEM("param",param_mem)
+return 0;
 }
 
 

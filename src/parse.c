@@ -19,19 +19,25 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "zz.h"
 #include "zlex.h"
 #include "rule.h"
 #include "err.h"
 #include "avl.h"
 #include "trace.h"
-
+#include "parse.h"
+#include "source.h"
+#include "param.h"
+#include "action.h"
 
 /*---------------------------------------------------------------------------*/
 
-extern struct s_nt *nt_any,*nt_param,*nt_gparam;
-static char *first_prompt="";
-static max_dot=0,tot_dot=0,ndot=0,max_sp=0;
+//extern struct s_nt *nt_any,*nt_param,*nt_gparam;
+static const char *first_prompt="";
+static int max_dot=0,tot_dot=0,ndot=0,max_sp=0;
 static int reduction_count=0;
 #define EXPECTED_SIZE 30
 static struct s_content expected[EXPECTED_SIZE];
@@ -174,14 +180,15 @@ static LRENV cur_lrenv = {0,0,-1};
 /*----------------------------------------------------------------------*/
 
 static void compute_expected_from_set(int set_index);
+
 /*------------------------------------------------=-------------------*/
 
 static long int setid=0;
 
 /* calcola la chiusura del work set */
-make_closure()
+void make_closure()
 {
-  void lr_add_nt();
+  //void lr_add_nt();
   int i,a=cur_lrenv.a,b=cur_lrenv.b;
   setid++;
   for(i=a;i<=b;i++)dots[i]->set = setid;
@@ -191,11 +198,10 @@ make_closure()
 
 /*----------------------------------------------------------------------*/
 
-
-void lr_add_nt(tran)
-struct s_nt_tran *tran;
+void lr_add_nt(void *p, void *z)
 {
 int i;
+struct s_nt_tran *tran = (struct s_nt_tran *)p;
 struct s_dot *dot;
 if((dot = tran->nt->first_dot) && dot->set!=setid)
   {
@@ -210,8 +216,6 @@ if((dot = tran->nt->first_dot) && dot->set!=setid)
 
 /*----------------------------------------------------------------------*/
 
-
-
 /* 
    crea il nuovo kernel (set senza chiuso)  con tutti gli shift
    che ammettono il token corrente.
@@ -222,8 +226,7 @@ if((dot = tran->nt->first_dot) && dot->set!=setid)
    
  */
 
-try_shift(set_index)
-int set_index;
+void try_shift(int set_index)
 {
 struct s_term_tran *ttran;
 struct s_nt_tran *nttran;
@@ -254,13 +257,13 @@ for(i=a;i<=b;i++)
 	  continue;
          }
      }
-   AVL_LOCATE_TERM_TRAN(dot->termtree,&(cur_token.cnt),ttran)
+   AVL_LOCATE_TERM_TRAN(dot->termtree, &(cur_token.cnt), ttran)
    if(ttran) 
      {
       if(lev>3) continue;if(lev<3) {lev=3;count=zero;} cur_lrenv.b=count++;
       LR_AddDot(ttran->next)
      }
-   AVL_LOCATE_LONG(dot->nttree,cur_token.nt,nttran)
+   AVL_LOCATE_LONG(dot->nttree, cur_token.nt, nttran)
    if(nttran) 
      {
       if(lev>2) continue;if(lev<2) {lev=2;count=zero;} cur_lrenv.b=count++;
@@ -289,8 +292,7 @@ if(cur_lrenv.b>=cur_lrenv.a)
 /*----------------------------------------------------------------------*/
 
 /* ritorna 1 se lo shift e' ammissibile */
-check_shift(set_index)
-int set_index;
+int check_shift(int set_index)
 {
 struct s_term_tran *ttran;
 struct s_nt_tran *nttran;
@@ -302,9 +304,9 @@ for(i=a;i<=b;i++)
   {
    dot=dots[i];
    if(cur_token.is_param && dot->match_param) return 1;
-   AVL_LOCATE_TERM_TRAN(dot->termtree,&(cur_token.cnt),ttran) 
+   AVL_LOCATE_TERM_TRAN(dot->termtree, &(cur_token.cnt), ttran)
      if(ttran) return 1;
-   AVL_LOCATE_LONG(dot->nttree,cur_token.nt,nttran) if(nttran) return 1;
+   AVL_LOCATE_LONG(dot->nttree, cur_token.nt, nttran) if(nttran) return 1;
    if(!cur_token.is_eof && dot->match_any) return 1;
   }
 return 0;
@@ -320,9 +322,7 @@ return 0;
   
   */
 
-try_reduce(set_index,rule)
-int set_index;
-struct s_rule *rule;
+int try_reduce(int set_index,struct s_rule *rule)
 {
 LRENV oldenv;
 int oldset,i,j,k,a,b,curset,ret,length,base;
@@ -384,7 +384,7 @@ return ret;
 
 /*----------------------------------------------------------------------*/
 
-check_reduce(set_index,rule)
+int check_reduce(set_index,rule)
 int set_index;
 struct s_rule *rule;
 {
@@ -435,7 +435,7 @@ return ret;
 /*----------------------------------------------------------------------*/
 
 
-lr_loop(main_nt)
+int lr_loop(main_nt)
      struct s_nt *main_nt;
 {
   struct s_content ret_token,shift_token;
@@ -455,7 +455,7 @@ lr_loop(main_nt)
       try_shift(cur_set);
 
       for(i=a;i<=b;i++)
-	if(rule=dots[i]->rule)
+	if((rule=dots[i]->rule))
 	  {
 	    if((struct s_nt *)s_content_pvalue(rule->beads[0].cnt)==main_nt)
 	      return 1;
@@ -515,13 +515,13 @@ lr_loop(main_nt)
 		  s_content_svalue(valuestack[cur_lrenv.sp]) = cur_token.param_name;
 		  break;
 		case GPARAM:
-		  if(cur_token.is_param==GPARAM)
+		  if(cur_token.is_param == GPARAM)
 		    {
 		      valuestack[cur_lrenv.sp].tag = tag_ident;
 		      s_content_svalue(valuestack[cur_lrenv.sp]) = cur_token.param_name;
 		    }
 		  else
-		    valuestack[cur_lrenv.sp] = cur_token.cnt;	        
+		    valuestack[cur_lrenv.sp] = cur_token.cnt;
 		  break;
 		default:
 		  valuestack[cur_lrenv.sp] = cur_token.cnt;
@@ -553,7 +553,7 @@ lr_loop(main_nt)
 
 /*----------------------------------------------------------------------*/
 
-lr_reduce(rule,set_index,ret_token)
+void lr_reduce(rule,set_index,ret_token)
 struct s_rule *rule;
 int set_index;
 struct s_content *ret_token;
@@ -578,9 +578,7 @@ if(zz_trace_mask()&TRACE_REDUCE)
 
 /*----------------------------------------------------------------------*/
 
-static add_expected(tag,value)
-struct s_tag *tag;
-long value;
+static int add_expected(struct s_tag *tag,void *value)
 {
 char *name,*s;
 int i;
@@ -598,19 +596,17 @@ else if(tag==tag_ident)
    if(*s=='$') return 1;
   }
 for(i=0;i<expected_n;i++)
-  if(expected[i].tag==tag && s_content_value(expected[i])==value)
+  if(expected[i].tag==tag && s_content_pvalue(expected[i])==value)
     return 1;
 expected[expected_n].tag=tag;
-s_content_value(expected[expected_n])=value;
+s_content_pvalue(expected[expected_n])=value;
 expected_n++;
 return 1;
 }
 
 /*----------------------------------------------------------------------*/
 
-static compute_expected_from_reduction(set_index,rule)
-int set_index;
-struct s_rule *rule;
+static int compute_expected_from_reduction(int set_index,struct s_rule *rule)
 {
 int i,j,k,a,b,curset;
 LRENV oldenv;
@@ -661,7 +657,7 @@ for(i=a;i<=b;i++)
   {
    dot=dots[i];
    for(ttran=avl_first(dot->termtree);ttran;ttran=avl_next(dot->termtree))
-     if(!add_expected(ttran->term.tag,s_content_value(ttran->term))) return;
+     if(!add_expected(ttran->term.tag,s_content_pvalue(ttran->term))) return;
    for(nttran=avl_first(dot->nttree);nttran;nttran=avl_next(dot->nttree))
      if(!add_expected(tag_sint,nttran->nt)) return;
   }
@@ -675,7 +671,7 @@ for(i=a;i<=b;i++)
 
 /*----------------------------------------------------------------------*/
 
-static void print_expected()
+static int print_expected()
 {
 char buffer[256];
 int i,j,k;
@@ -685,7 +681,7 @@ if(expected_n==0)
   errprintf("| no token accessible here\n");
 else
   {
-   sprintz(buffer,"got: '%z'\n| ", &(cur_token.cnt)); 
+   sprintz(buffer,"got: '%z'\n| ", &(cur_token.cnt));
    strcat(buffer,"expected one of: ");
    j=strlen(buffer);
    for(i=0;i<expected_n;i++)
@@ -712,7 +708,7 @@ else
 
 /*----------------------------------------------------------------------*/
 
-recovery()
+int recovery()
 {
 struct {struct s_content cnt; struct s_nt *nt;int lrset;} 
   tmpterm,termlist[1000];
@@ -784,8 +780,8 @@ found=0;
 while(!cur_token.is_eof)
   {
    for(i=0;i<termlist_n;i++)
-     if(cur_token.cnt.tag==termlist[i].cnt.tag &&
-        s_content_value(cur_token.cnt)==s_content_value(termlist[i].cnt))
+     if(cur_token.cnt.tag == termlist[i].cnt.tag &&
+        s_content_value(cur_token.cnt) == s_content_value(termlist[i].cnt))
         break;
    if(i<termlist_n) {found=1;break;}
    LR_NextToken;
@@ -821,8 +817,7 @@ else
   Associa una lista di termini di recovery ad un non-terminale
 
 */
-set_recovery(ntname,termlist)
-char *ntname,*termlist;
+int set_recovery(char *ntname,char *termlist)
 {
 struct s_nt *nt;
 int i;
@@ -832,7 +827,7 @@ if(i>=recovery_n)
   {
    if(recovery_n>=RECOVERY_SIZE)
      {
-      printf("set_recovery: too many recovery pairs\n");return;
+      printf("set_recovery: too many recovery pairs\n");return 0;
      }
    i=recovery_n++;
    recovery_array[i].nt=nt;
@@ -848,8 +843,7 @@ strcpy(recovery_array[i].termlist,termlist);
 
 /*------------------------------------------------------------------*/
 
-static int find_prompt(prompt)
-     const char **prompt;
+static int find_prompt(const char **prompt)
 {
 struct s_nt_tran *nttran;
 struct s_dot *dot;
@@ -889,8 +883,7 @@ return 0;
 
 */
 
-set_nt_prompt(ntname,prompt)
-char *ntname,*prompt;
+int set_nt_prompt(char *ntname,const char *prompt)
 {
 struct s_nt *nt;
 if(ntname)
@@ -906,9 +899,7 @@ else
 /*----------------------------------------------------------------------*/
 
 
-dump_dot(dot,off)
-struct s_dot *dot;
-int off;
+int dump_dot(struct s_dot *dot,int off)
 {
 int length;
 struct s_term_tran *ttran;
@@ -930,7 +921,7 @@ for(ttran=avl_first(dot->termtree);ttran;ttran=avl_next(dot->termtree))
 
 /*----------------------------------------------------------------------*/
 
-dump_stack()
+void dump_stack()
 {
 #define IMAGE_SIZE 10
 int image[IMAGE_SIZE],image_n;
@@ -958,8 +949,7 @@ printf("\n");
 
 /*----------------------------------------------------------------------*/
 
-dump_set(set_index)
-int set_index;
+void dump_set(int set_index)
 {
 int i,a,b;
 a=lrstack[set_index].a;
@@ -975,7 +965,7 @@ printf("\n");
 
 /*----------------------------------------------------------------------*/
 
-write_dot_stat()
+void write_dot_stat()
 {
 printf("dot n.: max=%d, mean=%d\n",max_dot,ndot==0?0:tot_dot/ndot);
 printf("lr sp: max=%d\n",max_sp);
@@ -983,7 +973,7 @@ printf("lr sp: max=%d\n",max_sp);
 
 /*------------------------------------------------------------------*/
 
-print_report()
+int print_report()
 {
 static int old_reduction_count=0;
 printf("%d reductions done (%+d)\n",
@@ -994,13 +984,12 @@ printf("%d dots used\n",cur_lrenv.b);
 
 /*------------------------------------------------------------------*/
 
-fprint_param(chan)
-FILE *chan;
+void fprint_param(FILE *chan)
 {
 if(cur_token.is_param)
   {
-   fprintz(chan,"| %s == %z\n",
-     cur_token.param_name,&cur_token.cnt);
+   fprintz(chan, "| %s == %z\n",
+           cur_token.param_name, &cur_token.cnt);
   }
 }
 
@@ -1008,8 +997,7 @@ if(cur_token.is_param)
 
 /*------------------------------------------------------------------*/
 
-parse(start_nt)
-     struct s_nt *start_nt;
+int parse(struct s_nt *start_nt)
 {
   int ret;
   struct s_cur_token old_token;
@@ -1043,7 +1031,7 @@ parse(start_nt)
     }
 
   cur_lrenv = old_lrenv;
-  cur_token = old_token;
+    cur_token = old_token;
 
   if(get_error_number())
     return 0;

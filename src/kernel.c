@@ -22,9 +22,13 @@
 #include "zlex.h"
 #include "kernel.h"
 #include "sys.h"
+#include "rule.h"
+#include "parse.h"
+#include "scope.h"
 
+//int insert_rule(char *scope_name,struct s_rule *rule); //scope.c
 
-kernel()
+int kernel()
 {
 struct s_tag *tag;
 extern int max_error_n;
@@ -195,7 +199,7 @@ OPEN(lvalue) GSB(param) PASS END
     ... so a de-reference rule is needed for indirect param definition, ie:
       /lvalue->"*" ident^$ :pass
       /bar=foo
-      /*bar=22
+      / *bar=22
      
     which has same effect as:
       /foo=22
@@ -287,6 +291,8 @@ OPEN(qstring) M("$zz$hexify") M("(") GSB(int64) M(")") PROC(zz_int64tohex) END
 OPEN(qstring) M("$zz$stringify") M("(") GSB(int) M(")") SFUN(tag_qstring,zz_inttostring) END
 
 OPEN(qstring) M("tag_of") M("(") GSB(param) M(")") PROC(s_tag_of) END
+
+return 0;
 }
 
 

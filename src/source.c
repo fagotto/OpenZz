@@ -28,19 +28,26 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "avl.h"
 #include "zlex.h"
 #include "list.h"
 #include "trace.h"
 #include "source.h"
+#include "parse.h"
+#include "param.h"
+#include "rule.h"
+#include "action.h"
+#include "sys.h"
 
 int (*find_prompt_proc)()=0;
 int (*source_line_routine)()=0;
 
 // Global data - current source(ptr to item in source stack) and current token
 struct s_source *cur_source;
-struct s_content cur_token;
+struct s_content curToken;
  
 #define SOURCE_N 49 /*era 49 e prima ancora 20*/
 #define BACK_N 20
@@ -71,15 +78,19 @@ void next_token_file(struct s_source *src);
 void next_token_list(struct s_source *src);
 
 
+//int get_extension(); //sys.c
+//int change_extension(); //sys.c
+//int action(); //action.c
+
 /*---------------------------------------------------------------------*/
 
-void zz_set_output(filename)
-     const char *filename;
+void zz_set_output(const char *filename)
 {
   if(filename) {
     zz_chanout = fopen(filename,"w");
 
     if(!zz_chanout) {
+      int __errno=errno;
       printf("zz: unable to open output file %s (%s)\n",filename, strerror(errno));
       zz_chanout=stdout;
     }
@@ -88,8 +99,7 @@ void zz_set_output(filename)
     zz_chanout=stdout;
 }
 
-void zz_set_output_stream(output_stream)
-     FILE *output_stream;
+void zz_set_output_stream(FILE *output_stream)
 {
   zz_assert(output_stream);
   zz_chanout=output_stream;
@@ -97,14 +107,14 @@ void zz_set_output_stream(output_stream)
 
 /*--------------------------------------------------------------------*/
 
+
 /**
  * new_source() - set's the global 'cur_source' pointer to point to
  *   to a new (initialized with default values) s_source object.
  *   Call this to creat a new source and then populate the fields of
  *   'cur_source' as appropriate.
  */
-struct s_source *new_source(next_token_function)
-     void (*next_token_function)(struct s_source *src);
+struct s_source *new_source(void (*next_token_function)(struct s_source *src))
 {
   INIT_ZLEX /* For safety */
     
@@ -122,7 +132,7 @@ struct s_source *new_source(next_token_function)
     if(cur_source->type==SOURCE_LIST)
       cur_source->src.list.current_pos = get_list_pos(cur_source->src.list.list);
 
-    cur_source->cur_token = cur_token;
+    cur_source->cur_token = curToken;
   }
 
   // Set the global cur_source pointer to the next free object on the source stack:
@@ -142,10 +152,10 @@ struct s_source *new_source(next_token_function)
 
 /*--------------------------------------------------------------------*/
 
-pop_source()
+int pop_source()
 {
 struct s_source *next;
-if(!cur_source) return;
+if(!cur_source) return 0;
 if(cur_source->type == SOURCE_FILE)
   {
    fclose(cur_source->src.file.chan);
@@ -159,7 +169,7 @@ else
    cur_source = &source_stack[source_sp-1];
    if(cur_source->type==SOURCE_LIST)
      list_seek(cur_source->src.list.list,cur_source->src.list.current_pos);
-   cur_token = cur_source->cur_token;
+      curToken = cur_source->cur_token;
   }
 }
 
@@ -167,8 +177,7 @@ else
 /*--------------------------------------------------------------------*/
 
 // Initialization function for file source:
-source_file(filename)
-     char *filename;
+int source_file(char *filename)
 {
   FILE *chan;
   chan = fopen(filename,"r");
@@ -190,7 +199,7 @@ source_file(filename)
 /*--------------------------------------------------------------------*/
 
 
-source_pipe()
+int source_pipe()
 {
   new_source(next_token_file);
 
@@ -205,9 +214,7 @@ source_pipe()
 
 /*--------------------------------------------------------------------*/
 
-source_list(list,id)
-     struct s_content *list;
-     void *id;
+int source_list(struct s_content *list)
 {
   if(list->tag!=tag_list)
     {
@@ -219,7 +226,7 @@ source_list(list,id)
 
   cur_source->type = SOURCE_LIST;
   cur_source->src.list.list = list;
-  cur_source->src.list.id = id;
+//  cur_source->src.list.id = id;
   list_seek(list,0);
   cur_source->line_n=1;
   return 1;
@@ -230,7 +237,7 @@ source_list(list,id)
 /*
   blocca lo stream di input. un successivo next_token ritornera' EOF
 */
-stop_source()
+void stop_source()
 {
   if(cur_source) 
     cur_source->eof = 1;
@@ -242,8 +249,7 @@ stop_source()
 /**
  * Read the next token
 */
-next_token(token)
-     struct s_content *token;
+int next_token(struct s_content *token)
 {
   int status;
 
@@ -270,22 +276,22 @@ next_token(token)
       switch(status)
 	{
 	case 1:
-	  if(cur_token.tag!=tag_cont)
+	  if(curToken.tag != tag_cont)
 	    status=0;
 	  else 
 	    status=2;
 	  break;
 	case 2:
-	  if(cur_token.tag==tag_eol) 
+	  if(curToken.tag == tag_eol)
 	    status=1;
 	  else 
-	    if(cur_token.tag!=tag_cont) 
+	    if(curToken.tag != tag_cont)
 	      status=0;
-	  //else if(cur_token.tag==tag_eof) status=0;
+	  //else if(curToken.tag==tag_eof) status=0;
 	}
     } 
 
-  *token = cur_token;
+  *token = curToken;
 
   zz_trace("next_token '%z'\n", token); 
 
@@ -293,9 +299,9 @@ next_token(token)
 }
 
 /*
-  if(kill && cur_token.tag!=tag_eol)
+  if(kill && curToken.tag!=tag_eol)
   {
-  cur_token.tag = tag_eof;
+  curToken.tag = tag_eof;
   if(cur_source->type==SOURCE_FILE) kill=0;
   return;      
   }
@@ -305,8 +311,7 @@ next_token(token)
 /*--------------------------------------------------------------------*/
 
 
-void next_token_file(src)
-     struct s_source *src;
+void next_token_file(struct s_source *src)
 {
 int i,ret;
 char *s,*t;
@@ -325,17 +330,17 @@ if(!cur_source->src.file.s)
      (*source_line_routine)(s,cur_source->line_n,cur_source->src.file.filename);
    cur_source->src.file.s = cur_source->src.file.old = s;
    if(cur_source->eof)
-     cur_token.tag = tag_eof;
+       curToken.tag = tag_eof;
    else
-     zlex(&(cur_source->src.file.s),&cur_token);
+     zlex(&(cur_source->src.file.s),&curToken);
   }
 else
   {
    /* DO NOT NEED TO READ NEW LINE */
    cur_source->src.file.old = cur_source->src.file.s;
-   zlex(&(cur_source->src.file.s),&cur_token);
+   zlex(&(cur_source->src.file.s),&curToken);
   }
- if(cur_token.tag==tag_eol) 
+ if(curToken.tag == tag_eol)
    {
      cur_source->src.file.s=0;
      zz_trace("tag_eol... s=0\n");
@@ -346,22 +351,21 @@ else
 /*--------------------------------------------------------------------*/
 
 
-void next_token_list(src)
-     struct s_source *src;
+void next_token_list(struct s_source *src)
 {
 struct s_content *tmp;
 tmp = next_list_item(cur_source->src.list.list);
 if(!tmp)
   {
-   cur_token.tag=tag_eol;
-   s_content_value(cur_token)=0;
+      curToken.tag=tag_eol;
+   s_content_value(curToken)=0;
    cur_source->eof=1;
   }
 else
   {
    if(tmp->tag==tag_eol) 
      cur_source->line_n++;
-   cur_token = *tmp;
+      curToken = *tmp;
   }
 }
 
@@ -392,8 +396,7 @@ int zz_parse_pipe()
 /*--------------------------------------------------------------------*/
 
 
-int back_token(token)
-struct s_content *token;
+int back_token(struct s_content *token)
 {
 if(back_n>=BACK_N-1) return 0;
 back[back_n++] = *token;
@@ -404,10 +407,7 @@ return 1;
 /*--------------------------------------------------------------------*/
 
 
-static void cur_list_row(lst,row,curpos)
-struct s_content *lst;
-char row[];
-int *curpos;
+static void cur_list_row(struct s_content *lst,char row[],int *curpos)
 {
 char item[256],*t;
 struct s_content *cnt;
@@ -452,7 +452,8 @@ while(1)
       break;
      }
    strcat(row,item);
-   totlen+strlen(item);
+//   totlen+strlen(item);
+    totlen=totlen+strlen(item);
   }  
 t = row+k;while(*t==' ' || *t=='\t')k++,t++;
 *curpos = k;
@@ -462,8 +463,7 @@ list_seek(lst,pos);
 
 /*--------------------------------------------------------------------*/
 
-char *source_name(source)
-     struct s_source *source;
+char *source_name(struct s_source *source)
 {
 char *s;
 switch(source->type)
@@ -487,8 +487,7 @@ return s;
 /*--------------------------------------------------------------------*/
 
 
-source_line(source)
-     struct s_source *source;
+int source_line(struct s_source *source)
 {
   return source->line_n;
 }
@@ -497,7 +496,7 @@ source_line(source)
 /*--------------------------------------------------------------------*/
 
 
-get_current_line()
+int get_current_line()
 {
 struct s_source *source;
 int sp;
@@ -529,7 +528,7 @@ char *get_source_name()
 /*--------------------------------------------------------------------*/
 
 
-get_source_line()
+int get_source_line()
 {
   if(!cur_source) 
     return 0;
@@ -539,8 +538,7 @@ get_source_line()
 
 /*--------------------------------------------------------------------*/
 
-get_source_file(buffer)
-char *buffer;
+void get_source_file(char *buffer)
 {
 int i;
 struct s_source *source;
@@ -564,8 +562,7 @@ else
 /*---------------------------------------------------------------------*/
 
 
-int zz_parse_file(filename)
-     const char* filename;
+int zz_parse_file(const char* filename)
 {
   int ret;
   char full[256],type[40];
@@ -596,9 +593,7 @@ int zz_parse_file(filename)
 /*--------------------------------------------------------------------*/
 
 
-fprint_source_position(chan,print_action_flag)
-     FILE *chan;
-     int print_action_flag;
+int fprint_source_position(FILE *chan,int print_action_flag)
 {
 struct s_source *source; 
 char *t;
@@ -610,7 +605,7 @@ sp = source_sp-1;
 if(sp<0)
   {
    fprintf(chan,"%sno active input stream\n",prompt);
-   return;
+   return 0;
   }
 if(!print_action_flag)
   {
@@ -619,7 +614,7 @@ if(!print_action_flag)
    if(sp<0)
      {
       fprintf(chan,"%sno file input stream\n",prompt);
-      return;
+      return 0;
     }
   }
 
@@ -639,7 +634,9 @@ while(sp>=0)
     
        case SOURCE_FILE:
 	 strcpy(row,source->src.file.row);
-	 for(i=0;row[i] && row[i]!='\n';i++);row[i]='\0';
+	 for(i=0;row[i] && row[i]!='\n';i++)
+         ;
+     row[i]='\0';
 	 t = source->src.file.old;while(*t==' ' || *t=='\t')t++;
 	 errpos = t-source->src.file.row;
 	 break;
@@ -688,7 +685,7 @@ set_cont_prompt()
 /*--------------------------------------------------------------------*/
 
 
-pretend_eof()
+int pretend_eof()
 {
 if(cur_source) cur_source->eof=1;
 }
@@ -696,8 +693,7 @@ if(cur_source) cur_source->eof=1;
 
 /*--------------------------------------------------------------------*/
 
-read_once_only(id)
-     char *id;
+int read_once_only(char *id)
 {
 struct node {char *id;} *p; 
 static TREE *tree=0;
@@ -718,8 +714,7 @@ else
 
 /*---------------------------------------------------------------------*/
 
-void zz_set_default_extension(ext)
-     const char *ext;
+void zz_set_default_extension(const char *ext)
 {
   in_ext = ext;
 }

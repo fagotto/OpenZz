@@ -26,7 +26,7 @@
  |                                                                            |
  |                by W.T.  11-MAR-91, last revision 22-MAR-92                 |
  |                                                                            |
- |  Modification 5/98: Indroduced typedef void (*UsrFun)(void *, void *)      |
+ |  Modification 5/98: Introduced typedef void (*UsrFun)(void *, void *)      |
  *----------------------------------------------------------------------------*/
 
 /* @(#)avl.h	8.111/27/93 */
@@ -47,7 +47,7 @@ extern "C" {
 #define AVL_MAX_SAFE_OFFSET 1024
 
 #ifdef AVL_C
-         double Avl_Dummy[(AVL_MAX_SAFE_OFFSET / sizeof(double)) + 1];
+   double Avl_Dummy[(AVL_MAX_SAFE_OFFSET / sizeof(double)) + 1];
 #else
   extern double Avl_Dummy[];
 #endif
@@ -232,7 +232,7 @@ void *avl_locate_last  (TREE *tree);
 void *avl__remove      (TREE *tree, long keyval);
 
 
-void avl__scan   (TREE *tree, UsrFun, int back);
+void avl__scan   (TREE *tree, UsrFun fun, int back);
 
 void *avl_first  (TREE *tree);
 void *avl_last   (TREE *tree);

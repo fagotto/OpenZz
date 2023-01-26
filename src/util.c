@@ -34,6 +34,11 @@
 #include "param.h"
 #include "trace.h"
 #include "sys.h"
+#include "source.h"
+#include "kernel.h"
+#include "parse.h"
+
+#define VERSION "1.0.4"
 
 static const char *std_prompt = "ozz> ";                // Default prompt
 
@@ -61,8 +66,7 @@ void zz_init(void)
 /*---------------------------------------------------------------------------*/
 
 
-void zz_set_prompt(prompt)
-     const char *prompt;
+void zz_set_prompt(const char *prompt)
 {
   zz_assert(prompt);
   std_prompt=prompt;
@@ -90,7 +94,7 @@ int zz_parse_string(const char *s)
       zlex((char**)&s,&tmp);
       append_to_list(&lst,&tmp);
     }
-  source_list(&lst,0);
+  source_list(&lst);
   ret = parse(find_nt("root"));
   pop_source();
   delete_list(&lst);

@@ -69,7 +69,18 @@ struct s_source
 
 extern struct s_source *new_source(void (*next_token_function)(struct s_source *src));
 
-extern struct s_content cur_token;
+extern struct s_content curToken;
 
 extern int (*source_line_routine)();
 extern int (*find_prompt_proc)();
+
+int source_file(char *filename);
+void get_source_file(char *buffer);
+int pop_source();
+int get_source_line();
+char *get_source_name();
+int next_token(struct s_content *token);
+int source_list(struct s_content *list);
+int fprint_source_position(FILE *chan,int print_action_flag);
+
+

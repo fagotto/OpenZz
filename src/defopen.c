@@ -52,13 +52,13 @@
 //
 //  $Id: defopen.c,v 1.3 2002/01/11 11:52:02 brooks Exp $
 //--------------------------------------------------------------------
+#define MAXLENGHT 250
 
 FILE *defin(char *infile, char *ext, char *env, char *mode/*="r"*/) {
-#define MAXLENG 250
   FILE *fp;
   char *sp;
   int i, l, p_name, p_dot, p_dir;
-  char name[MAXLENG], dirs[MAXLENG], buffer[MAXLENG];
+  char name[MAXLENGHT], dirs[MAXLENGHT], buffer[MAXLENGHT];
 
   // search infile for basename and extension
   p_name = 0;
@@ -117,9 +117,8 @@ FILE *defin(char *infile, char *ext, char *env, char *mode/*="r"*/) {
 //---------------------------------------------------------------------
 
 FILE *defout(char *infile, char *ext, char *mode/*="w"*/) {
-#define MAXLENG 250
   int i, p_dot, p_name;
-  char buffer[MAXLENG];
+  char buffer[MAXLENGHT];
 
   // search infile for path and extension
   p_name = 0;

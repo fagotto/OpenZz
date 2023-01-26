@@ -19,10 +19,14 @@
 
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "zlex.h"
 #include "rule.h"
 #include "avl.h"
 #include "err.h"
+#include "printz.h"
 
 static struct s_dot *hd_dot=0;
 
@@ -34,10 +38,12 @@ static int dot_n=0;
 static struct s_nt *nt_list[NT_LIST_SIZE];
 static int nt_n=0;
 
+// Forward declaration
+void do_dumpnet(struct s_nt *nt);
+
 /*----------------------------------------------------------------------------*/
 
-static dump_tran(string)
-char *string;
+static void dump_tran(char *string string)
 {
 int i,tab;
 char buffer[256];
@@ -70,8 +76,7 @@ printf("%s\n",buffer);
 
 /*----------------------------------------------------------------------------*/
 
-static void dump_add_dot(dot)
-struct s_dot *dot;
+static void dump_add_dot(struct s_dot *dot)
 {
 int i;
 for(i=0;i<dot_n;i++)
@@ -88,8 +93,7 @@ dot_list[dot_n++]=dot;
 
 /*----------------------------------------------------------------------------*/
 
-static void dump_add_nt(nt)
-struct s_nt *nt;
+static void dump_add_nt(struct s_nt *nt)
 {
 int i;
 for(i=0;i<nt_n;i++)
@@ -106,8 +110,7 @@ nt_list[nt_n++]=nt;
 
 /*----------------------------------------------------------------------------*/
 
-static void dump_term_tran(termtran)
-struct s_term_tran *termtran;
+static void dump_term_tran(struct s_term_tran *termtran)
 {
 struct s_content *term;
 struct s_dot *next;
@@ -128,8 +131,7 @@ dump_tran(buffer);
 
 /*----------------------------------------------------------------------------*/
 
-static void dump_nt_tran(nttran)
-struct s_nt_tran *nttran;
+static void dump_nt_tran(struct s_nt_tran *nttran)
 {
 struct s_nt *nt;
 struct s_dot *next;
@@ -151,8 +153,7 @@ dump_tran(buffer);
 
 /*----------------------------------------------------------------------------*/
 
-static dump_rule(rule)
-struct s_rule *rule;
+static void dump_rule(struct s_rule *rule)
 {
   char buffer[256];
   printz(buffer,"reduce: %r", rule);
@@ -161,8 +162,7 @@ struct s_rule *rule;
 
 /*----------------------------------------------------------------------------*/
 
-dumpnet(ntname)
-char *ntname;
+void dumpnet(char *ntname)
 {
 int i;
 struct s_nt *nt;
@@ -178,15 +178,14 @@ for(i=0;i<nt_n;i++)
 
 /*----------------------------------------------------------------------------*/
 
-do_dumpnet(nt)
-struct s_nt *nt;
+void do_dumpnet(struct s_nt *nt)
 {
 int i;
 struct s_dot *dot;
 dot = nt->first_dot;
 printf("[%s]\n",nt->name);
 if(!dot)
-   return 0;
+   return;
 
 dot_n=1;
 dot_list[0] = dot;

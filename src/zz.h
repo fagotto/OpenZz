@@ -65,6 +65,7 @@ int zz_get_error_number();
 /* scanner extension */
 struct s_content;
 struct s_tag;
+
 /*   struct s_content accessors */
 long    zz_scnt_get_lvalue (struct s_content *);
 int32_t zz_scnt_get_ivalue (struct s_content *);

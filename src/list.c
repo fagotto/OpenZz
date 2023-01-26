@@ -30,6 +30,9 @@ by Simone Cabasino
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "zlex.h"
 #include "list.h"
 #include "mem.h"
@@ -40,9 +43,7 @@ int list_mem = 0;
 
 /*---------------------------------------------------------------------------*/
 
-void create_list(cnt,size)
-struct s_content *cnt;
-int size;
+void  create_list(struct s_content *cnt, int size)
 {
   struct s_list *lst;
   if(size<=0) size = 10;
@@ -62,14 +63,13 @@ int size;
 
 /*---------------------------------------------------------------------------*/
 
-void delete_list(cnt)
-struct s_content *cnt;
+void delete_list(struct s_content *cnt)
 {
   struct s_list *lst;
   if(cnt->tag!=tag_list)
     {printf("Internal error - delete_list; argument must be LIST\n");exit(1);}
   lst = (struct s_list *) s_content_value(*cnt);
-  list_mem -= sizeof(*lst) +lst->size*sizeof(struct s_content);
+  list_mem -= sizeof(*lst) +lst->size* sizeof(struct s_content);
   free(lst->array);
   free(lst);
   cnt->tag=0;
@@ -80,8 +80,7 @@ struct s_content *cnt;
 
 
 static 
-void copy_list(target,source)
-     struct s_content *target,*source;
+void copy_list(struct s_content *target,struct s_content *source)
 {
 int i,j;
 struct s_list *target_lst,*source_lst;
@@ -105,8 +104,7 @@ for(i=j=0;i<source_lst->n;i++)
 
 /*---------------------------------------------------------------------------*/
 
-void append_to_list(cnt1,cnt2)
-struct s_content *cnt1,*cnt2;
+void append_to_list(struct s_content *cnt1, struct s_content *cnt2)
 {
 struct s_list *lst;
  zz_trace("append_to_list\n");
@@ -162,7 +160,7 @@ struct s_content *s_concat_list(struct s_content *cnt1,struct s_content *cnt2)
 
 
 /* merge_list(dest, src) - dest is expanded */
-void merge_list(struct s_content *cnt1, struct s_content*cnt2)
+void merge_list(struct s_content *cnt1, struct s_content *cnt2)
 {
   int i,j,n;
   struct s_list *lst1,*lst2;
@@ -206,8 +204,7 @@ void merge_list(struct s_content *cnt1, struct s_content*cnt2)
 /*---------------------------------------------------------------------------*/
 
 
-int get_list_size(cnt)
-struct s_content *cnt;
+int get_list_size(struct s_content *cnt)
 {
 struct s_list *lst;
 if(cnt->tag!=tag_list)
@@ -219,8 +216,7 @@ return lst->n;
 
 /*---------------------------------------------------------------------------*/
 
-int get_list_pos(cnt)
-struct s_content *cnt;
+int get_list_pos(struct s_content *cnt)
 {
 struct s_list *lst;
 if(cnt->tag!=tag_list)
@@ -232,9 +228,7 @@ return lst->pos;
 
 /*---------------------------------------------------------------------------*/
 
-void list_seek(cnt,pos)
-struct s_content *cnt;
-int pos;
+void list_seek(struct s_content *cnt, int pos)
 {
 struct s_list *lst;
 if(cnt->tag!=tag_list)
@@ -249,9 +243,7 @@ lst->pos=pos;
 /*---------------------------------------------------------------------------*/
 
 
-struct s_content *list_extract(cnt,pos)
-struct s_content *cnt;
-int pos;
+struct s_content *list_extract(struct s_content *cnt, int pos)
 {
 struct s_list *lst;
 if(cnt->tag!=tag_list)
@@ -265,8 +257,7 @@ return lst->array+pos;
 
 /*---------------------------------------------------------------------------*/
 
-struct s_content *next_list_item(cnt)
-struct s_content *cnt;
+struct s_content *next_list_item(struct s_content *cnt)
 {
 struct s_content *itm;
 struct s_list *lst;
@@ -282,9 +273,7 @@ else return lst->array+lst->pos++;
 
 /*---------------------------------------------------------------------------*/
 
-int fprint_list(chan,cnt)
-FILE *chan;
-struct s_content *cnt;
+int fprint_list(FILE *chan, struct s_content *cnt)
 {
 int i;
 struct s_list *lst;
@@ -298,9 +287,7 @@ fprintz(chan,"}");
 
 /*---------------------------------------------------------------------------*/
 
-int sprint_list(string,cnt)
-char *string;
-struct s_content *cnt;
+int sprint_list(char *string, struct s_content *cnt)
 {
 struct s_list *lst;
 char buffer[256];
@@ -321,9 +308,7 @@ for(i=0;i<lst->n;i++)
 
 /*---------------------------------------------------------------------------*/
 
-int fprint_list_image(chan,cnt)
-FILE *chan;
-struct s_content *cnt;
+int fprint_list_image(FILE *chan, struct s_content *cnt)
 {
 int i;
 struct s_list *lst;
@@ -337,9 +322,7 @@ fprintz(chan,"}");
 
 /*---------------------------------------------------------------------------*/
 
-int sprint_list_image(string,cnt)
-char *string;
-struct s_content *cnt;
+int sprint_list_image(char *string, struct s_content *cnt)
 {
 struct s_list *lst;
 char buffer[256];
@@ -360,8 +343,7 @@ for(i=0;i<lst->n;i++)
 
 /*---------------------------------------------------------------------------*/
 
-void print_list(cnt)
-struct s_content *cnt;
+void print_list(struct s_content *cnt)
 {
 int i;
 struct s_list *lst;
@@ -388,8 +370,7 @@ void show_list_memory()
  * dump_list() - detailed dump of list contents for debuging
  *    Invoke: dump_list(&lst);
  */
-void dump_list(cnt)
-     struct s_content *cnt;
+void dump_list(struct s_content *cnt)
 {
   int i;
   struct s_list *lst;

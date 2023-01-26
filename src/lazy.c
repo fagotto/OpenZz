@@ -18,6 +18,8 @@
 */
 
 #include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
 #include "rule.h"
 
 
@@ -35,9 +37,7 @@ static int id=1000;
 
 /*----------------------------------------------------------------*/
 
-struct s_l_node *lazy_search(dots,n)
-int n;
-struct s_dot *dots[];
+struct s_l_node *lazy_search(struct s_dot *dots[],int n)
 {
 struct s_dot *dot;
 struct s_l_node **pnode,*node;
@@ -45,7 +45,7 @@ int i,j,k;
 if(n>MAX_N) i = MAX_N;
 else i=n;
 pnode = &sets[i];
-while(node= *pnode)
+while((node= *pnode))
   {
    if(node->dot_n!=n) continue;
    for(j=0;j<n;j++)
@@ -78,9 +78,7 @@ return node;
 /*----------------------------------------------------------------*/
 
 
-lazy_rec(dots,len)
-struct s_dot *dots[];
-int len;
+int lazy_rec(struct s_dot *dots[],int len)
 {
 int i;
 struct s_l_node *node;
@@ -88,6 +86,7 @@ node = lazy_search(dots,len);
 /*
 printf("--> set%d\n",node->id);
 */
+return 0;
 }
 
 
@@ -95,7 +94,7 @@ printf("--> set%d\n",node->id);
 /*----------------------------------------------------------------*/
 
 
-print_lazy_report()
+int print_lazy_report()
 {
 struct s_l_node *node;
 int k,i,count,flag;
@@ -125,6 +124,7 @@ if(sets[i])
       node=node->next;
      }
   }
+return 0;
 }
 static char sccsid[]="@(#)lazy.c	6.1\t9/7/94";
 static char rcsid[] = "$Id: lazy.c,v 1.3 2002/01/11 11:52:02 brooks Exp $ ";

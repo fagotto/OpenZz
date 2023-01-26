@@ -21,12 +21,17 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "zz.h"
 #include "avl.h"
 #include "rule.h"
 #include "list.h"
 #include "err.h"
 #include "trace.h"
+#include "scope.h"
+#include "parse.h"
 
 struct s_scope {
         char enabled;
@@ -50,13 +55,15 @@ static int cur_segment_id=1;
 
 extern int link_rule(),unlink_rule();
 static struct s_rule *last_rule=0;
-// Sap: int push_rule(),pop_rule();
-void push_rule(),pop_rule();
+
+
+int pop_source();
+int source_list();
+int do_list_rules();
 
 /*---------------------------------------------------------------------------*/
 
-struct s_scope *find_scope(name)
-char *name;
+struct s_scope *find_scope(char *name)
 {
 int rulecmp();
 struct s_scope *scope;
@@ -78,14 +85,13 @@ return scope;
 
 /*---------------------------------------------------------------------------*/
 
-zz_push_scope(scope_name)
-char *scope_name;
+int zz_push_scope(char *scope_name)
 {
 struct s_scope *scope,*new_scope;
 new_scope = find_scope(scope_name);
 scope = top_scope;
 while(scope && scope!=new_scope) scope=scope->previous;
-if(scope) {zz_error(ERROR,"duplicate scope");return;}
+if(scope) {zz_error(ERROR,"duplicate scope");return 0;}
 if(zz_trace_mask()&TRACE_SCOPE) printz("   @ push scope %s\n",scope_name);
 if(top_scope) top_scope->next = new_scope;
 new_scope->previous = top_scope;
@@ -96,8 +102,7 @@ top_scope->enabled=1;
 }
 
 /*---------------------------------------------------------------------------*/
-delete_and_push_scope(scope_name)
-char *scope_name;
+int delete_and_push_scope(char *scope_name)
 {
 delete_scope(scope_name);
 zz_push_scope(scope_name); 
@@ -105,11 +110,11 @@ zz_push_scope(scope_name);
 
 /*---------------------------------------------------------------------------*/
 
-zz_pop_scope()
+int zz_pop_scope()
 {
 struct s_scope *scope;
 if(!top_scope || !top_scope->previous)
-  {zz_error(ERROR,"you can't remove the kernel scope");return;}
+  {zz_error(ERROR,"you can't remove the kernel scope");return 0;}
 scope = top_scope;
 if(zz_trace_mask()&TRACE_SCOPE) printz("   @ pop scope %s\n",scope->name);
 top_scope=top_scope->previous;
@@ -126,9 +131,9 @@ scope->enabled=0;
    eventualmente viene chiamato link_rule
    viene chiamato da zz_push_scope() */
 // Sap: push_rule(rule)
-void push_rule(rule)
-struct s_rule *rule;
+void push_rule(void *p, void *z)
 {
+struct s_rule *rule=p;
 struct s_rule *oldrule;
 struct s_scope *scope;
 if(zz_trace_mask()&TRACE_SCOPE) printz("   @ push rule %r\n",rule);
@@ -164,9 +169,9 @@ else
   eventualmente viene chiamato unlink_rule()
 */
 // Sap: pop_rule(rule)
-void pop_rule(rule)
-struct s_rule *rule;
+void pop_rule(void *p, void *z)
 {
+struct s_rule *rule = p;
 struct s_rule *oldrule,*r;
 if(zz_trace_mask()&TRACE_SCOPE) printz("   @ pop rule %r\n",rule);
 if(rule->next_rule)
@@ -195,8 +200,7 @@ rule->next_rule=rule->prev_rule=0;
 /* come pop_rule, ma funziona anche per regole non sul top dello stack */
 
 // Sap: remove_rule(rule)
-void remove_rule(rule)
-struct s_rule *rule;
+void remove_rule(struct s_rule *rule)
 {
 struct s_rule *oldrule,*r;
 if(zz_trace_mask()&TRACE_SCOPE) printz("   @ remove rule %r\n",rule);
@@ -208,14 +212,12 @@ if(rule->next_rule)
    rule->next_rule=rule->prev_rule=0;
   }
 else
-  pop_rule(rule);
+  pop_rule(rule,0);
 }
 
 /*---------------------------------------------------------------------------*/
 
-insert_rule(scope_name,rule)
-char *scope_name;
-struct s_rule *rule;
+int insert_rule(char *scope_name,struct s_rule *rule)
 {
 struct s_scope *scope,*dst_scope;
 struct s_rule *oldrule,*r;
@@ -311,8 +313,7 @@ else
 
 /*---------------------------------------------------------------------------*/
 
-delete_scope(name)
-char *name;
+int delete_scope(char *name)
 {
 int i,j;
 /*void free_rule();*/
@@ -320,13 +321,13 @@ struct s_scope *scope,*tmpscope;
 if(!scope_tree)
   {
 /*   zz_error(ERROR,"delete scope: scope tree is empty"); */
-   return;
+   return 1;
   }
 if(strcmp(name,"kernel")==0)
-  {zz_error(ERROR,"you can't remove the kernel scope");return;}
+  {zz_error(ERROR,"you can't remove the kernel scope");return 1;}
 scope = avl_remove(scope_tree,name); /*******/
 if(!scope)
-  {/*zz_error(ERROR,"scope %s not found",name);*/ return;}
+  {/*zz_error(ERROR,"scope %s not found",name);*/ return 1;}
 if(zz_trace_mask()&TRACE_SCOPE) printz("   @ delete scope %s\n",scope->name);
 
 if(scope->next || scope->previous)
@@ -334,7 +335,7 @@ if(scope->next || scope->previous)
    if(scope==top_scope) 
      {
       if(!scope->previous)
-         {zz_error(ERROR,"you can't remove the last scope");return;}
+         {zz_error(ERROR,"you can't remove the last scope");return 1;}
       top_scope = scope->previous;
      }
    if(scope->next) scope->next->previous = scope->previous;
@@ -350,6 +351,7 @@ else /* scope non sullo stack */
    avl_close(scope->rules);
    free(scope);   
   }
+  return 0;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -362,8 +364,7 @@ return last_rule;
 /*---------------------------------------------------------------------------*/
 
 // Sap: do_list_rule(rule)
-void do_list_rule(rule)
-struct s_rule *rule;
+void do_list_rule(struct s_rule *rule)
 {
 struct s_nt *nt;
 if(cur_nt)
@@ -377,17 +378,14 @@ printz("  %r\n",rule);
 
 /*---------------------------------------------------------------------------*/
 
-
-list_all_rules() {do_list_rules(0,0);}
-list_all_krules() {do_list_rules(0,1);}
-list_rules(s)char*s; {do_list_rules(s,0);}
-list_krules(s)char*s; {do_list_rules(s,1);}
+int list_all_rules() {do_list_rules(0,0);}
+int list_all_krules() {do_list_rules(0,1);}
+int list_rules(char*s) {do_list_rules(s,0);}
+int list_krules(char*s) {do_list_rules(s,1);}
 
 /*---------------------------------------------------------------------------*/
 
-do_list_rules(sintname,kflag)
-char *sintname;
-int kflag;
+int do_list_rules(char *sintname,int kflag)
 {
 struct s_scope *scope;
 int i;
@@ -415,28 +413,31 @@ printf("\n");
 /*---------------------------------------------------------------------------*/
 static FILE *Uchan=0;
 
-
 /*---------------------------------------------------------------------------*/
 
 // Sap: do_write_rule(rule)
-void do_write_rule(rule)
-struct s_rule *rule;
+void do_write_rule(struct s_rule *rule)
 {
 if(rule->segment_id!=cur_segment_id) return;
-if(Uchan)
-  fprintz(Uchan,"/%r %w\n\n",rule,rule->action);
+
+if(Uchan) {
+    fprintz(Uchan, "/%r ", rule);
+    if(rule->action.tag) {
+        fprintz(Uchan, "%w", &(rule->action));
+    }
+    fprintz(Uchan, "\n\n");
+    }
+
 }
 
 /*---------------------------------------------------------------------------*/
 
-
-write_rules(filename)
-char *filename;
+int write_rules(char *filename)
 {
 struct s_scope *scope;
 int i;
 Uchan = fopen(filename,"a");
-if(!Uchan) {zz_error(ERROR,"Unable to write %s\n",filename);return;}
+if(!Uchan) {zz_error(ERROR,"Unable to write %s\n",filename);return 0;}
 printf("RULES segment %d -> (%s)\n",cur_segment_id,filename);
 scope = top_scope;
 while(scope)

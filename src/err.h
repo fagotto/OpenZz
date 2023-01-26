@@ -27,6 +27,21 @@
 #define LEXICAL_ERROR   4
 #define INTERNAL_ERROR   5
 
+#include "zlex.h"
+
 int zz_error(long type, char *fmt,...);
+int error_head(int type);
+int error_token(struct s_content *cnt);
+int error_tail();
+int error_tail_1();
+int open_err_file();
+int errprintf(char *fmt,...);
+int get_error_number();
+int syntax_error(int (*info_routine)());
+int check_error_max_number();
+
+//int set_max_error_n(int argc, struct s_content argv[], struct s_content *ret);
+// int set_max_error_n(int argc,struct s_content argv[],int *ret);
+int zz_get_error_number();
 
 #endif /* __ERR_H__ */

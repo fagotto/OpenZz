@@ -24,6 +24,7 @@
 #include "rule.h"
 #include "err.h"
 #include "trace.h"
+#include "scope.h"
 
 static struct {struct s_content bead;char *name;} beads[MAX_RULE_LENGTH];
 static int bead_n=0;
@@ -31,17 +32,17 @@ static struct {struct s_content cnt;char *tag_name,is_return;}
    cur_action = {{0,0},0,0};
 
 /*---------------------------------------------------------------------------*/
+//Forward declaration
+int do_z_link_rule(char *sint_name, char *scope_name);
 
 /* aggiungi una bead alla regola corrente */
 
-z_bead(argc,argv,ret)
-int argc;
-struct s_content argv[],*ret;
+int z_bead(int argc,struct s_content argv[],struct s_content *ret)
 {
 if(bead_n>=MAX_RULE_LENGTH)
   {
    zz_error(ERROR,"rule too long");
-   return;
+   return 1;
   }
 beads[bead_n].bead=argv[1];
 beads[bead_n].name=(argc==3)?(char*)s_content_value(argv[2]):0;
@@ -53,9 +54,7 @@ return 1;
 
 /* l'azione della regola corrente (zz-action o special) */
 
-z_set_action(argc,argv,ret)
-int argc;
-struct s_content argv[],*ret;
+int z_set_action(int argc,struct s_content argv[],struct s_content *ret)
 {
 cur_action.cnt=argv[0];
 cur_action.is_return=0;
@@ -66,9 +65,7 @@ return 1;
 
 /* l'azione della regola corrente (return [as]) */
 
-z_set_return_action(argc,argv,ret)
-int argc;
-struct s_content argv[],*ret;
+int z_set_return_action(int argc,struct s_content argv[],struct s_content *ret)
 {
 cur_action.cnt=argv[0];
 cur_action.is_return=1;
@@ -83,11 +80,9 @@ return 1;
 
 /* inserisce una regola nello scope di default */
 
-z_link_rule_default(argc,argv,ret)
-int argc;
-struct s_content argv[],*ret;
+int z_link_rule_default(int argc,struct s_content argv[],struct s_content *ret)
 {
-do_z_link_rule(s_content_value(argv[0]),0);
+do_z_link_rule(s_content_svalue(argv[0]),0);
 return 1;
 }
 
@@ -95,25 +90,22 @@ return 1;
 
 /* inserisce una regola in uno scope */
 
-z_link_rule(argc,argv,ret)
-int argc;
-struct s_content argv[],*ret;
+int z_link_rule(int argc,struct s_content argv[],struct s_content *ret)
 {
-do_z_link_rule(s_content_value(argv[1]),s_content_value(argv[0]));
+do_z_link_rule(s_content_svalue(argv[1]),s_content_svalue(argv[0]));
 return 1;
 }
 
 /*---------------------------------------------------------------------------*/
 
-do_z_link_rule(sint_name,scope_name)
-char *sint_name,*scope_name;
+int do_z_link_rule(char *sint_name, char *scope_name)
 {
 int i;
 struct s_rule *rule;
 open_rule(zlex_strsave(sint_name));
 for(i=0;i<bead_n;i++)
   if(beads[i].name)
-    append_nt_bead(s_content_value(beads[i].bead),beads[i].name);
+    append_nt_bead(s_content_svalue(beads[i].bead),beads[i].name);
   else
     append_t_bead(&beads[i].bead);
 bead_n=0;
@@ -217,9 +209,7 @@ return 1;
 
 /*---------------------------------------------------------------------------*/
 
-z_set_when_change_action(argc,argv,ret)
-int argc;
-struct s_content argv[],*ret;
+int z_set_when_change_action(int argc,struct s_content argv[],struct s_content *ret)
 {
 struct s_rule *rule,*get_last_rule();
 rule = get_last_rule();
@@ -233,9 +223,7 @@ return 1;
 
 /*---------------------------------------------------------------------------*/
 
-z_set_when_exit_scope(argc,argv,ret)
-int argc;
-struct s_content argv[],*ret;
+int z_set_when_exit_scope(int argc,struct s_content argv[],struct s_content *ret)
 {
 struct s_rule *rule,*get_last_rule();
 rule = get_last_rule();

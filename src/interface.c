@@ -25,11 +25,12 @@
 
 #include <stdint.h>
 #include "zlex.h"
+#include "rule.h"
+#include "scope.h"
 
 /*-------------------------------------------------------------------------*/
 
-zz_bind_open(s)
-     const char *s;
+int zz_bind_open(const char *s)
 {
   if(!init_zlex_done)
     init_zlex();
@@ -39,8 +40,7 @@ zz_bind_open(s)
 
 /*-------------------------------------------------------------------------*/
 
-zz_bind_match(s)
-     const char *s;
+int zz_bind_match(const char *s)
 {
   append_nt_bead(zlex_strsave(s),0);
   return 1;
@@ -48,8 +48,7 @@ zz_bind_match(s)
 
 /*-------------------------------------------------------------------------*/
 
-zz_bind_keyword(s)
-     const char *s;
+int zz_bind_keyword(const char *s)
 {
   struct s_content cnt;
   cnt.tag=tag_qstring;
@@ -60,7 +59,7 @@ zz_bind_keyword(s)
 
 /*-------------------------------------------------------------------------*/
 
-zz_bind_close()
+int zz_bind_close()
 {
   insert_rule(0,close_rule());
   return 1;
@@ -68,8 +67,7 @@ zz_bind_close()
 
 /*-------------------------------------------------------------------------*/
 
-zz_bind_call(proc)
-     int (*proc)();
+int zz_bind_call(int (*proc)())
 {
   setaction_exesproc(proc,tag_none);
   return 1;
@@ -77,9 +75,7 @@ zz_bind_call(proc)
 
 /*-------------------------------------------------------------------------*/
 
-zz_bind_call_fun(proc,tag)
-     int (*proc)();
-     const char *tag;
+int zz_bind_call_fun(int (*proc)(),const char *tag)
 {
   setaction_exesproc(proc,find_tag(tag));
   return 1;
@@ -87,9 +83,7 @@ zz_bind_call_fun(proc,tag)
 
 /*-------------------------------------------------------------------------*/
 
-zz_bind_call_fun_tag(proc,tag)
-     int (*proc)();
-     struct s_tag *tag;
+int zz_bind_call_fun_tag(int (*proc)(),struct s_tag *tag)
 {
   setaction_exesproc(proc,tag);
   return 1;
@@ -97,9 +91,7 @@ zz_bind_call_fun_tag(proc,tag)
 
 /*-------------------------------------------------------------------------*/
 
-zz_bind_call_exe_proc(proc,tag)
-     int (*proc)();
-     const char *tag;
+int zz_bind_call_exe_proc( int (*proc)(),const char *tag)
 {
   setaction_exeproc(proc,find_tag(tag));
   return 1;
@@ -107,8 +99,7 @@ zz_bind_call_exe_proc(proc,tag)
 
 /*-------------------------------------------------------------------------*/
 
-zz_bind_call_exe_no_tag(proc)
-     int (*proc)();
+int zz_bind_call_exe_no_tag(int (*proc)())
 {
   setaction_exeproc(proc,0);
   return 1;
@@ -116,7 +107,7 @@ zz_bind_call_exe_no_tag(proc)
 
 /*-------------------------------------------------------------------------*/
 
-zz_bind_pass()
+int zz_bind_pass()
 {
   setaction_pass();
   return 1;

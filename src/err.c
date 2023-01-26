@@ -30,9 +30,27 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+
 #include "err.h"
 #include "zlex.h"
 #include "printz.h"
+#include "source.h"
+#include "parse.h"
+
+// source.c
+// get_source_file();
+// fprint_source_position();
+
+// printz.c
+// do_printz();
+
+// parse.c
+// fprint_param();
+
+// defopen.c
+int change_filetype();
+
 
 #define PRINTZ_USE_STDARG
 
@@ -55,12 +73,12 @@ static int
 	internal_error_n=0,
 	unknown_error_n=0,
 	total_error_n=0;
-extern struct s_content cur_token;
 
+extern struct s_content curToken;
 
 /*---------------------------------------------------------------------------*/
 
-open_err_file()
+int open_err_file()
 {
 char filename[132];
 static int err_file_flag=0;
@@ -76,13 +94,12 @@ if(!err_file_flag)
         err_file);
      } 
   }
+return 0;
 }
-
 
 /*----------------------------------------------------------------------------*/
 #ifdef PRINTZ_USE_STDARG
 /*----------------------------------------------------------------------------*/
-
 
 int errprintf(char *fmt,...)
 {
@@ -181,8 +198,7 @@ return ret;
 
 /*---------------------------------------------------------------------------*/
 
-error_head(type)
-int type;
+int error_head(int type)
 {
 open_err_file();
 fprintz(stderr,"+ **** ");
@@ -231,11 +247,12 @@ switch(type)
      fprintz(stderr,"GENERIC ERROR: ");
      if(err_chan) fprintz(err_chan,"GENERIC ERROR: ");
   }
+return 0;
 }
 
 /*---------------------------------------------------------------------------*/
 
-error_tail()
+int error_tail()
 {
 fprintz(stderr," ****\n");
 if(err_chan) fprintz(err_chan," ****\n");
@@ -247,12 +264,13 @@ if(err_chan)
    fprint_param(err_chan);
   }
 check_error_max_number();
+return 0;
 }
 
 
 /*---------------------------------------------------------------------------*/
 
-error_tail_1()
+int error_tail_1()
 {
 fprintz(stderr," ****\n");
 if(err_chan) fprintz(err_chan," ****\n");
@@ -264,23 +282,24 @@ if(err_chan)
    fprint_param(err_chan);
   }
 check_error_max_number();
+return 0;
 }
 
 
 /*---------------------------------------------------------------------------*/
 
-error_token(cnt)
-struct s_content *cnt;
+int error_token(struct s_content *cnt)
 {
 fprintz(stderr,"%z ",cnt);
 if(err_chan) fprintz(err_chan,"%z ",cnt);
+return 0;
 }
 
 
 /*---------------------------------------------------------------------------*/
 
 
-print_error_count()
+int print_error_count()
 {
 if(total_error_n)
   {
@@ -294,20 +313,20 @@ if(total_error_n)
    printf("\n");
    printf("listed in %s\n",err_file);
   }
+return 0;
 }
 
 /*---------------------------------------------------------------------------*/
 
 
-get_error_number()
+int get_error_number()
 {
 return lexical_error_n+error_n+fatal_error_n+unknown_error_n+internal_error_n;
 }
 
 /*---------------------------------------------------------------------------*/
 
-syntax_error(info_routine)
-int (*info_routine)();
+int syntax_error(int (*info_routine)())
 {
 open_err_file();
 fprintz(stderr,"+ **** SYNTAX ERROR ****\n");
@@ -323,12 +342,13 @@ if(err_chan)
    fprint_param(err_chan);
   }
 check_error_max_number();
+return 0;
 }
 
 
 /*---------------------------------------------------------------------------*/
 
-check_error_max_number()
+int check_error_max_number()
 {
 static int count=0;
 char *s;
@@ -342,16 +362,16 @@ if(++count>=max_error_n)
    print_error_count();
    exit(1);
   }
+return 0;
 }
 
-set_max_error_n(argc,argv,ret)
-int argc;
-struct s_content argv[],*ret;
+int set_max_error_n(int argc, struct s_content argv[], struct s_content *ret)
 {
   int n;
-  if(argc!=1) return;
+  if(argc!=1) return 0;
   n=(int)s_content_value(argv[0]);
   max_error_n=n;
+return 0;
 }
 
 int zz_get_error_number()

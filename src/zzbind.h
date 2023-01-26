@@ -30,6 +30,7 @@
 extern "C" {
 #endif
 
+#include "zlex.h"
 
 int zz_bind_open(const char *);
 int zz_bind_keyword(const char *);
@@ -39,7 +40,7 @@ int zz_bind_close(void);
 
 /* PROC/FUN */
 struct s_content; /* forward declaration */
-typedef int  (*zz_fun)(int argc, struct s_content *argv, struct s_content *ret);
+typedef int  (*zz_fun)(int argc, struct s_content argv[], struct s_content *ret);
 
 int zz_bind_call_exe_proc(zz_fun fun, const char *tag);
 int zz_bind_call_exe_no_tag(zz_fun fun);

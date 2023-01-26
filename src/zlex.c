@@ -31,25 +31,23 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include "avl.h"
+
 #include "zlex.h"
+#include "avl.h"
 #include "mem.h"
 #include "err.h"
+
 //#define DEBUG
 #include "trace.h"
 
 /*----------------------------------------------------------------------------*/
 
 #define cntlen(CNT)	\
-	(*(((struct s_content *)(CNT))->tag->len)) (CNT) 
+	(*(((struct s_content *)(CNT))->tag->len)) (CNT)
+
 #define cntcpy(T,S)	\
 	(*(((struct s_content*)(S))->tag->copy)) ((T),(S)) 
+
 #define cntsprint(B,CNT) \
 	(*(((struct s_content*)(CNT))->tag->sprint)) ((B),(CNT)) 
 
@@ -113,171 +111,147 @@ TREE *str_term_table=0;
 
 /*----------------------------------------------------------------------------*/
 
-int sprint_string(buffer,cnt)
-char *buffer;
-struct s_content *cnt;
+int sprint_string(char *buffer,struct s_content *cnt)
 {
-  //zz_assert(cnt && s_content_tag(*cnt)==tag_qstring);
-  strcpy(buffer,(char*)s_content_value(*cnt));
+  zz_assert(cnt && (s_content_tag(*cnt)==tag_qstring || s_content_tag(*cnt)==tag_char || s_content_tag(*cnt)==tag_ident));
+  strcpy(buffer,(char*)s_content_svalue(*cnt));
+  return 0;
 }
 
-int fprint_string(chan,cnt)
-FILE *chan;
-struct s_content *cnt;
+int fprint_string(FILE *chan,struct s_content *cnt)
 {
-  //zz_assert(cnt && s_content_tag(*cnt)==tag_qstring);
-  fprintf(chan,"%s",s_content_value(*cnt));
+  zz_assert(cnt && (s_content_tag(*cnt)==tag_qstring || s_content_tag(*cnt)==tag_char || s_content_tag(*cnt)==tag_ident));
+  fprintf(chan,"%s",s_content_svalue(*cnt));
+  return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 
-int sprint_int(buffer,cnt)
-char *buffer;
-struct s_content *cnt;
+int sprint_int(char *buffer,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_int);
   sprintf(buffer,"%d",s_content_ivalue(*cnt));
+  return 0;
 }
 
-int fprint_int(chan,cnt)
-FILE *chan;
-struct s_content *cnt;
+int fprint_int(FILE *chan,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_int);
   fprintf(chan,"%d",s_content_ivalue(*cnt));
+  return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 
-int sprint_int64(buffer,cnt)
-char *buffer;
-struct s_content *cnt;
+int sprint_int64(char *buffer,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_int64);
-  sprintf(buffer,"%Ld",s_content_llvalue(*cnt));
+  sprintf(buffer,"%lld",s_content_llvalue(*cnt));
+  return 0;
 }
 
-int fprint_int64(chan,cnt)
-FILE *chan;
-struct s_content *cnt;
+int fprint_int64(FILE *chan,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_int64);
-  fprintf(chan,"%Ld",s_content_llvalue(*cnt));
+  fprintf(chan,"%lld",s_content_llvalue(*cnt));
+  return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 
-int sprint_hex(buffer,cnt)
-char *buffer;
-struct s_content *cnt;
+int sprint_hex(char *buffer,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_hex);
-  sprintf(buffer,"0x%X",s_content_value(*cnt));
+  sprintf(buffer,"0x%llX",s_content_value(*cnt));
+  return 0;
 }
 
-int fprint_hex(chan,cnt)
-FILE *chan;
-struct s_content *cnt;
+int fprint_hex(FILE *chan,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_hex);
-  fprintf(chan,"0x%X",s_content_value(*cnt));
+  fprintf(chan,"0x%llX",s_content_value(*cnt));
+  return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 
-int sprint_float(buffer,cnt)
-char *buffer;
-struct s_content *cnt;
+int sprint_float(char *buffer,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_float);
   sprintf(buffer,"%g",s_content_fvalue(*cnt));
+  return 0;
 }
 
-int fprint_float(chan,cnt)
-FILE *chan;
-struct s_content *cnt;
+int fprint_float(FILE *chan,struct s_content *cnt)
 { 
  zz_assert(cnt && s_content_tag(*cnt)==tag_float);
  fprintf(chan,"%g",s_content_fvalue(*cnt));
+ return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 
-int sprint_double(buffer,cnt)
-char *buffer;
-struct s_content *cnt;
+int sprint_double(char *buffer,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_double);
   sprintf(buffer,"%g",s_content_dvalue(*cnt));
+  return 0;
 }
 
-int fprint_double(chan,cnt)
-FILE *chan;
-struct s_content *cnt;
+int fprint_double(FILE *chan,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_double);
   fprintf(chan,"%g",s_content_dvalue(*cnt));
+  return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 
-int sprint_eol(buffer,cnt)
-char *buffer;
-struct s_content *cnt;
+int sprint_eol(char *buffer,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_eol);
   strcpy(buffer,"EOL");
+  return 0;
 }
 
-int fprint_eol(chan,cnt)
-FILE *chan;
-struct s_content *cnt;
+int fprint_eol(FILE *chan,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_eol);
   fprintf(chan,"EOL");
+  return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 
-int sprint_eof(buffer,cnt)
-char *buffer;
-struct s_content *cnt;
+int sprint_eof(char *buffer,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_eof);
   strcpy(buffer,"EOF");
+  return 0;
 }
 
-int fprint_eof(chan,cnt)
-FILE *chan;
-struct s_content *cnt;
+int fprint_eof(FILE *chan,struct s_content *cnt)
 {
   zz_assert(cnt && s_content_tag(*cnt)==tag_eof);
   fprintf(chan,"EOF");
+  return 0;
 }
 
 
 /*----------------------------------------------------------------------------*/
 
-int sprint_none(buffer,cnt)
-char *buffer;
-struct s_content *cnt;
-{strcpy(buffer,"NONE");}
+int sprint_none(char *buffer,struct s_content *cnt)
+{strcpy(buffer,"NONE");return 0;}
 
-int fprint_none(chan,cnt)
-FILE *chan;
-struct s_content *cnt;
-{fprintf(chan,"NONE");}
-
+int fprint_none(FILE *chan,struct s_content *cnt)
+{fprintf(chan,"NONE");return 0;}
 
 /*------------------------------------------------------------------------*/
 /* 
    ???_cast() casting operations for numerical types.
    Returned structure is the 'tgt' param with results. 
 */
-static 
-struct s_content *int_cast(src, tgt_tag, tgt)
-     struct s_content *src, *tgt;
-     struct s_tag *tgt_tag;
+static struct s_content *int_cast(struct s_content *src, struct s_tag *tgt_tag, struct s_content *tgt)
 {
   if (src->tag != tag_int) {
     printz("Error: int_cast(), source tag type not int: %s\n", src->tag->name);
@@ -297,14 +271,11 @@ struct s_content *int_cast(src, tgt_tag, tgt)
     return 0;
   }
 
-  tgt->tag == tgt_tag;
+  tgt->tag = tgt_tag;
   return tgt;
 }
 
-static 
-struct s_content *int64_cast(src, tgt_tag, tgt)
-     struct s_content *src, *tgt;
-     struct s_tag *tgt_tag;
+static struct s_content *int64_cast(struct s_content *src, struct s_tag *tgt_tag, struct s_content *tgt)
 {
   if (src->tag != tag_int64) {
     printz("Error: int64_cast(), source tag type not int64: %s\n", src->tag->name);
@@ -324,14 +295,12 @@ struct s_content *int64_cast(src, tgt_tag, tgt)
     return 0;
   }
 
-  tgt->tag == tgt_tag;
+  tgt->tag = tgt_tag;
   return tgt;
 }
 
 static 
-struct s_content *float_cast(src, tgt_tag, tgt)
-     struct s_content *src, *tgt;
-     struct s_tag *tgt_tag;
+struct s_content *float_cast(struct s_content *src, struct s_tag *tgt_tag, struct s_content *tgt)
 {
   if (src->tag != tag_float) {
     printz("Error: float_cast(), source tag type not float: %s\n", src->tag->name);
@@ -351,15 +320,13 @@ struct s_content *float_cast(src, tgt_tag, tgt)
     return 0;
   }
 
-  tgt->tag == tgt_tag;
+  tgt->tag = tgt_tag;
   return tgt;
 }
 
 
 static 
-struct s_content *double_cast(src, tgt_tag, tgt)
-     struct s_content *src, *tgt;
-     struct s_tag *tgt_tag;
+struct s_content *double_cast(struct s_content *src, struct s_tag *tgt_tag, struct s_content *tgt)
 {
   if (src->tag != tag_double) {
     printz("Error: double_cast(), source tag type not double: %s\n", src->tag->name);
@@ -379,22 +346,20 @@ struct s_content *double_cast(src, tgt_tag, tgt)
     return 0;
   }
 
-  tgt->tag == tgt_tag;
+  tgt->tag = tgt_tag;
   return tgt;
 }
 
 
 static 
-struct s_content *invalid_cast(src, tgt_tag, tgt)
-     struct s_content *src;
-     struct s_tag *tgt_tag;
-     struct s_content *tgt;
+struct s_content *invalid_cast(struct s_content *src, struct s_tag *tgt_tag, struct s_content *tgt)
 {
   printf("Error - non numerical type - casting not allowed");
   return 0;
 }
 
 /*----------------------------------------------------------------------------*/
+// Forward declarations
 
 static int fprint_zlex(FILE *chan, void *cnt);
 static int sprint_zlex(char *stringout, void *cnt);
@@ -450,9 +415,9 @@ static void init_print_zlex()
 }
 #endif
 
-init_zlex()
+int init_zlex()
 {
-if(init_zlex_done) return;
+if(init_zlex_done) return 0;
 init_zlex_done=1;
 
 printz_code('z',fprint_zlex,sprint_zlex);
@@ -544,6 +509,8 @@ tag_bead =find_tag("bead");
 tag_bead->cast=invalid_cast;
 
 tags_initialized=1;
+
+return 0;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -610,38 +577,36 @@ static int fprint_zlex_image(FILE *chan, void *_cnt)
 /*----------------------------------------------------------------------------*/
 
 
-zlex_set_precedence(cnt,prec,left_assoc)
-struct s_content *cnt;
-int prec,left_assoc;
+int zlex_set_precedence(struct s_content *cnt,int prec,int left_assoc)
 {
 char *s;
 if(cnt->tag!=tag_ident && cnt->tag!=tag_char)
   {
    printz("zlex_set_precedence: unable to change prec of token /%z/\n",cnt);
-   return;
+   return 0;
   }
 if(prec<0 || prec>255 || (left_assoc!=1 && left_assoc!=0))
   {
    printz("zlex_set_precedence: bad prec/assoc values (%d %d) for token /%z/\n",
 	prec,left_assoc,cnt);
-   return;
+   return 0;
   }
-s = (char*)s_content_value(*cnt);
+s = (char*)s_content_svalue(*cnt);
 s--;
 if(*s!=TERM_MAGIC)
   {
    lexical_error("zlex_set_precedence: bad magic");
-   return;
+   return 0;
   }
 *--s = prec;
 *--s = left_assoc? LEFT_ASSOCIATIVE:RIGHT_ASSOCIATIVE;
+return 0;
 }
 
 
 /*----------------------------------------------------------------------------*/
 
-char *zlex_strsave(name)
-const char *name;
+char *zlex_strsave(const char *name)
 {
 char *tmp;
 struct s_term *term;
@@ -694,37 +659,36 @@ return term->name;
 
 /*----------------------------------------------------------------------------*/
 
-std_len(cnt)
-struct s_content *cnt;
+int std_len(struct s_content *cnt)
 {
   //return strlen(cnt->tag->name)+9;
-  zz_assert(!"any use????");
+    zz_assert(!"any use????");
+    return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 
-int std_sprint(buffer,cnt)
-char *buffer;
-struct s_content *cnt;
+int std_sprint(char *buffer,struct s_content *cnt)
 {
-sprintf(buffer,"%s:%08X",cnt->tag->name,s_content_value(*cnt));
+    sprintf(buffer,"%s:%08llX",cnt->tag->name,s_content_value(*cnt));
+    return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 
-int std_fprint(chan,cnt)
-FILE *chan;
-struct s_content *cnt;
+int std_fprint(FILE *chan,struct s_content *cnt)
 {
-fprintf(chan,"%s:%08X",cnt->tag->name,s_content_value(*cnt));
+fprintf(chan,"%s:%08llX",cnt->tag->name,s_content_value(*cnt));
+return 0;
+
 }
 
 /*----------------------------------------------------------------------------*/
 
-int std_copy(tar,src)
-struct s_content *tar,*src;
+int std_copy(struct s_content *tar,struct s_content *src)
 {
 *tar = *src;
+return 0;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -850,8 +814,7 @@ if(str_term_table)
 
 /*----------------------------------------------------------------------------*/
 
-static int esc_tran(c)
-char c;
+static int esc_tran(char c)
 {
 switch(c)
   {
@@ -872,9 +835,7 @@ switch(c)
 /*---------------------------------------------------------------------------*/
 
 
-void zlex(ptr, cnt)
-char **ptr;
-struct s_content *cnt;
+void zlex(char **ptr, struct s_content *cnt)
 {
 double df;
 char buffer[MAX_TOKEN_LENGTH+1];
@@ -901,7 +862,7 @@ switch(**ptr)
        }
      buffer[i]=0;
 // Sap:     cnt->value = zlex_strsave(buffer);
-     s_content_value(*cnt) = (int) zlex_strsave(buffer);
+     s_content_svalue(*cnt) = zlex_strsave(buffer);
      cnt->tag   = tag_ident;
      break;
 
@@ -924,7 +885,7 @@ switch(**ptr)
 	    buffer[16]='\0';
 	  }
 	  if(**ptr=='l') (*ptr) ++;
-	  sscanf(buffer,"%Lx",&(s_content_llvalue(*cnt)));
+	  sscanf(buffer,"%llx",&(s_content_llvalue(*cnt)));
 	  cnt->tag   = tag_int64;
 	} else if (**ptr=='i' || !zlex_intconst_int64) {
 	  if (i > 8) {
@@ -932,7 +893,7 @@ switch(**ptr)
 	    buffer[8]='\0';
 	  }
 	  if(**ptr=='i') (*ptr) ++;
-	  sscanf(buffer,"%x",&(s_content_value(*cnt)));
+	  sscanf(buffer,"%x",&(s_content_ivalue(*cnt)));
 	  cnt->tag   = tag_int;
 	}
        }
@@ -991,8 +952,8 @@ switch(**ptr)
 	       buffer[30]='\0';
 	     }
 	     if(**ptr=='l') (*ptr) ++;
-	     sscanf(buffer,"%Li",&(s_content_llvalue(*cnt)));
-	     zz_trace("got int64 = (%s=%Li)\n", buffer, s_content_llvalue(*cnt));
+	     sscanf(buffer,"%lli",&(s_content_llvalue(*cnt)));
+	     zz_trace("got int64 = (%s=%lli)\n", buffer, s_content_llvalue(*cnt));
 	     cnt->tag   = tag_int64;
 	   } else if (**ptr=='i' || !zlex_intconst_int64){
 	     int scret=0;
@@ -1001,7 +962,7 @@ switch(**ptr)
 	       buffer[10]='\0';
 	     }
 	     if(**ptr=='i') (*ptr) ++;
-	     scret=sscanf(buffer,"%d",&(s_content_value(*cnt)));
+	     scret=sscanf(buffer,"%d",&(s_content_ivalue(*cnt)));
 	     cnt->tag   = tag_int;
 	     if(scret!=1) {
 	       lexical_error("can't parse integer constant /%s/", buffer);
@@ -1105,7 +1066,7 @@ switch(**ptr)
       {
        (*ptr)++;
 // Sap:       cnt->value= zlex_strsave("!");
-       s_content_value(*cnt)= (int)zlex_strsave("!");
+       s_content_svalue(*cnt)= zlex_strsave("!");
        cnt->tag=tag_char;
       }
     break;
@@ -1122,7 +1083,7 @@ switch(**ptr)
       {
        (*ptr)++;
 // Sap:       cnt->value= zlex_strsave("/");
-       s_content_value(*cnt)= (int)zlex_strsave("/");
+       s_content_svalue(*cnt)= zlex_strsave("/");
        cnt->tag=tag_char;
       }
     break;
@@ -1157,40 +1118,37 @@ switch(**ptr)
 
 /*----------------------------------------------------------------------------*/
 
-show_zlex_memory()
+int show_zlex_memory()
 {
 PRINTMEM("zlex.qstring.mex",zlex_qstring_mem)
 PRINTMEM("zlex.strsaved.mem",zlex_strsaved_mem)
 PRINTMEM("zlex.tag.mem",zlex_tag_mem)
+return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 
-int zlex_set_case_sensitive(cs)
-     int cs;
+int zlex_set_case_sensitive(int cs)
 {
   zlex_case_insensitive=!cs;
   return 1;
 }
 
-int zlex_set_parse_eol(peol)
-     int peol;
+int zlex_set_parse_eol(int peol)
 {
   zz_trace("zlex_set_parse_eol(%d)\n", peol);
   zlex_parse_eol=peol;
   return 1;
 }
 
-int zlex_set_default_real_as_double(peol)
-     int peol;
+int zlex_set_default_real_as_double(int peol)
 {
   zz_trace("zlex_set_default_real_as_double(%d)\n", peol);
   zlex_realconst_double=peol;
   return 1;
 }
 
-int zlex_set_default_integer_as_int64(peol)
-     int peol;
+int zlex_set_default_integer_as_int64(int peol)
 {
   zz_trace("zlex_set_default_real_as_double(%d)\n", peol);
   zlex_intconst_int64=peol;
@@ -1200,10 +1158,11 @@ int zlex_set_default_integer_as_int64(peol)
 /*------------------------------------------------------------------------*/
 
 
-ignore_block()
+int ignore_block()
 {
 ignore_block_flag = 1;
 braket_level = 0;
+return 0;
 }
 
 

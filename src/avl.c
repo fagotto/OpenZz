@@ -20,7 +20,6 @@
 /*   $Id: avl.c,v 1.3 2002/05/09 17:23:49 kibun Exp $ */
 
 #include <stdlib.h>
-#include <assert.h>
 #define   AVL_C
 #include "avl.h"
 
@@ -116,7 +115,7 @@ typedef struct avl_path PATH;
 #define DEEPER     2
 
 #define NODE_LIST  0
-#define TREE_LIST  (NODE_LIST + (sizeof (NODE) != sizeof(TREE))?1:0)
+#define TREE_LIST  (NODE_LIST + ( (sizeof (NODE) != sizeof(TREE))?1:0 ) )
 #define PATH_LIST  (TREE_LIST + 1)
 #define FREE_LISTS (PATH_LIST + 1)
 
@@ -151,7 +150,7 @@ static void *new_memory (uint size)
       Free_List[NODE_LIST] = (void *)base;
     }
 
-  if (Avail_Base = (char *)malloc (MALLOC_SIZE))
+  if ( (Avail_Base = (char *)malloc (MALLOC_SIZE)) )
     {
       Avail_Size = MALLOC_SIZE - size;
       
@@ -965,7 +964,7 @@ NODE *node, *leftnode;
 node = tree->root;
 if (!node)
   return NIL;
-while (leftnode = node->left)
+while ((leftnode = node->left))
   node = leftnode;
 return node->data;
 }
@@ -979,7 +978,7 @@ NODE *node, *rightnode;
 node = tree->root;
 if (!node)
   return NIL;
-while (rightnode = node->right)
+while ((rightnode = node->right))
   node = rightnode;
 return node->data;
 }
@@ -1383,7 +1382,7 @@ pathright = &(path->right[1]);
 *++pathnode  = NIL;
 *++pathright = FALSE;
 *++pathnode  = node = tree->root;
-while (node = node->left)
+while ((node = node->left))
   {
   *++pathright = FALSE;
   *++pathnode  = node;
@@ -1422,7 +1421,7 @@ pathright = &path->right[1];
 *++pathnode  = NIL;
 *++pathright = TRUE;
 *++pathnode  = node = tree->root;
-while (node = node->right)
+while ((node = node->right))
   {
   *++pathright = TRUE;
   *++pathnode  = node;
@@ -1436,7 +1435,7 @@ return (*pathnode)->data;
 
 #define DOWN_RIGHT_OR_BREAK(node, pathright, pathnode) \
   {                       \
-  if (node = node->right) \
+  if ( (node = node->right) ) \
     {                     \
     *++pathright = TRUE;  \
     *++pathnode  = node;  \
@@ -1447,7 +1446,7 @@ return (*pathnode)->data;
 
 #define DOWN_LEFT_OR_BREAK(node, pathright, pathnode) \
   {                       \
-  if (node = node->left)  \
+  if ( (node = node->left) )  \
     {                     \
     *++pathright = FALSE; \
     *++pathnode  = node;  \
@@ -1650,11 +1649,11 @@ if (!path)
   return NIL;
 pathright = path->pathright;
 pathnode  = path->pathnode;
-if (node = (*pathnode)->right)
+if ((node = (*pathnode)->right))
   {
   *++pathright = TRUE;
   *++pathnode  = node;
-  while (node = node->left)
+  while ((node = node->left))
     {
     *++pathright = FALSE;
     *++pathnode  = node;
@@ -1695,11 +1694,11 @@ if (!path)
   return NIL;
 pathright = path->pathright;
 pathnode  = path->pathnode;
-if (node = (*pathnode)->left)
+if ((node = (*pathnode)->left))
   {
   *++pathright = FALSE;
   *++pathnode  = node;
-  while (node = node->right)
+  while ((node = node->right))
     {
     *++pathright = TRUE;
     *++pathnode  = node;
@@ -1982,8 +1981,8 @@ if (*(char *)ptr2 != (char)0x15)
   PROBLEM (2);
 free (ps);
 
-chr1 =   1;
-chr2 = 250;
+chr1 = (char)1;
+chr2 = (char)250;
 lng1 = chr1;
 lng2 = chr2;
 if ((chr1 > chr2) && (lng1 < lng2) || (chr1 < chr2) && (lng1 > lng2))

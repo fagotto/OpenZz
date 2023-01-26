@@ -20,10 +20,15 @@
 #ifndef PRINTZ_DEFINED
 #define PRINTZ_DEFINED
 
+#include <stdio.h>
+
 #ifdef __STDC__
 #define PRINTZ_USE_STDARG
 #define PRINTZ_USE_PROTOTYPES
+//#warning "Stdc ON"
 #endif
+
+
 
 #ifdef VAX
 #define PRINTZ_USE_STDARG
@@ -32,17 +37,23 @@
 
 #ifndef PRINTZ
 #ifdef PRINTZ_USE_PROTOTYPES
+//#warning "Ansi prototypes"
 int fprintz (FILE *file_ptr, const char *format_spec, ...);
 int printz  (const char *format_spec, ...);
 int sprintz (char *str, const char *format_spec, ...);
 int printz_aux(FILE *chan);
 int printz_code(int code,int (*fprint_proc)(FILE *chan, void*),int (*sprint_proc)(char*, void*));
+int do_printz(FILE *chanout,FILE *chanout_1,char *stringout,char *fmt,va_list *ap);
+
 #else
+
 int fprintz ();
 int printz  ();
 int sprintz ();
 int printz_aux();
 int printz_code();
+int do_printz();
+
 #endif
 #endif
 #endif

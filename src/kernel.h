@@ -48,4 +48,7 @@
 #define SPROC(P)  {int P(); setaction_exesproc(P,tag_none);}
 #define SFUN(T,P) {int P(); setaction_exesproc(P,T);}
 
+int kernel();
+int zkernel();
+
 #endif // __KERNEL_H__

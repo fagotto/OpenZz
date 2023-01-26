@@ -30,6 +30,9 @@
 
 #include "zz.h"
 
+int print_usage();
+int print_error_count();
+
 int main(argc,argv,env)
      int argc;
      char *argv[];
@@ -101,7 +104,7 @@ int main(argc,argv,env)
 
   if(verbose)
     {
-      fprintf(stderr, "OpenZz "VERSION"\n");
+      fprintf(stderr, "OpenZz mattew \n");
 
       if(filein) 
 	{
@@ -135,7 +138,7 @@ int main(argc,argv,env)
 
   zz_set_default_include_dir(include_dir);
 
-  if(def_incl_file=getenv("ZZ_DEFAULT_INCLUDE_FILE")) {
+  if((def_incl_file=getenv("ZZ_DEFAULT_INCLUDE_FILE"))) {
     if(verbose)
       fprintf(stderr, "Including default file: %s\n",def_incl_file);
 
@@ -165,12 +168,13 @@ int main(argc,argv,env)
 /*---------------------------------------------------------------------*/
 
 
-print_usage() {
+int print_usage() {
   fprintf(stderr, 
 	  "usage: ozz [params] [filein [fileout]]\n"
 	  "  -q        quiet\n"
 	  "  -v        verbose\n"
 	  "  -p        get input from stdin\n"
 	  "  -d        turns on debug prints\n");
+    return 0;
 }
 

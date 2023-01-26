@@ -20,8 +20,47 @@
 #ifndef __ZLEX_H__
 #define __ZLEX_H__
 
-// forward declaration...
-//struct s_content;
+#include <stdio.h>
+#include <stdint.h>
+#include <ctype.h>
+#include <stdarg.h>
+#include <printf.h>
+#include <string.h>
+#include <stdlib.h>
+
+/*-----------------------------------------------------------------------------*/
+
+struct s_content
+{
+    struct s_tag *tag;
+    //long value;
+    union {
+        long      lvalue;
+        int32_t   ivalue;
+        float     fvalue;
+        void*     pvalue;
+        char*     svalue;
+        int64_t   llvalue;
+        double    dvalue;
+    } val;
+};
+
+#define s_content_lvalue(S)  ((S).val.lvalue)
+#define s_content_ivalue(S)  ((S).val.ivalue)
+#define s_content_fvalue(S)  ((S).val.fvalue)
+#define s_content_pvalue(S)  ((S).val.pvalue)
+#define s_content_svalue(S)  ((S).val.svalue)
+#define s_content_llvalue(S) ((S).val.llvalue)
+#define s_content_dvalue(S)  ((S).val.dvalue)
+
+/* for compatibility */
+#define s_content_value(S)   s_content_llvalue(S)
+//#define s_content_value(S)   s_content_ivalue(S)
+
+/* access to object "class" */
+#define s_content_tag(S)     ((S).tag)
+
+/*-----------------------------------------------------------------------------*/
 
 #include "zz.h"
 
@@ -47,7 +86,7 @@ extern int init_zlex_done;
 
 #define INIT_ZLEX {if(!init_zlex_done)init_zlex();}
 
-
+// Definisce puntatori globali di tipo s_tag
 #ifdef ZLEX
 struct s_tag 
 #else
@@ -87,46 +126,54 @@ extern struct s_tag
  
 ;
 
-/*-----------------------------------------------------------------------------*/
+// forward declarations
 
-struct s_content 
-{
-  struct s_tag *tag; 
-  //long value;
-  union {
-    long      lvalue;
-    int32_t   ivalue;
-    float     fvalue;
-    void*     pvalue;
-    char*     svalue;
-    int64_t   llvalue;
-    double    dvalue;
-  } val;
-};
+int sprint_string(char *buffer,struct s_content *cnt);
+int fprint_string(FILE *chan,struct s_content *cnt);
 
-#define s_content_lvalue(S)  ((S).val.lvalue)
-#define s_content_ivalue(S)  ((S).val.ivalue)
-#define s_content_fvalue(S)  ((S).val.fvalue)
-#define s_content_pvalue(S)  ((S).val.pvalue)
-#define s_content_svalue(S)  ((S).val.svalue)
-#define s_content_llvalue(S) ((S).val.llvalue)
-#define s_content_dvalue(S)  ((S).val.dvalue)
+int sprint_int(char *buffer,struct s_content *cnt);
+int fprint_int(FILE *chan,struct s_content *cnt);
 
-/* for compatibility */
-#define s_content_value(S)   s_content_ivalue(S)
+int sprint_int64(char *buffer,struct s_content *cnt);
+int fprint_int64(FILE *chan,struct s_content *cnt);
 
-/* access to object "class" */
-#define s_content_tag(S)     ((S).tag)
+int sprint_hex(char *buffer,struct s_content *cnt);
+int fprint_hex(FILE *chan,struct s_content *cnt);
 
-/*-----------------------------------------------------------------------------*/
+int sprint_float(char *buffer,struct s_content *cnt);
+int fprint_float(FILE *chan,struct s_content *cnt);
+
+int sprint_double(char *buffer,struct s_content *cnt);
+int fprint_double(FILE *chan,struct s_content *cnt);
+
+int sprint_eol(char *buffer,struct s_content *cnt);
+int fprint_eol(FILE *chan,struct s_content *cnt);
+
+int sprint_eof(char *buffer,struct s_content *cnt);
+int fprint_eof(FILE *chan,struct s_content *cnt);
+
+int sprint_none(char *buffer,struct s_content *cnt);
+int fprint_none(FILE *chan,struct s_content *cnt);
+
+int init_zlex();
+
+int zlex_set_precedence(struct s_content *cnt,int prec,int left_assoc);
 
 char *zlex_strsave(const char *name);
+int std_len(struct s_content *cnt);
+int std_sprint(char *buffer,struct s_content *cnt);
+int std_fprint(FILE *chan,struct s_content *cnt);
+int std_copy(struct s_content *tar,struct s_content *src);
+
+struct s_tag* find_tag(const char* name);
+
 //char *content_image();
 void zlex(char **ptr, struct s_content *cnt);
 int zlex_set_case_sensitive(int boolean);
 int zlex_set_parse_eol(int boolean);
 int zlex_set_default_real_as_double(int boolean);
 int zlex_set_default_integer_as_int64(int boolean);
+int show_zlex_memory();
 
 struct s_tag *find_tag(const char *name);
 

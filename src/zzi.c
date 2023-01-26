@@ -25,27 +25,30 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
-#ifdef USE_READLINE
-  #include <readline/readline.h>
-  #include <readline/history.h>
-#endif
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #include "zz.h"
 #include "zlex.h"
 #include "trace.h"
 #include "source.h"
+#include "parse.h"
+#include "rule.h"
 
-void next_token_tt(struct s_source *src);
+void next_token_tt(struct s_source *);
+
+//  find_nt(); //table.c
 
 /*--------------------------------------------------------------------*/
 
 /**
  * Initialization function for using zz with interactive tty interface:
  */
-source_tt()
+int source_tt()
 {
   struct s_source *src = new_source(next_token_tt);
 
@@ -62,7 +65,7 @@ source_tt()
 
 
 
-zz_parse_tt()
+int zz_parse_tt()
 {
   /* really necessary... hope it doesn't come first in the calling sequence..
      if(!zz_chanout)
@@ -85,10 +88,6 @@ void next_token_tt(cur_source)
   static char *line_read = (char *)NULL;       // Tmp ptr for gnu libreadline
   char *s;
 
-#ifndef USE_READLINE
-  line_read = malloc(300);
-#endif
-
   if(!cur_source->src.tt.s) {                  /* NEED TO READ A NEW LINE OF DATA */
     zz_trace("reading new line...\n");
    
@@ -99,26 +98,20 @@ void next_token_tt(cur_source)
 
     s = cur_source->src.tt.row;
 
-#ifdef USE_READLINE
     // Read a line from tty input using gnu libreadline
     line_read = readline(cur_source->src.tt.prompt);
-#else
-    (void)fgets(line_read, 250, stdin);
-#endif
 
     // If some non-empty input was read, store it in the history
     if (line_read) {
       if (*line_read) {
 
 	if (strlen(line_read) >= MAX_INPUT_LINE_LENGTH) {
-	  printf("ERROR: Input line (len=%lu) exceeded max length, truncated at %i(max) chars.\n", 
-		 (unsigned long)strlen(line_read), MAX_INPUT_LINE_LENGTH);
+	  printf("ERROR: Input line (len=%lu) exceeded max length, truncated at %i(max) chars.\n",
+		 strlen(line_read), MAX_INPUT_LINE_LENGTH);
 	  line_read[MAX_INPUT_LINE_LENGTH]='\0';
 	}
 
-#ifdef USE_READLINE
 	add_history (line_read);
-#endif
 
 	if (strlen(line_read) >= 250) {
 	  exit(0);
@@ -140,7 +133,7 @@ void next_token_tt(cur_source)
 
       cur_source->src.tt.old = cur_source->src.tt.s = cur_source->src.tt.row;
     
-      zlex(&(cur_source->src.tt.s), &cur_token);
+      zlex(&(cur_source->src.tt.s), &curToken);
 
       // Free the memory used in the temporary line buffer
       free (line_read);
@@ -148,15 +141,15 @@ void next_token_tt(cur_source)
     }
     else {                        /* NULL received from readline - signifies EOF */
       cur_source->eof = 1;
-      cur_token.tag = tag_eof;
+        curToken.tag = tag_eof;
     }
   }
   else  {                         /* HAVE DATA - DO NOT NEED TO READ A NEW LINE */
     cur_source->src.tt.old = cur_source->src.tt.s;
-    zlex(&(cur_source->src.tt.s),&cur_token);
+    zlex(&(cur_source->src.tt.s),&curToken);
   }
 
-  if(cur_token.tag==tag_eol) {
+  if(curToken.tag == tag_eol) {
     cur_source->src.tt.s=0;
     zz_trace("tag_eol... s=0\n");
   }

@@ -20,8 +20,10 @@
 #include <stdint.h>
 #include "zlex.h"
 #include "kernel.h"
+#include "rule.h"
+#include "scope.h"
 
-zkernel()
+int zkernel()
 {
 /* redefinition of the syntax */
 

@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+
 #include "zz.h"
 #include "zlex.h"
 #include "rule.h"
@@ -27,6 +28,9 @@
 #include "list.h"
 #include "param.h"
 #include "trace.h"
+#include "parse.h"
+#include "source.h"
+#include "action.h"
 
 struct s_content zz_ret_value = {0,0};
 
@@ -41,9 +45,7 @@ struct s_content* zz_bind_get_ret_value()
 
 #define MAX_ARGV 100
 
-action(rule,stack,ret)
-struct s_rule *rule;
-struct s_content stack[],*ret;
+void action(struct s_rule *rule,struct s_content stack[],struct s_content *ret)
 {
   struct s_content cnt,old_zz_ret_value;
   struct s_content argv [MAX_ARGV]; /* allocation issue */
@@ -289,11 +291,8 @@ struct s_content stack[],*ret;
 
 }
 
-fprint_action(action)
-struct content *action;
+void fprint_action(struct s_content *action)
 {
-
-
 
 }
 

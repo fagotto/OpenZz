@@ -33,22 +33,27 @@
 ==============================================================================*/
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include "zlex.h"
 #include "rule.h"
 #include "err.h"
 #include "mem.h"
 #include "table.h"
+#include "rule.h"
 
 static int table_mem=0;
 extern struct s_nt *nt_any,*nt_param,*nt_gparam;
 
 /*----------------------------------------------------------------------------*/
+//Forward decl.
+int remove_dot(struct s_dot *dot);
 
+// print_rule();
 
 /* CONFRONTO DI T-TRAN */
 
-ttrancmp(p1,p2)
-struct s_term_tran *p1,*p2;
+int ttrancmp(struct s_term_tran *p1,struct s_term_tran *p2)
 {
 struct s_content *t1,*t2;
 t1 = &(p1->term);
@@ -68,8 +73,7 @@ else
 
 /*----------------------------------------------------------------------------*/
 
-struct s_dot *create_dot(nt)
-struct s_nt *nt;
+struct s_dot *create_dot(struct s_nt *nt)
 {
 static int dot_count=0;
 struct s_dot *dot;
@@ -89,8 +93,7 @@ return dot;
 /* 
   chiamata da avl_release in remove_dot
  */
-void remove_nt_tran(tran)
-struct s_nt_tran *tran;
+void remove_nt_tran(struct s_nt_tran *tran)
 {
 remove_dot(tran->next);
 free(tran);
@@ -102,8 +105,7 @@ free(tran);
 /* 
   chiamata da avl_release in remove_dot
  */
-void remove_term_tran(tran)
-struct s_term_tran *tran;
+void remove_term_tran(struct s_term_tran *tran)
 {
 remove_dot(tran->next);
 free(tran);
@@ -111,10 +113,9 @@ free(tran);
 
 /*----------------------------------------------------------------------------*/
 
-remove_dot(dot)
-struct s_dot *dot;
+int remove_dot(struct s_dot *dot)
 {
-if(!dot)return;
+if(!dot)return 0;
 avl_release(dot->termtree,remove_term_tran);
 avl_release(dot->nttree,remove_nt_tran);
 avl_close(dot->termtree);dot->termtree=0;
@@ -125,9 +126,7 @@ free(dot);
 /*----------------------------------------------------------------------------*/
 
 
-struct s_dot *find_term_tran(dot,token)
-struct s_dot *dot;
-struct s_content *token;
+struct s_dot *find_term_tran(struct s_dot *dot,struct s_content *token)
 {
 struct s_term_tran *tran,key;
 key.term = *token;
@@ -141,9 +140,7 @@ else
 
 /*----------------------------------------------------------------------------*/
 
-struct s_dot *insert_term_tran(dot,token)
-struct s_dot *dot;
-struct s_content *token;
+struct s_dot *insert_term_tran(struct s_dot *dot,struct s_content *token)
 {
 struct s_term_tran *tran;
 tran = (struct s_term_tran *)calloc(1,sizeof(struct s_term_tran));
@@ -157,9 +154,7 @@ return tran->next;
 
 /*----------------------------------------------------------------------------*/
 
-struct s_dot *add_term_tran(dot,token)
-struct s_dot *dot;
-struct s_content *token;
+struct s_dot *add_term_tran(struct s_dot *dot,struct s_content *token)
 {
 struct s_term_tran *tran,key;
 key.term = *token;
@@ -175,9 +170,7 @@ else
 
 /*----------------------------------------------------------------------------*/
 
-static void check_dummy_dot(dot,sid)
-struct s_dot *dot;
-char *sid;
+static void check_dummy_dot(struct s_dot *dot,char *sid)
 {
 int n;
 n = avl_nodes(dot->nttree) + avl_nodes(dot->termtree) + (dot->rule?1:0);
@@ -190,9 +183,7 @@ if(n==0)
 
 /*----------------------------------------------------------------------------*/
 
-static struct s_dot *sub_term_tran(dot,token)
-struct s_dot *dot;
-struct s_content *token;
+static struct s_dot *sub_term_tran(struct s_dot *dot,struct s_content *token)
 {
 struct s_term_tran *tran,key;
 key.term = *token;
@@ -212,9 +203,7 @@ return 0;
 /*----------------------------------------------------------------------------*/
 
 
-struct s_dot *find_nt_tran(dot,nt)
-struct s_dot *dot;
-struct s_nt *nt;
+struct s_dot *find_nt_tran(struct s_dot *dot,struct s_nt *nt)
 {
 struct s_nt_tran *tran;
 tran = avl_locate(dot->nttree,nt);
@@ -225,9 +214,7 @@ else
 
 /*----------------------------------------------------------------------------*/
 
-struct s_dot *insert_nt_tran(dot,nt)
-struct s_dot *dot;
-struct s_nt *nt;
+struct s_dot *insert_nt_tran(struct s_dot *dot,struct s_nt *nt)
 {
 struct s_nt_tran *tran;
 tran = (struct s_nt_tran *)calloc(1,sizeof(struct s_nt_tran));
@@ -244,9 +231,7 @@ return tran->next;
 
 /*----------------------------------------------------------------------------*/
 
-struct s_dot *add_nt_tran(dot,nt)
-struct s_dot *dot;
-struct s_nt *nt;
+struct s_dot *add_nt_tran(struct s_dot *dot,struct s_nt *nt)
 {
 struct s_nt_tran *tran;
 tran = avl_locate(dot->nttree,nt);
@@ -262,9 +247,7 @@ else
 
 /*----------------------------------------------------------------------------*/
 
-static struct s_dot *sub_nt_tran(dot,nt)
-struct s_dot *dot;
-struct s_nt *nt;
+static struct s_dot *sub_nt_tran(struct s_dot *dot,struct s_nt *nt)
 {
 struct s_nt_tran *tran;
 tran = avl_locate(dot->nttree,nt);
@@ -284,8 +267,7 @@ return 0;
 
 /*---------------------------------------------------------------------------*/
 
-link_rule(rule)
-struct s_rule *rule;
+int link_rule(struct s_rule *rule)
 {
 int bead_n;
 struct s_bead *bead;
@@ -293,7 +275,7 @@ struct s_nt *nt;
 struct s_dot *dot,*next;
 bead = rule->beads;
 bead_n = rule->bead_n;
-nt = (struct s_nt *) s_content_value(bead->cnt);
+nt = (struct s_nt *) s_content_pvalue(bead->cnt);
 bead++;
 bead_n--;
 if(!nt->first_dot)
@@ -302,7 +284,7 @@ dot = nt->first_dot;
 while(bead_n--)
   {
    if(bead->cnt.tag==tag_sint)
-      dot = add_nt_tran(dot,s_content_value(bead->cnt));
+      dot = add_nt_tran(dot,s_content_pvalue(bead->cnt));
    else
       dot = add_term_tran(dot,&(bead->cnt));
    bead++;
@@ -319,8 +301,7 @@ rule->table_backptr = &(dot->rule);
 
 /*----------------------------------------------------------------------------*/
 
-unlink_rule(rule)
-struct s_rule *rule;
+int unlink_rule(struct s_rule *rule)
 {
 int bead_n;
 struct s_bead *bead;
@@ -339,7 +320,7 @@ dot = nt->first_dot;
 while(dot && bead_n--)
   {
    if(bead->cnt.tag==tag_sint)
-      dot = sub_nt_tran(dot,s_content_value(bead->cnt));
+      dot = sub_nt_tran(dot,s_content_pvalue(bead->cnt));
    else
       dot = sub_term_tran(dot,&(bead->cnt));
    bead++;
@@ -364,7 +345,7 @@ if(dot)
 
 /*----------------------------------------------------------------------------*/
 
-show_table_mem()
+int show_table_mem()
 {
 PRINTMEM("table",table_mem)
 }

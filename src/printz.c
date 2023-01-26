@@ -51,6 +51,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
 #define PRINTZ
 #include "printz.h"
 
@@ -71,8 +72,10 @@ static FILE *printz_aux_chan=0,*fprintz_aux_chan=0;
 
 static struct {
   char code,type;
-  int (*fprint_routine)(FILE *chan, ...);
-  int (*sprint_routine)(char buffer[], ...);
+//  int (*fprint_routine)(FILE *chan, ...);
+//  int (*sprint_routine)(char buffer[], ...);
+  int (*fprint_routine)(FILE *chan, void *);
+  int (*sprint_routine)(char buffer[], void *);
 }
 printz_table[MAX_PRINTZ_TYPE+1];
 static int printz_table_n=0;
@@ -89,7 +92,7 @@ int do_printz();
 /*---------------------------------------------------------------------------*/
 
 
-int printz_code(int code,int (*fprint_routine)(FILE *chan,...),int (*sprint_routine)(char buffer[], ...))
+int printz_code(int code,int (*fprint_routine)(FILE *chan,void *),int (*sprint_routine)(char buffer[], void *))
 {
   int i;
   if(printz_table_n<MAX_PRINTZ_TYPE)
@@ -112,8 +115,7 @@ int printz_code(int code,int (*fprint_routine)(FILE *chan,...),int (*sprint_rout
 /*---------------------------------------------------------------------------*/
 
 
-int printz_aux(chan)
-     FILE *chan;
+int printz_aux(FILE *chan)
 {
   printz_aux_chan = chan;
   return 1;
@@ -123,8 +125,7 @@ int printz_aux(chan)
 /*---------------------------------------------------------------------------*/
 
 
-int fprintz_aux(chan)
-     FILE *chan;
+int fprintz_aux(FILE *chan)
 {
   fprintz_aux_chan = chan;
   return 1;
@@ -157,6 +158,7 @@ int fprintz(FILE *chan, char *fmt, ...)
   va_list ap;
   va_start(ap,fmt);
   chan_1 = chan==stdout?printz_aux_chan:fprintz_aux_chan;
+
   if(chan && fmt) ret=do_printz(chan,chan_1,0, fmt,&ap);   
   va_end(ap);
   fflush(chan);
@@ -355,7 +357,8 @@ int do_printz(FILE *chanout,FILE *chanout_1,char *stringout,char *fmt,va_list *a
 		      }
 		    else
 		      {
-			(*printz_table[i].sprint_routine)(stringout,argp,tmp);
+//                  (*printz_table[i].sprint_routine)(stringout,argp,tmp);
+                  (*printz_table[i].sprint_routine)(stringout,argp);
 			while(*stringout)stringout++;
 		      }                 
 		  }
@@ -369,12 +372,14 @@ int do_printz(FILE *chanout,FILE *chanout_1,char *stringout,char *fmt,va_list *a
 		      }
 		    else
 		      {
-			(*printz_table[i].fprint_routine)(chanout,argp,tmp);
+//                  (*printz_table[i].fprint_routine)(chanout,argp,tmp);
+                  (*printz_table[i].fprint_routine)(chanout,argp);
 			if(chanout_1)
-			  (*printz_table[i].fprint_routine)(chanout_1,argp,tmp);
-		      }                               
+//                (*printz_table[i].fprint_routine)(chanout_1,argp,tmp);
+                (*printz_table[i].fprint_routine)(chanout_1,argp);
+		      }
 		  }
-	      }
+	      } // switch(sf)
 	  }
     }
   return 1;

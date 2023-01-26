@@ -57,6 +57,9 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "avl.h"
 #include "rule.h"
 #include "list.h"
@@ -65,6 +68,10 @@
 #include "trace.h"
 #include "table.h"
 #include "printz.h"
+#include "param.h"
+#include "parse.h"
+#include "source.h"
+#include "zlex.h"
 
 static int nt_mem=0;
 static int rule_mem=0;
@@ -103,6 +110,12 @@ struct s_rule_class {
 
 TREE *rule_classes=0;
 
+/*
+int source_list(); //source .c
+int pop_source(); // source.c
+int parse(); //parse.c
+int param_substitute(); //param.c
+ */
 
 /*----------------------------------------------------------------------------*/
 
@@ -171,7 +184,7 @@ void open_rule(char *ntname)
   zz_assert(ntname);
   tmp1.tag = tag_ident;
   s_content_value(tmp1) = (long)ntname;
-  param_substitute(&tmp1,&tmp2);
+  param_substitute(&tmp1, (char **) &tmp2);
   ntname = (char*)s_content_value(tmp1);
   if(!init_rule_done) init_rule();
   if(cur_rule)

@@ -20,6 +20,7 @@
 #ifndef RULE_DEFINED
 #define RULE_DEFINED
 
+#include <string.h>
 #include "avl.h"
 #include "zlex.h"
 
@@ -48,7 +49,7 @@ struct s_rule {
 
 struct s_nt {
 	char *name;
-	char *prompt;
+	const char *prompt;
 	struct s_dot *first_dot;
 	};
 
@@ -82,8 +83,25 @@ struct s_dot
 struct s_nt
 	*find_nt();
 
+void setaction_exelist(struct s_content *list);
+void setaction_assign();
+void setaction_rreturn();
+void setaction_pass();
+void setaction_return(struct s_content *value, char *tag_name);
+void setaction_merge_all();
+void setaction_merge();
+void setaction_append();
+void setaction_list();
+void setaction_exeproc(int (*proc)(), struct s_tag *tag);
+void setaction_exesproc(int (*sproc)(), struct s_tag *tag);
+void append_t_bead(struct s_content *cnt);
+void append_nt_bead(char *ntname, char *beadname);
+void open_rule(char *ntname);
 void free_rule(void * rule_param/*, void* dummy_param*/);
 void init_rule();
+void show_rule_memory();
+void print_rule(struct s_rule *rule);
+
 struct s_rule *close_rule();
 struct s_dot *find_nt_tran(),*find_term_tran();
 
