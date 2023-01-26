@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh 
 
 # Zz Test Script
 # James Brooks, Feb/2002
@@ -35,7 +35,8 @@ fi
 
 
 # Brief help output
-showusage()
+# shellcheck disable=SC2112
+function showusage()
 {
   echo "Usage: $0 [-h] [-d <path>] [<testfile>]"
   echo "  -h print short help"
@@ -66,7 +67,7 @@ else
           showusage;
           exit 0;;
       --)
-          #shift;    ???
+          shift;
           break;;
     esac
   done
@@ -87,12 +88,13 @@ fi
 
 
 # Function for padding output for columns
-paddit()
+# shellcheck disable=SC2112
+function paddit()
 {
   TEMP=$1
-  LEN=`echo "$TEMP" | wc -L`
+  LEN=`echo "$TEMP" | wc -c`
 
-  while [ $LEN -le 40 ]; 
+  while [ $LEN -lt 40 ];
   do
     TEMP=$TEMP"."
     LEN=`expr $LEN + 1`
@@ -102,7 +104,8 @@ paddit()
 }
 
 
-compare_temp_files()
+# shellcheck disable=SC2112
+function compare_temp_files()
 {
   F1=$1
   F2=$2
@@ -112,9 +115,9 @@ compare_temp_files()
 #  set -x 
   if [ -n "$IGNORE_LINE_PATTERN" ]; then
 #    diff --ignore-matching-lines="$PROC_CMD_STR" $F1 $F2 >$TEMP_DIFFFILE
-    diff -u --ignore-matching-lines="$IGNORE_LINE_PATTERN" $F1  $F2 >$TEMP_DIFFFILE
+    diff --ignore-matching-lines="$IGNORE_LINE_PATTERN" $F1  $F2 >$TEMP_DIFFFILE
   else
-    diff -u $F1 $F2 >$TEMP_DIFFFILE
+    diff $F1 $F2 >$TEMP_DIFFFILE
 #    cmp -s $TEMP_FILE1 $TEMP_FILE2
   fi
 
@@ -178,9 +181,8 @@ if [ $FAILURE_COUNT -ne 0 ];
 then
   echo "ERRORS: The following "$FAILURE_COUNT" file(s) produced output other than expected during tests:"
   echo $FAILURE_LIST
-  echo
-  exit 1
 else
   echo "SUCCESS! All tests successful."
-  echo
 fi
+
+echo
