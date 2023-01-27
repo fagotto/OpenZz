@@ -9,6 +9,7 @@
 #  IGNORE_LINE_PATTERN=<regexp>  - identifies lines to ignore in comparison
 
 
+C_DIR=`dirname $0`
 CURRENT_RESULT=""
 FAILURE_LIST=""
 FAILURE_COUNT=0
@@ -17,7 +18,7 @@ TESTFILE_PATTERN="*.zz"
 REMOVE_TMP_FILES=0
 TESTDIR="./"
 TEMP_DIFFFILE="/tmp/zztest.diff"
-ZZ=ozz
+ZZ=$C_DIR/../src/ozz
 IGNORE_LINE_PATTERN='(^\| +line|^listed|reg_var:[A-Z|0-9]*$)'
 
 # Regular expression for 'sed' to begin extracting test results from files.

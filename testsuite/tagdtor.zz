@@ -30,7 +30,10 @@
 !!foo_remove_tag called
 !!END OUTPUT
 
-/aa=/load_lib ".libs/libtagdtor.so"
+!! Dynamic link librery extension depends from platform. You should change this to your platform specific extension
+!! (e.g. *nix is .so, Win is .dll, dylib is Darwin, etc.)
+
+/aa=/load_lib "libtagdtor.dylib"
 
 !!/print "lib handle=", $zz$hexify(aa)
 
