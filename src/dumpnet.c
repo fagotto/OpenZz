@@ -43,7 +43,7 @@ void do_dumpnet(struct s_nt *nt);
 
 /*----------------------------------------------------------------------------*/
 
-static void dump_tran(char *string string)
+static void dump_tran(char *string)
 {
 int i,tab;
 char buffer[256];
