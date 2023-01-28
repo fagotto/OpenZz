@@ -326,7 +326,7 @@ return lexical_error_n+error_n+fatal_error_n+unknown_error_n+internal_error_n;
 
 /*---------------------------------------------------------------------------*/
 
-int syntax_error(int (*info_routine)())
+int syntax_error(void (*info_routine)())
 {
 open_err_file();
 fprintz(stderr,"+ **** SYNTAX ERROR ****\n");

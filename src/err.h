@@ -37,7 +37,7 @@ int error_tail_1();
 int open_err_file();
 int errprintf(char *fmt,...);
 int get_error_number();
-int syntax_error(int (*info_routine)());
+int syntax_error(void (*info_routine)());
 int check_error_max_number();
 
 //int set_max_error_n(int argc, struct s_content argv[], struct s_content *ret);
