@@ -191,7 +191,7 @@ static void *new_memory (uint size)
 
 #elif 1
 
-#warning "memmgr: mixed macro/inlinefun implementation"
+//#warning "memmgr: mixed macro/inlinefun implementation"
 
 static inline void* __alloc_obj(uint size, uint list)
 {
