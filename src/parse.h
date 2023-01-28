@@ -19,7 +19,6 @@ int check_reduce();
 int lr_loop();
 void lr_reduce();
 int recovery();
-static int print_expected();
 int set_recovery(char *ntname,char *termlist);
 int set_nt_prompt(char *ntname,const char *prompt);
 int dump_dot(struct s_dot *dot,int off);
