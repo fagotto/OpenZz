@@ -110,8 +110,12 @@ nt_list[nt_n++]=nt;
 
 /*----------------------------------------------------------------------------*/
 
-static void dump_term_tran(struct s_term_tran *termtran)
+static void dump_term_tran(void *_termtran, void *v)
 {
+
+// Suppress warning
+struct s_term_tran *termtran = (struct s_term_tran *)_termtran;
+
 struct s_content *term;
 struct s_dot *next;
 char buffer[256],tmp[40];
@@ -131,8 +135,12 @@ dump_tran(buffer);
 
 /*----------------------------------------------------------------------------*/
 
-static void dump_nt_tran(struct s_nt_tran *nttran)
+static void dump_nt_tran(void *_nttran, void *v)
 {
+
+// Suppress warning
+struct s_nt_tran *nttran=(struct s_nt_tran *)_nttran;
+
 struct s_nt *nt;
 struct s_dot *next;
 char buffer[256],tmp[40];
