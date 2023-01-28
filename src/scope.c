@@ -91,7 +91,7 @@ struct s_scope *scope,*new_scope;
 new_scope = find_scope(scope_name);
 scope = top_scope;
 while(scope && scope!=new_scope) scope=scope->previous;
-if(scope) {zz_error(ERROR,"duplicate scope");return 0;}
+if(scope) {zz_error(ERROR,"duplicate scope");return 1;}
 if(zz_trace_mask()&TRACE_SCOPE) printz("   @ push scope %s\n",scope_name);
 if(top_scope) top_scope->next = new_scope;
 new_scope->previous = top_scope;
@@ -99,13 +99,15 @@ new_scope->next = 0;
 top_scope = new_scope;
 avl_scan(top_scope->rules,push_rule);
 top_scope->enabled=1;
+return 0;
 }
 
 /*---------------------------------------------------------------------------*/
 int delete_and_push_scope(char *scope_name)
 {
 delete_scope(scope_name);
-zz_push_scope(scope_name); 
+zz_push_scope(scope_name);
+return 0;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -114,7 +116,7 @@ int zz_pop_scope()
 {
 struct s_scope *scope;
 if(!top_scope || !top_scope->previous)
-  {zz_error(ERROR,"you can't remove the kernel scope");return 0;}
+  {zz_error(ERROR,"you can't remove the kernel scope");return 1;}
 scope = top_scope;
 if(zz_trace_mask()&TRACE_SCOPE) printz("   @ pop scope %s\n",scope->name);
 top_scope=top_scope->previous;
@@ -122,6 +124,7 @@ top_scope->next = 0;
 scope->next=scope->previous=0;
 avl_scan(scope->rules,pop_rule);
 scope->enabled=0;
+return 0;
 }
 
 
@@ -200,8 +203,9 @@ rule->next_rule=rule->prev_rule=0;
 /* come pop_rule, ma funziona anche per regole non sul top dello stack */
 
 // Sap: remove_rule(rule)
-void remove_rule(struct s_rule *rule)
+void remove_rule(void *p, void *z)
 {
+struct s_rule *rule=p;
 struct s_rule *oldrule,*r;
 if(zz_trace_mask()&TRACE_SCOPE) printz("   @ remove rule %r\n",rule);
 if(rule->next_rule)
@@ -223,8 +227,10 @@ struct s_scope *scope,*dst_scope;
 struct s_rule *oldrule,*r;
 int flag,need_link;
 last_rule = rule;
+
 if(kernel_flag==0)
   rule->segment_id = cur_segment_id;
+
 if(scope_name)
   dst_scope = find_scope(scope_name);
 else 
@@ -267,7 +273,7 @@ else
    while(scope)
       {
        oldrule = avl_locate(scope->rules,rule);
-       if(oldrule)break;
+       if(oldrule) break;
        scope=scope->next;
       }
    if(oldrule)
@@ -309,6 +315,7 @@ else
 	}
      }
   }
+return 0;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -364,8 +371,9 @@ return last_rule;
 /*---------------------------------------------------------------------------*/
 
 // Sap: do_list_rule(rule)
-void do_list_rule(struct s_rule *rule)
+void do_list_rule(void *p, void *z)
 {
+struct s_rule *rule=p;
 struct s_nt *nt;
 if(cur_nt)
   {
@@ -378,10 +386,10 @@ printz("  %r\n",rule);
 
 /*---------------------------------------------------------------------------*/
 
-int list_all_rules() {do_list_rules(0,0);}
-int list_all_krules() {do_list_rules(0,1);}
-int list_rules(char*s) {do_list_rules(s,0);}
-int list_krules(char*s) {do_list_rules(s,1);}
+int list_all_rules() {return do_list_rules(0,0);}
+int list_all_krules() {return do_list_rules(0,1);}
+int list_rules(char*s) {return do_list_rules(s,0);}
+int list_krules(char*s) {return do_list_rules(s,1);}
 
 /*---------------------------------------------------------------------------*/
 
@@ -408,6 +416,7 @@ while(scope)
    scope=scope->previous;
   }
 printf("\n");
+return 0;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -416,8 +425,9 @@ static FILE *Uchan=0;
 /*---------------------------------------------------------------------------*/
 
 // Sap: do_write_rule(rule)
-void do_write_rule(struct s_rule *rule)
+void do_write_rule(void *p, void *z)
 {
+struct s_rule *rule=p;
 if(rule->segment_id!=cur_segment_id) return;
 
 if(Uchan) {
@@ -426,7 +436,7 @@ if(Uchan) {
         fprintz(Uchan, "%w", &(rule->action));
     }
     fprintz(Uchan, "\n\n");
-    }
+}
 
 }
 
@@ -437,7 +447,7 @@ int write_rules(char *filename)
 struct s_scope *scope;
 int i;
 Uchan = fopen(filename,"a");
-if(!Uchan) {zz_error(ERROR,"Unable to write %s\n",filename);return 0;}
+if(!Uchan) {zz_error(ERROR,"Unable to write %s\n",filename);return 1;}
 printf("RULES segment %d -> (%s)\n",cur_segment_id,filename);
 scope = top_scope;
 while(scope)
@@ -452,6 +462,7 @@ fprintf(Uchan,"\n");
 fclose(Uchan);
 Uchan=0;
 cur_segment_id++;
+return 0;
 }
 
 /*---------------------------------------------------------------------------*/

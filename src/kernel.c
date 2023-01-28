@@ -25,6 +25,8 @@
 #include "rule.h"
 #include "parse.h"
 #include "scope.h"
+#include "source.h"
+#include "param.h"
 
 //int insert_rule(char *scope_name,struct s_rule *rule); //scope.c
 
@@ -280,6 +282,8 @@ OPEN(stat) M("/subtag") GSB(string_e) GSB(string_e) SPROC(subtag) END
 
 OPEN(stat) M("/beep") PROC(proc_beep) END
 OPEN(stat) M("/beep") GSB(string_e) PROC(proc_beep) END
+OPEN(stat) M("/beep") M("reset") PROC(proc_beep_reset) END
+
 OPEN(stat) M("/bye") PROC(proc_quit) END
 OPEN(stat) M("$pretend_eof") PROC(pretend_eof) END
 OPEN(stat) M("/readonce") GSB(ident) SPROC(read_once_only) END

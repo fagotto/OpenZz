@@ -31,6 +31,7 @@ int list_params();
 int show_param_memory();
 int push_param_scope();
 int pop_param_scope();
+int list_params();
 
 #endif // __PARAM_H__
 

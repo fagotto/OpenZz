@@ -153,7 +153,7 @@ int s_print(struct s_list *list)
 
   fprintz(zz_chanout,"\n");
 
-  return 1;
+  return i;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -167,7 +167,7 @@ int s_error(struct s_list *list)
     error_token(list->array+i);
   error_tail_1();
 
-  return 1;
+  return i;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1331,49 +1331,92 @@ show_param_memory();
 
 /*---------------------------------------------------------------------------*/
 
-static int Start_Time, Stop_Time;
+static unsigned long Start_Time=0, Stop_Time=0, Stop_Time_int=0;
 
+/*
 static struct tbuffer
   {
-  int proc_user_time,  proc_system_time;
-  int child_user_time, child_system_time;
+  long proc_user_time,  proc_system_time;
+  long child_user_time, child_system_time;
   }
   Time;
+*/
+
+// static struct tms Time;
+static struct rusage ru;
 
 int init_time()
 {
-times (&Time);
-Start_Time = Time.proc_user_time;
+/*
+    times (&Time);
+    Start_Time = Time.tms_cutime;
+*/
+
+    getrusage(RUSAGE_SELF,&ru);
+    Start_Time = ru.ru_utime.tv_usec;
+
 }
 
-int get_time()
+unsigned long get_time()
 {
-int t;
-times (&Time);
-Stop_Time = Time.proc_user_time;
-t = Stop_Time - Start_Time;
-return t; /* centesimi di secondo */
+    unsigned long t;
+
+    getrusage(RUSAGE_SELF,&ru);
+
+    // If it's first time we are being called set Start_Time
+    if(Start_Time==0) {
+        Start_Time = ru.ru_utime.tv_usec;
+        Stop_Time = Start_Time;
+        Stop_Time_int = Stop_Time;
+    }
+
+    Stop_Time_int = Stop_Time;
+    getrusage(RUSAGE_SELF,&ru);
+    Stop_Time = ru.ru_utime.tv_usec;
+
+    // printf("Stop time: %ld\nStart time %ld\n",Start_Time,Stop_Time);
+
+    t = Stop_Time;
+    return t; /* centesimi di secondo */
 }
 
 int proc_beep(int argc, struct s_content argv[], struct s_content* ret)
 {
 char *s;
 int line_n;
-int time;
-double sec;
+unsigned long delta_1,delta_2;
+double sec_begin,sec_int;
 static int count=0;
-time = get_time();
-sec = (double) time*0.01;
+
+get_time();
+
+delta_1 = Stop_Time - Start_Time;
+delta_2 = Stop_Time - Stop_Time_int;
+
+printf("Delta: %lumicrosec Delta 1: %lumicrosec\n",delta_1, delta_2);
+
+sec_begin = (double) delta_1*0.001;
+
+sec_int = (double) delta_2*0.001;
+
 if(argc==1)
   printz("** %z **    ",&argv[0]);
 else
   printf("** %d **    ",count++);
+
 s=(char*)get_source_name();
 line_n=get_source_line();
-printf("TIME %4.2fs    FILE %s   LINE %d\n",sec,s,line_n);
+
+printf("TIME (from start: %4.4fs this call: %4.4fs)    FILE %s   LINE %d\n",sec_begin, sec_int ,s,line_n);
+
 return 1;
 }
 
+int proc_beep_reset(int argc, struct s_content argv[], struct s_content* ret)
+{
+    Start_Time=0;
+    return proc_beep(argc,argv,ret);
+}
 
 /*---------------------------------------------------------------------------*/
 static int bra_ket_defined = 0;
@@ -1449,31 +1492,31 @@ void proc_quit()
 /*---------------------------------------------------------------------*/
 
 int zz_qtoi(char* q)
-{ int i;
-  i=strtol(q,(char **)0,0);
-  return i;
+{
+    long i;
+    i=strtol(q,(char **)0,0);
+    return (int)i;
 }
 
 /*---------------------------------------------------------------------------*/
 
-int zz_inttohex(int i)
+char * zz_inttohex(int i)
 { 
   char* q=calloc(20,sizeof(char));
-  sprintf(q,"0x%x\0",i);
-  return (int)q;
+  sprintf(q,"0x%x",i);
+  return q;
 }
 
 /*---------------------------------------------------------------------------*/
 
-int zz_inttostring(int i)
+char *zz_inttostring(int i)
 { 
-  char* q=calloc(2,sizeof(char));
-  int ret;
+  char* q=calloc(20,sizeof(char));
   // dr: seems a bug to me (q should get terminated by sprintf) ...
-  //ret = sprintf(q,"%c",*(char*)&i);
-  q[0]=(char)i;
-  q[1]='\0';
-  return (int)q;
+  sprintf(q,"%d",i);
+  //q[0]=(char)i;
+  //q[1]='\0';
+  return q;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1491,7 +1534,7 @@ int zz_int64tohex(int argc, struct s_content argv[], struct s_content* ret)
     }
   val = s_content_llvalue(argv[0]);
   q=calloc(22,sizeof(char));
-  sprintf(q,"0x%Lx",val);
+  sprintf(q,"0x%llx",val);
   
   ret->tag = tag_qstring;
   s_content_svalue(*ret) = q;

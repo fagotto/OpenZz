@@ -21,15 +21,23 @@
 #define __SYS_H__
 
 int zz_qtoi(char* q);
-int zz_inttohex(int i);
+
+char *zz_inttohex(int i);
 int zz_int64tohex(int argc, struct s_content argv[], struct s_content* ret);
-int zz_inttostring(int i);
+char *zz_inttostring(int i);
+
 int zz_doubletofloat(int argc, struct s_content argv[], struct s_content* ret);
-
 int s_do_while_loops(int argc,struct s_content argv[],struct s_content *ret,int while_loop);
-
 int change_extension(char *fullfilename,const char *filetype);
-
 void get_extension(char *fullfilename, char *filetype);
+char *strcat_filename();
+char *s_getenv(char *name);
+int subtag(char *,char *);
+int s_trace(int trace);
+int s_print(struct s_list *list);
+int s_error(struct s_list *list);
+
+int proc_beep(int argc, struct s_content argv[], struct s_content* ret);
+int proc_beep_reset(int argc, struct s_content argv[], struct s_content* ret);
 
 #endif // __SYS_H__

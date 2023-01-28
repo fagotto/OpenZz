@@ -51,7 +51,7 @@ void action(struct s_rule *rule,struct s_content stack[],struct s_content *ret)
   struct s_content argv [MAX_ARGV]; /* allocation issue */
   char *namev[MAX_ARGV];
   int argc;
-  int (*caction)();
+  long (*caction)();
   int i,j;
 
   zz_assert(rule);
@@ -78,7 +78,7 @@ void action(struct s_rule *rule,struct s_content stack[],struct s_content *ret)
   switch(rule->action_type)
     {
     case ACT_T_EXECUTE_PROC:
-      caction = (int (*)())s_content_value(rule->action);
+      caction = (long (*)())s_content_value(rule->action);
       //printf("MIAOOOOOO\n");
       ret->tag = rule->sproc_tag;
       //      if(ret->tag)
@@ -86,7 +86,7 @@ void action(struct s_rule *rule,struct s_content stack[],struct s_content *ret)
       (*caction)(argc,argv,ret);
       break;
     case ACT_T_EXECUTE_SPROC:
-      caction = (int (*)())s_content_value(rule->action);
+      caction = (long (*)())s_content_value(rule->action);
       ret->tag = rule->sproc_tag;
       switch(argc)
 	{
@@ -95,7 +95,7 @@ void action(struct s_rule *rule,struct s_content stack[],struct s_content *ret)
           break;
         case 1:
 	  /*
-	    printf("BONBOLO: tag=%p tag_name=%s value=0x%08x\n", 
+	    printf("BOMBOLO: tag=%p tag_name=%s value=0x%08x\n",
 		 argv[0].tag, argv[0].tag->name, argv[0].value);
 	  */
 	  s_content_value(*ret) = (*caction)(s_content_value(argv[0]));

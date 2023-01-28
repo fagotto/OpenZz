@@ -171,6 +171,7 @@ else
      list_seek(cur_source->src.list.list,cur_source->src.list.current_pos);
       curToken = cur_source->cur_token;
   }
+return 1;
 }
 
 
@@ -313,15 +314,16 @@ int next_token(struct s_content *token)
 
 void next_token_file(struct s_source *src)
 {
-int i,ret;
+int i;
 char *s,*t;
+void *ret;
 if(!cur_source->src.file.s) 
   {
     zz_trace("reading new line...\n");
    /* NEED TO READ A NEW LINE */
    cur_source->src.file.row[0]='\0';
-   ret = (int) fgets(cur_source->src.file.row,132,cur_source->src.file.chan);
-   cur_source->eof = (ret==0);
+   ret = fgets(cur_source->src.file.row,132,cur_source->src.file.chan);
+   cur_source->eof = (ret==NULL);
    cur_source->line_n ++;
    s = t = cur_source->src.file.row;
    for(i=0;i<132 && *t && *t!='\n';i++) t++;
@@ -667,6 +669,7 @@ while(sp>=0)
 	    prompt,source->line_n,source_name(source));
 /*    if(source->type==SOURCE_TT || source->type==SOURCE_FILE) break; */
   }
+return 1;
 }
 
 
@@ -687,7 +690,9 @@ set_cont_prompt()
 
 int pretend_eof()
 {
-if(cur_source) cur_source->eof=1;
+if(cur_source)
+    cur_source->eof=1;
+return 1;
 }
 
 
@@ -710,6 +715,8 @@ else
   {
    if(cur_source) cur_source->eof=1;
   }
+
+return 1;
 }
 
 /*---------------------------------------------------------------------*/

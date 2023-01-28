@@ -188,7 +188,7 @@ void open_rule(char *ntname)
   ntname = (char*)s_content_value(tmp1);
   if(!init_rule_done) init_rule();
   if(cur_rule)
-    free_rule(cur_rule);   
+    free_rule(cur_rule,0);
   cur_rule = (struct s_rule *)calloc(1,sizeof(struct s_rule));
   rule_mem += sizeof(struct s_rule);
   cur_rule->bead_n=1;
@@ -233,20 +233,20 @@ void setaction_exeproc(int (*proc)(), struct s_tag *tag)
     {zz_error(INTERNAL_ERROR, "setaction: rule not open\n");return;}
   cur_rule->action_type = ACT_T_EXECUTE_PROC;
   cur_rule->action.tag = tag_procedure;
-  s_content_value(cur_rule->action) = (long)proc;
+  s_content_pvalue(cur_rule->action) = proc;
   cur_rule->sproc_tag = tag;
 }
 
 /*----------------------------------------------------------------------------*/
 
-void setaction_exesproc(int (*sproc)(), struct s_tag *tag)
+void setaction_exesproc(long (*sproc)(), struct s_tag *tag)
 {
   zz_assert(sproc && tag);
   if(!cur_rule)
     {zz_error(INTERNAL_ERROR, "setaction: rule not open\n");return;}
   cur_rule->action_type = ACT_T_EXECUTE_SPROC;
   cur_rule->action.tag = tag_procedure;
-  s_content_value(cur_rule->action) = (long)sproc;
+  s_content_pvalue(cur_rule->action) = sproc;
   cur_rule->sproc_tag = tag;
 }
 
@@ -520,7 +520,7 @@ void init_rule()
 
 /*----------------------------------------------------------------------------*/
 
-static int do_delete_scope_action(rule)
+static void do_delete_scope_action(rule)
 struct s_rule *rule;
 {
    zz_trace("do_delete_scope_action()\n");
@@ -534,7 +534,7 @@ if(rule->when_exit_scope.tag==tag_list)
   }
 }
 
-void free_rule(void *_rule /*, void *dummy_param*/)
+void free_rule(void *_rule , void *dummy_param)
 {
   struct s_rule *rule = (struct s_rule *)_rule;
   do_delete_scope_action(rule);

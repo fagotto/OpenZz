@@ -23,7 +23,7 @@
 #define OPEN(S) {INIT_ZLEX open_rule(zlex_strsave( #S ));}
 #define GSB(S)  append_nt_bead(zlex_strsave( #S),0);
 #define M(S)    {struct s_content cnt;cnt.tag=tag_qstring;\
-		s_content_value(cnt)=(long)S;append_t_bead(&cnt);}
+		s_content_svalue(cnt)=(char*)S;append_t_bead(&cnt);}
 #define M_EOF   {struct s_content cnt;cnt.tag=tag_eof;\
 		s_content_value(cnt)=0;append_t_bead(&cnt);}
 #define END     insert_rule(0,close_rule());
@@ -43,10 +43,15 @@
 #define MERGE setaction_merge();
 #define MERGE_ALL setaction_merge_all();
 
+// Usano argc,argv[],ret come parametri. ret ritorna il risultato (se applicabile)
 #define PROC(P)   {int P(); setaction_exeproc(P,0);}
 #define FUN(T,P)  {int P(); setaction_exeproc(P,T);}
-#define SPROC(P)  {int P(); setaction_exesproc(P,tag_none);}
-#define SFUN(T,P) {int P(); setaction_exesproc(P,T);}
+
+// Simple call, without argc,argv parameters passing
+#define SPROC(P)  {setaction_exesproc(P,tag_none);}
+
+// P() returns result. So it must return a long to accomodate for pointers
+#define SFUN(T,P) {setaction_exesproc(P,T);}
 
 int kernel();
 int zkernel();
