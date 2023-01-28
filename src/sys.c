@@ -1365,14 +1365,15 @@ unsigned long get_time()
 
     // If it's first time we are being called set Start_Time
     if(Start_Time==0) {
-        Start_Time = ru.ru_utime.tv_usec;
+        Start_Time = ru.ru_utime.tv_usec + ru.ru_utime.tv_sec*1000000;
         Stop_Time = Start_Time;
         Stop_Time_int = Stop_Time;
+        return Stop_Time;
     }
 
     Stop_Time_int = Stop_Time;
     getrusage(RUSAGE_SELF,&ru);
-    Stop_Time = ru.ru_utime.tv_usec;
+    Stop_Time = ru.ru_utime.tv_usec + ru.ru_utime.tv_sec*1000000;
 
     // printf("Stop time: %ld\nStart time %ld\n",Start_Time,Stop_Time);
 
@@ -1393,7 +1394,8 @@ get_time();
 delta_1 = Stop_Time - Start_Time;
 delta_2 = Stop_Time - Stop_Time_int;
 
-printf("Delta: %lumicrosec Delta 1: %lumicrosec\n",delta_1, delta_2);
+// printf("Delta_1: %lu microsec Delta_2: %lu microsec\n",delta_1, delta_2);
+// printf("Stop_Time: %lu microsec\nStop_time_int: %lu microsec\nStart_time: %lu microsec\n",Stop_Time,Stop_Time_int,Start_Time);
 
 sec_begin = (double) delta_1*0.001;
 
@@ -1407,7 +1409,7 @@ else
 s=(char*)get_source_name();
 line_n=get_source_line();
 
-printf("TIME (from start: %4.4fs this call: %4.4fs)    FILE %s   LINE %d\n",sec_begin, sec_int ,s,line_n);
+printf("TIME (from start: %4.4f ms this call: %4.4f ms)    FILE %s   LINE %d\n",sec_begin, sec_int ,s,line_n);
 
 return 1;
 }
