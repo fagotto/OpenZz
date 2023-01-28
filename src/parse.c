@@ -606,7 +606,7 @@ return 1;
 
 /*----------------------------------------------------------------------*/
 
-static int compute_expected_from_reduction(int set_index,struct s_rule *rule)
+static void compute_expected_from_reduction(int set_index,struct s_rule *rule)
 {
 int i,j,k,a,b,curset;
 LRENV oldenv;
@@ -620,7 +620,7 @@ nt=(struct s_nt*)s_content_value(rule->beads[0].cnt);
 oldenv=cur_lrenv;
 while(set_index>=0 && length-->0)
   set_index=lrstack[set_index].prev;
-if(set_index<0) {printf("\n*** Internal error. stackempty ***\n");return 0;}
+if(set_index<0) {printf("\n*** Internal error. stackempty ***\n");return;}
 a=lrstack[set_index].a;
 b=lrstack[set_index].b;
 /* creo il set GOTO */
@@ -634,7 +634,7 @@ for(i=a;i<=b;i++)
 if(cur_lrenv.a>cur_lrenv.b)
   {
    printf("\n*** Internal error. GOTO not found ***\n");
-   cur_lrenv = oldenv;return 0;
+   cur_lrenv = oldenv;return;
   }
 make_closure();
 LR_PushSet(set_index)
@@ -671,7 +671,7 @@ for(i=a;i<=b;i++)
 
 /*----------------------------------------------------------------------*/
 
-static int print_expected()
+static void print_expected()
 {
 char buffer[256];
 int i,j,k;
@@ -1002,7 +1002,6 @@ int parse(struct s_nt *start_nt)
   int ret;
   struct s_cur_token old_token;
   LRENV old_lrenv;
-  //extern int print_expected();
   extern int (*find_prompt_proc)();
 
   find_prompt_proc=find_prompt;
