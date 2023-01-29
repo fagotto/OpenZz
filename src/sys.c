@@ -143,7 +143,7 @@ struct s_tag *s_target_type(argc, argv)
 
 /*----------------------------------------------------------------------------*/
 
-int s_print(struct s_list *list)
+zz_ret s_print(struct s_list *list)
 {
   int i;
 
@@ -158,7 +158,7 @@ int s_print(struct s_list *list)
 
 /*---------------------------------------------------------------------------*/
 
-int s_error(struct s_list *list)
+zz_ret s_error(struct s_list *list)
 {
   int i;
   error_head(2);
@@ -180,6 +180,7 @@ int s_dump(int argc, struct s_content argv[], struct s_content *ret)
     {
       fprintz(zz_chanout,"argv[%d] = %z\n",i,argv+i); 
     }
+  return 0;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -240,9 +241,9 @@ return 1;
 /*--------------------------------------------------------------------------*/
 
 
-int s_trace(int trace)
+zz_ret s_trace(int trace)
 {
-  zztrace = trace;
+  return (zz_ret)(zztrace = trace);
 }
 
 
@@ -687,6 +688,8 @@ for(i=0;i<lst->n;i++)
    pop_source();
   }
 if(created) unset_param(paramname);
+
+return 0;
 }
 
 
@@ -727,6 +730,8 @@ int s_for(int argc, struct s_content argv[], struct s_content* ret)
 
   if(created) 
     unset_param(paramname);
+
+  return 0;
 }
 
 
@@ -833,12 +838,12 @@ CONDECHO(lt, <)
 
 int s_do(int argc, struct s_content argv[], struct s_content* ret)
 {
-  s_do_while_loops(argc,argv,ret,0);
+  return s_do_while_loops(argc,argv,ret,0);
 }
 
 int s_while(int argc, struct s_content argv[], struct s_content* ret)
 {
-  s_do_while_loops(argc,argv,ret,1);
+  return s_do_while_loops(argc,argv,ret,1);
 }
 
 
@@ -983,7 +988,11 @@ int s_if(int argc, struct s_content argv[], struct s_content* ret)
       source_list(&blk);
       parse(find_nt("root"));
       pop_source();
+      return 1;
     }
+
+   return 0;
+
 }
 
 
@@ -1006,19 +1015,21 @@ int s_ifelse(int argc, struct s_content argv[], struct s_content* ret)
   source_list(&blk);
   parse(find_nt("root"));
   pop_source();
+
+  return 1;
 }
 
 
 /*--------------------------------------------------------------------------*/
 
-char *strcat_filename(char *name,char *type)
+zz_ret strcat_filename(char *name,char *type)
 {
 char *s;
 s=(char*)malloc(strlen(name)+strlen(type)+2);
 strcpy(s,name);
 strcat(s,".");
 strcat(s,type);
-return s;
+return (zz_ret)s;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1077,7 +1088,7 @@ int s_add_includedir(int argc, struct s_content argv[], struct s_content* ret)
   zz_includedirs[zz_num_includedirs] = (char*) malloc(strlen(s_content_svalue(argv[0]))+2);
   strcpy(zz_includedirs[zz_num_includedirs], s_content_svalue(argv[0]));
   strcat(zz_includedirs[zz_num_includedirs], "/");
-  zz_num_includedirs++;
+  return zz_num_includedirs++;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1089,6 +1100,7 @@ int s_print_includedirs(int argc, struct s_content argv[], struct s_content* ret
   for (i = 0; i < zz_num_includedirs; i++) {
     fprintf(zz_chanout, "[%d] -> %s\n", i, zz_includedirs[i]);    
   }
+  return 0;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1303,11 +1315,12 @@ int s_split(int argc, struct s_content argv[], struct s_content* ret)
 int show_sys_memory()
 {
 PRINTMEM("sys.qstring",sys_qstring_mem)
+return 0;
 }
 
 /*---------------------------------------------------------------------------*/
 
-int subtag(char *tagson_name,char *tagparent_name)
+zz_ret subtag(char *tagson_name,char *tagparent_name)
 {
 struct s_tag *tagson,*tagparent;
 tagson = find_tag(tagson_name);
@@ -1315,6 +1328,7 @@ tagparent = find_tag(tagparent_name);
 tagson->delete = tagparent->delete;
 tagson->param_on = tagparent->param_on;
 tagson->param_off = tagparent->param_off;
+return 0;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1327,6 +1341,7 @@ show_list_memory();
 show_rule_memory();
 show_sys_memory();
 show_param_memory();
+return 0;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1353,7 +1368,7 @@ int init_time()
 */
 
     getrusage(RUSAGE_SELF,&ru);
-    Start_Time = ru.ru_utime.tv_usec;
+    return (Start_Time = ru.ru_utime.tv_usec);
 
 }
 
@@ -1372,13 +1387,13 @@ unsigned long get_time()
     }
 
     Stop_Time_int = Stop_Time;
-    getrusage(RUSAGE_SELF,&ru);
+    // getrusage(RUSAGE_SELF,&ru);
     Stop_Time = ru.ru_utime.tv_usec + ru.ru_utime.tv_sec*1000000;
 
     // printf("Stop time: %ld\nStart time %ld\n",Start_Time,Stop_Time);
 
     t = Stop_Time;
-    return t; /* centesimi di secondo */
+    return t; /* microsecondi */
 }
 
 int proc_beep(int argc, struct s_content argv[], struct s_content* ret)
@@ -1397,9 +1412,9 @@ delta_2 = Stop_Time - Stop_Time_int;
 // printf("Delta_1: %lu microsec Delta_2: %lu microsec\n",delta_1, delta_2);
 // printf("Stop_Time: %lu microsec\nStop_time_int: %lu microsec\nStart_time: %lu microsec\n",Stop_Time,Stop_Time_int,Start_Time);
 
-sec_begin = (double) delta_1*0.001;
+sec_begin = (double) delta_1*0.001; // convert to millisec
 
-sec_int = (double) delta_2*0.001;
+sec_int = (double) delta_2*0.001; // convert to millisec
 
 if(argc==1)
   printz("** %z **    ",&argv[0]);
@@ -1464,7 +1479,7 @@ return 1;
 /*---------------------------------------------------------------------------*/
 
 
-char *s_getenv(char *name)
+zz_ret s_getenv(char *name)
 {
 int i;
 char buffer[256];
@@ -1478,7 +1493,7 @@ if(!r)
    r=getenv(buffer);
    if(!r)r="";
   }
-return zlex_strsave(r);
+return (zz_ret)zlex_strsave(r);
 }
 
 
@@ -1493,32 +1508,32 @@ void proc_quit()
 
 /*---------------------------------------------------------------------*/
 
-int zz_qtoi(char* q)
+zz_ret zz_qtoi(char* q)
 {
     long i;
     i=strtol(q,(char **)0,0);
-    return (int)i;
+    return (zz_ret)i;
 }
 
 /*---------------------------------------------------------------------------*/
 
-char * zz_inttohex(int i)
+zz_ret zz_inttohex(int i)
 { 
   char* q=calloc(20,sizeof(char));
   sprintf(q,"0x%x",i);
-  return q;
+  return (zz_ret)q;
 }
 
 /*---------------------------------------------------------------------------*/
 
-char *zz_inttostring(int i)
+zz_ret zz_inttostring(int i)
 { 
   char* q=calloc(20,sizeof(char));
   // dr: seems a bug to me (q should get terminated by sprintf) ...
   sprintf(q,"%d",i);
   //q[0]=(char)i;
   //q[1]='\0';
-  return q;
+  return (zz_ret)q;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1657,6 +1672,8 @@ int change_extension(char *fullfilename,const char *filetype) {
 
   strcpy(s+1,filetype);
   strcat(s,tmp);
+
+  return 0;
 }
 
 /*---------------------------------------------------------------------------*/

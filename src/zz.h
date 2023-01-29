@@ -26,6 +26,32 @@
 #ifndef __ZZ_H__
 #define __ZZ_H__
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#if SIZEOF_VOID_P == SIZEOF_INT
+
+typedef int zz_ret;
+// #warning "typedef zz_ret as int"
+
+#elif SIZEOF_VOID_P == SIZEOF_LONG
+
+typedef long int zz_ret;
+// #warning "typedef zz_ret as long"
+
+#elif SIZEOF_VOID_P == SIZEOF_LONG_LONG
+
+typedef long long int zz_ret;
+// #warning "typedef zz_ret as long long"
+
+#else
+
+typedef int64 zz_ret;
+// #warning "typedef zz_ret as int64"
+
+#endif
+
 //#include "zlex.h"
 //#include "trace.h"
 

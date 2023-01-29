@@ -20,22 +20,23 @@
 #ifndef __SYS_H__
 #define __SYS_H__
 
-int zz_qtoi(char* q);
+#include "list.h"
 
-char *zz_inttohex(int i);
 int zz_int64tohex(int argc, struct s_content argv[], struct s_content* ret);
-char *zz_inttostring(int i);
-
 int zz_doubletofloat(int argc, struct s_content argv[], struct s_content* ret);
 int s_do_while_loops(int argc,struct s_content argv[],struct s_content *ret,int while_loop);
 int change_extension(char *fullfilename,const char *filetype);
 void get_extension(char *fullfilename, char *filetype);
-char *strcat_filename();
-char *s_getenv(char *name);
-int subtag(char *,char *);
-int s_trace(int trace);
-int s_print(struct s_list *list);
-int s_error(struct s_list *list);
+
+zz_ret zz_qtoi(char* q);
+zz_ret zz_inttohex(int i);
+zz_ret zz_inttostring(int i);
+zz_ret strcat_filename();
+zz_ret subtag(char *,char *);
+zz_ret s_trace(int trace);
+zz_ret s_print(struct s_list *list);
+zz_ret s_error(struct s_list *list);
+zz_ret s_getenv(char *name);
 
 int proc_beep(int argc, struct s_content argv[], struct s_content* ret);
 int proc_beep_reset(int argc, struct s_content argv[], struct s_content* ret);

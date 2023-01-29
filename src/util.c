@@ -38,7 +38,7 @@
 #include "kernel.h"
 #include "parse.h"
 
-#define VERSION "1.0.4"
+// #define VERSION "1.0.4-5"
 
 static const char *std_prompt = "ozz> ";                // Default prompt
 

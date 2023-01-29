@@ -839,6 +839,7 @@ else
   }
 recovery_array[i].termlist = (char*)malloc(strlen(termlist)+1);
 strcpy(recovery_array[i].termlist,termlist);
+return 1;
 }
 
 /*------------------------------------------------------------------*/
@@ -893,6 +894,8 @@ if(ntname)
   }
 else
   first_prompt = prompt;
+
+return 0;
 }
 
 
@@ -915,6 +918,8 @@ for(nttran=avl_first(dot->nttree);nttran;nttran=avl_next(dot->nttree))
    dump_dot(nttran->next,off+1);
 for(ttran=avl_first(dot->termtree);ttran;ttran=avl_next(dot->termtree))
    dump_dot(ttran->next,off+1);
+
+return 0;
 }
 
 
@@ -979,7 +984,9 @@ static int old_reduction_count=0;
 printf("%d reductions done (%+d)\n",
        reduction_count,reduction_count-old_reduction_count);
 old_reduction_count=reduction_count;
-printf("%d dots used\n",cur_lrenv.b); 
+printf("%d dots used\n",cur_lrenv.b);
+
+return 0;
 }
 
 /*------------------------------------------------------------------*/

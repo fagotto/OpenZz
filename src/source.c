@@ -498,7 +498,7 @@ int source_line(struct s_source *source)
 /*--------------------------------------------------------------------*/
 
 
-int get_current_line()
+zz_ret get_current_line()
 {
 struct s_source *source;
 int sp;
@@ -698,7 +698,7 @@ return 1;
 
 /*--------------------------------------------------------------------*/
 
-int read_once_only(char *id)
+zz_ret read_once_only(char *id)
 {
 struct node {char *id;} *p; 
 static TREE *tree=0;

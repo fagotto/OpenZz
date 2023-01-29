@@ -27,11 +27,10 @@ int unset_param(char *name);
 int param_substitute(struct s_content *token,char **paramname);
 int local_param_substitute(struct s_content *token,struct s_content *paramname);
 int s_param_filter(int argc, struct s_content argv[], struct s_content *ret);
-int list_params();
 int show_param_memory();
 int push_param_scope();
 int pop_param_scope();
-int list_params();
 
+zz_ret list_params();
 #endif // __PARAM_H__
 

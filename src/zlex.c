@@ -1128,27 +1128,27 @@ return 0;
 
 /*----------------------------------------------------------------------------*/
 
-int zlex_set_case_sensitive(int cs)
+zz_ret zlex_set_case_sensitive(int cs)
 {
   zlex_case_insensitive=!cs;
   return 1;
 }
 
-int zlex_set_parse_eol(int peol)
+zz_ret zlex_set_parse_eol(int peol)
 {
   zz_trace("zlex_set_parse_eol(%d)\n", peol);
   zlex_parse_eol=peol;
   return 1;
 }
 
-int zlex_set_default_real_as_double(int peol)
+zz_ret zlex_set_default_real_as_double(int peol)
 {
   zz_trace("zlex_set_default_real_as_double(%d)\n", peol);
   zlex_realconst_double=peol;
   return 1;
 }
 
-int zlex_set_default_integer_as_int64(int peol)
+zz_ret zlex_set_default_integer_as_int64(int peol)
 {
   zz_trace("zlex_set_default_real_as_double(%d)\n", peol);
   zlex_intconst_int64=peol;

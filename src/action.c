@@ -45,13 +45,16 @@ struct s_content* zz_bind_get_ret_value()
 
 #define MAX_ARGV 100
 
+typedef zz_ret (*zz_proc)();
+
 void action(struct s_rule *rule,struct s_content stack[],struct s_content *ret)
 {
   struct s_content cnt,old_zz_ret_value;
   struct s_content argv [MAX_ARGV]; /* allocation issue */
   char *namev[MAX_ARGV];
   int argc;
-  long (*caction)();
+//  zz_ret (*caction)();
+  zz_proc caction;
   int i,j;
 
   zz_assert(rule);
@@ -78,7 +81,7 @@ void action(struct s_rule *rule,struct s_content stack[],struct s_content *ret)
   switch(rule->action_type)
     {
     case ACT_T_EXECUTE_PROC:
-      caction = (long (*)())s_content_value(rule->action);
+      caction = (zz_proc)s_content_value(rule->action);
       //printf("MIAOOOOOO\n");
       ret->tag = rule->sproc_tag;
       //      if(ret->tag)
@@ -86,7 +89,7 @@ void action(struct s_rule *rule,struct s_content stack[],struct s_content *ret)
       (*caction)(argc,argv,ret);
       break;
     case ACT_T_EXECUTE_SPROC:
-      caction = (long (*)())s_content_value(rule->action);
+      caction = (zz_proc)s_content_value(rule->action);
       ret->tag = rule->sproc_tag;
       switch(argc)
 	{

@@ -53,8 +53,9 @@ int remove_dot(struct s_dot *dot);
 
 /* CONFRONTO DI T-TRAN */
 
-int ttrancmp(struct s_term_tran *p1,struct s_term_tran *p2)
+int ttrancmp(void *_p1,void *_p2)
 {
+struct s_term_tran *p1=_p1,*p2=_p2;
 struct s_content *t1,*t2;
 t1 = &(p1->term);
 t2 = &(p2->term);
@@ -93,8 +94,9 @@ return dot;
 /* 
   chiamata da avl_release in remove_dot
  */
-void remove_nt_tran(struct s_nt_tran *tran)
+void remove_nt_tran(void *_tran, void *dummy)
 {
+struct s_nt_tran *tran=_tran;
 remove_dot(tran->next);
 free(tran);
 }
@@ -105,8 +107,9 @@ free(tran);
 /* 
   chiamata da avl_release in remove_dot
  */
-void remove_term_tran(struct s_term_tran *tran)
+void remove_term_tran(void *_tran, void *dummy)
 {
+struct s_term_tran *tran = _tran;
 remove_dot(tran->next);
 free(tran);
 }
@@ -121,6 +124,7 @@ avl_release(dot->nttree,remove_nt_tran);
 avl_close(dot->termtree);dot->termtree=0;
 avl_close(dot->nttree);dot->nttree=0;
 free(dot);
+return 0;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -296,6 +300,8 @@ if(dot->rule)
 dot->rule = rule;
 dot->rule_count++;
 rule->table_backptr = &(dot->rule);
+
+return 0;
 }
 
 
@@ -335,11 +341,12 @@ if(dot)
    else if(dot->rule != 0) /* work around for popvoidrule bug */
      {                     /* why can dot->rule be null ??? */
       zz_error(INTERNAL_ERROR,"unlink_rule: rule mismatch");
-      printf("|  old rule is (0x%x)",dot->rule);print_rule(dot->rule);//printf(" (%p)\n", dot->rule);
+      printf("|  old rule is (0x%lx)",(unsigned long)dot->rule);print_rule(dot->rule);//printf(" (%p)\n", dot->rule);
       printf("|  unlinking rule is ");print_rule(rule);printf("\n");      
       abort();
      }
   }
+return 0;
 }
 
 
@@ -348,6 +355,7 @@ if(dot)
 int show_table_mem()
 {
 PRINTMEM("table",table_mem)
+return 0;
 }
 static char sccsid[]="@(#)table.c	6.1\t9/7/94";
 static char rcsid[] = "$Id: table.c,v 1.6 2002/03/28 16:09:24 kibun Exp $ ";

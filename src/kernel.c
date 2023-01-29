@@ -28,7 +28,7 @@
 #include "source.h"
 #include "param.h"
 
-//int insert_rule(char *scope_name,struct s_rule *rule); //scope.c
+int insert_rule(char *scope_name,struct s_rule *rule); //scope.c
 
 int kernel()
 {

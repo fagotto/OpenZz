@@ -32,6 +32,7 @@
 #include "trace.h"
 #include "scope.h"
 #include "parse.h"
+#include "source.h"
 
 struct s_scope {
         char enabled;
@@ -57,9 +58,9 @@ extern int link_rule(),unlink_rule();
 static struct s_rule *last_rule=0;
 
 
-int pop_source();
-int source_list();
-int do_list_rules();
+//int pop_source();
+//int source_list();
+// zz_ret do_list_rules();
 
 /*---------------------------------------------------------------------------*/
 
@@ -85,7 +86,7 @@ return scope;
 
 /*---------------------------------------------------------------------------*/
 
-int zz_push_scope(char *scope_name)
+zz_ret zz_push_scope(char *scope_name)
 {
 struct s_scope *scope,*new_scope;
 new_scope = find_scope(scope_name);
@@ -103,7 +104,7 @@ return 0;
 }
 
 /*---------------------------------------------------------------------------*/
-int delete_and_push_scope(char *scope_name)
+zz_ret delete_and_push_scope(char *scope_name)
 {
 delete_scope(scope_name);
 zz_push_scope(scope_name);
@@ -112,7 +113,7 @@ return 0;
 
 /*---------------------------------------------------------------------------*/
 
-int zz_pop_scope()
+zz_ret zz_pop_scope()
 {
 struct s_scope *scope;
 if(!top_scope || !top_scope->previous)
@@ -320,7 +321,7 @@ return 0;
 
 /*---------------------------------------------------------------------------*/
 
-int delete_scope(char *name)
+zz_ret delete_scope(char *name)
 {
 int i,j;
 /*void free_rule();*/
@@ -386,14 +387,14 @@ printz("  %r\n",rule);
 
 /*---------------------------------------------------------------------------*/
 
-int list_all_rules() {return do_list_rules(0,0);}
-int list_all_krules() {return do_list_rules(0,1);}
-int list_rules(char*s) {return do_list_rules(s,0);}
-int list_krules(char*s) {return do_list_rules(s,1);}
+zz_ret list_all_rules() {return do_list_rules(0,0);}
+zz_ret list_all_krules() {return do_list_rules(0,1);}
+zz_ret list_rules(char*s) {return do_list_rules(s,0);}
+zz_ret list_krules(char*s) {return do_list_rules(s,1);}
 
 /*---------------------------------------------------------------------------*/
 
-int do_list_rules(char *sintname,int kflag)
+zz_ret do_list_rules(char *sintname,int kflag)
 {
 struct s_scope *scope;
 int i;
@@ -442,7 +443,7 @@ if(Uchan) {
 
 /*---------------------------------------------------------------------------*/
 
-int write_rules(char *filename)
+zz_ret write_rules(char *filename)
 {
 struct s_scope *scope;
 int i;

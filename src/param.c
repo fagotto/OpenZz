@@ -333,7 +333,7 @@ return 1;
 
 /*------------------------------------------------------------------------*/
 
-int list_params()
+zz_ret list_params()
 {
 struct s_param_pair *pair;
 int i,lev;

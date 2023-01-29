@@ -73,8 +73,9 @@ char *get_source_name();
 int next_token(struct s_content *token);
 int source_list(struct s_content *list);
 int fprint_source_position(FILE *chan,int print_action_flag);
-int get_current_line();
-int read_once_only(char *id);
+zz_ret get_current_line();
+zz_ret read_once_only(char *id);
+
 
 #endif // __SOURCE_H__
 

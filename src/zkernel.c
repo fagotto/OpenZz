@@ -104,7 +104,7 @@ OPEN(stat) M("/zlex_set_default_real_as_double") GSB(int) SPROC(zlex_set_default
    */
 OPEN(stat) M("/zlex_set_default_integer_as_int64") GSB(int) SPROC(zlex_set_default_integer_as_int64) END
 
-
+return 0;
 }
 static char sccsid[]="@(#)zkernel.c	6.2\t9/7/94";
 static char rcsid[] = "$Id: zkernel.c,v 1.6 2002/06/03 11:06:13 kibun Exp $ ";

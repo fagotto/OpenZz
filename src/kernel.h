@@ -20,6 +20,8 @@
 #ifndef __KERNEL_H__
 #define __KERNEL_H__
 
+#include "zz.h"
+
 #define OPEN(S) {INIT_ZLEX open_rule(zlex_strsave( #S ));}
 #define GSB(S)  append_nt_bead(zlex_strsave( #S),0);
 #define M(S)    {struct s_content cnt;cnt.tag=tag_qstring;\
@@ -43,15 +45,24 @@
 #define MERGE setaction_merge();
 #define MERGE_ALL setaction_merge_all();
 
-// Usano argc,argv[],ret come parametri. ret ritorna il risultato (se applicabile)
+// Usano argc,argv[],ret come parametri. ret ritorna il risultato (se applicabile).
+// Il valore di ritorno della funzione chiamata non viene considerato quindi più corretttamente sarebbero funzioni di tipo void.
+
 #define PROC(P)   {int P(); setaction_exeproc(P,0);}
 #define FUN(T,P)  {int P(); setaction_exeproc(P,T);}
 
-// Simple call, without argc,argv parameters passing
-#define SPROC(P)  {setaction_exesproc(P,tag_none);}
+// Chiamata che passa uno o più parametri ma non ritorna un valore (tipicamente per le rules /stat-> ...).
+// tag_none serve per segnalare questa eventualità.
+#define SPROC(P)  {zz_ret P(); setaction_exesproc(P,tag_none);}
 
-// P() returns result. So it must return a long to accomodate for pointers
-#define SFUN(T,P) {setaction_exesproc(P,T);}
+// P() ritorna un valore che viene assegnato al non terminale che apre la regola (es. /qstring -> ...)
+// zz_ret è il typedef che viene definito dalla piattaforma per accomodare un valore di ritorno che possa
+// essere poi inserito in s_content.value a prescindere dal suo tipo.
+// zz_ret viene definito con l'int di lunghezza in bit uguale alle dimensione di un puntatore.
+// Su MacOS è un long
+// Le funzioni devono avere come valore di ritorno uno zz_ret e effettuare un cast (zz_ret) sul return per evitare warnings
+
+#define SFUN(T,P) {zz_ret P(); setaction_exesproc(P,T);}
 
 int kernel();
 int zkernel();

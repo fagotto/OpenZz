@@ -169,10 +169,10 @@ struct s_tag* find_tag(const char* name);
 
 //char *content_image();
 void zlex(char **ptr, struct s_content *cnt);
-int zlex_set_case_sensitive(int boolean);
-int zlex_set_parse_eol(int boolean);
-int zlex_set_default_real_as_double(int boolean);
-int zlex_set_default_integer_as_int64(int boolean);
+zz_ret zlex_set_case_sensitive(int boolean);
+zz_ret zlex_set_parse_eol(int boolean);
+zz_ret zlex_set_default_real_as_double(int boolean);
+zz_ret zlex_set_default_integer_as_int64(int boolean);
 int show_zlex_memory();
 
 struct s_tag *find_tag(const char *name);
