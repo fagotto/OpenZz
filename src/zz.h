@@ -30,25 +30,38 @@
 #include "config.h"
 #endif
 
-#if SIZEOF_VOID_P == SIZEOF_INT
+#ifdef SIZEOF_VOID_P
+#define _ZZ_RET_SIZE_ SIZEOF_VOID_P
+#else
+// If there is no configure script to help us we assume we are on a 64 bit platform
+#define _ZZ_RET_SIZE_ 8
+#endif
+
+#if _ZZ_RET_SIZE_ == SIZEOF_INT
 
 typedef int zz_ret;
-// #warning "typedef zz_ret as int"
+#warning "typedef zz_ret as int"
 
-#elif SIZEOF_VOID_P == SIZEOF_LONG
+#elif _ZZ_RET_SIZE_ == SIZEOF_LONG
 
 typedef long int zz_ret;
-// #warning "typedef zz_ret as long"
+#warning "typedef zz_ret as long"
 
-#elif SIZEOF_VOID_P == SIZEOF_LONG_LONG
+#elif _ZZ_RET_SIZE_ == SIZEOF_LONG_LONG
 
 typedef long long int zz_ret;
-// #warning "typedef zz_ret as long long"
+#warning "typedef zz_ret as long long"
 
-#else
+#elif _ZZ_RET_SIZE_ == 8
 
-typedef int64 zz_ret;
-// #warning "typedef zz_ret as int64"
+// Default case
+typedef u_int64_t zz_ret;
+#warning "typedef zz_ret as u_int64_t"
+
+#elif _ZZ_RET_SIZE_ == 4
+
+typedef u_int32_t zz_ret;
+#warning "typedef zz_ret as u_int32_t"
 
 #endif
 

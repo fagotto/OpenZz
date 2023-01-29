@@ -93,7 +93,7 @@ void setaction_merge();
 void setaction_append();
 void setaction_list();
 void setaction_exeproc(int (*proc)(), struct s_tag *tag);
-void setaction_exesproc(long (*sproc)(), struct s_tag *tag);
+void setaction_exesproc(zz_ret (*sproc)(), struct s_tag *tag);
 void append_t_bead(struct s_content *cnt);
 void append_nt_bead(char *ntname, char *beadname);
 void open_rule(char *ntname);

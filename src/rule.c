@@ -239,7 +239,7 @@ void setaction_exeproc(int (*proc)(), struct s_tag *tag)
 
 /*----------------------------------------------------------------------------*/
 
-void setaction_exesproc(long (*sproc)(), struct s_tag *tag)
+void setaction_exesproc(zz_ret (*sproc)(), struct s_tag *tag)
 {
   zz_assert(sproc && tag);
   if(!cur_rule)

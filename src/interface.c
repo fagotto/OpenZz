@@ -67,7 +67,7 @@ int zz_bind_close()
 
 /*-------------------------------------------------------------------------*/
 
-int zz_bind_call(long (*proc)())
+int zz_bind_call(zz_ret (*proc)())
 {
   setaction_exesproc(proc,tag_none);
   return 1;
@@ -75,7 +75,7 @@ int zz_bind_call(long (*proc)())
 
 /*-------------------------------------------------------------------------*/
 
-int zz_bind_call_fun(long (*proc)(),const char *tag)
+int zz_bind_call_fun(zz_ret (*proc)(),const char *tag)
 {
   setaction_exesproc(proc,find_tag(tag));
   return 1;
@@ -83,7 +83,7 @@ int zz_bind_call_fun(long (*proc)(),const char *tag)
 
 /*-------------------------------------------------------------------------*/
 
-int zz_bind_call_fun_tag(long (*proc)(),struct s_tag *tag)
+int zz_bind_call_fun_tag(zz_ret (*proc)(),struct s_tag *tag)
 {
   setaction_exesproc(proc,tag);
   return 1;
