@@ -1,3 +1,17 @@
+* 2023-01-28 *
+
+This is openzz 1.0.4-5, a fork from the catseye github repository.
+I have managed to fix the build for MacOs.
+
+The code is very old and had a lot of assumption that caused segfaults.
+Most of the time the problem is that pointers (64bit on Mac) are passed as int (32bit).
+
+I have also fixed the test suite that now pass entirely, including the dynamic linking.
+
+Matteo
+
+------------------
+
 This is OpenZz 1.0.4-4ce1, a fork of the original OpenZz distribution
 based on version 1.0.4-4.  The original README can be found below, following
 the first line of equals signs in this file.
