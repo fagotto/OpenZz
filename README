@@ -8,6 +8,25 @@ Most of the time the problem is that pointers (64bit on Mac) are passed as int (
 
 I have also fixed the test suite that now pass entirely, including the dynamic linking.
 
+To build the program and the libraries you have to cd to the root directory of the distribution and then run:
+
+./configure
+make all
+
+To test:
+
+./test.sh
+
+or
+
+cd testsuite
+make zztest
+
+To install the program and the libraries:
+
+make install
+
+
 Matteo
 
 ------------------

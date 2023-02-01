@@ -1,3 +1,14 @@
+2023-01-29  Matteo Fago <matteo.fago@gmail.com>
+	* bump version to to 1.0.4-5
+
+	* src/*.c:
+		Fixed to compile on 64 bit platforms
+		Fixed obsolete syntax for function declaration
+		Removed compile warnings
+	* testsuite
+		Fixed linking of dynamic library from zz for MacOs (non portable!)
+		Fixed zz_test.sh for new shells
+
 2002-06-03  Davide Rossetti <davide.rossetti@roma1.infn.it>
 
 	* openzz.spec: bumped to 1.0.4-4
