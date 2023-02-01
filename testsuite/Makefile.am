@@ -24,7 +24,7 @@ all: zztest
 
 ## test: zztest
 
-INCLUDES = -I$(top_srcdir)/src
+AM_CPPFLAGS = -I$(top_srcdir)/src
 
 TESTS = libtagdtor.la
 
