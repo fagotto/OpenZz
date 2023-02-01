@@ -20,7 +20,9 @@ EXTRA_DIST = zz_test.sh \
  tagdtor.zz	 \
  when_del_scope.zz
 
-## all: test
+all: zztest
+
+## test: zztest
 
 INCLUDES = -I$(top_srcdir)/src
 
@@ -33,6 +35,6 @@ libtagdtor_la_LIBADD = ../src/libozz.la
 ED=$(EXTRA_DIST:%.zz=$(srcdir)/%.zz)
 BUILDPATH=$(PWD)
 
-zztest:
+zztest: ../src/ozz
 	$(srcdir)/zz_test.sh -d $(srcdir)
 

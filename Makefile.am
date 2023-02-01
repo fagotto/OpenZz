@@ -5,5 +5,7 @@
 EXTRA_DIST = BUGS ChangeLog autogen.sh openzz.spec
 SUBDIRS = src doc testsuite
 
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
 libtool: $(LIBTOOL_DEPS)
-	$(SHELL) ./config.status --recheck
+	$(SHELL) ./config.status libtool
