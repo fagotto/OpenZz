@@ -37,6 +37,7 @@ zz_ret s_trace(int trace);
 zz_ret s_print(struct s_list *list);
 zz_ret s_error(struct s_list *list);
 zz_ret s_getenv(char *name);
+zz_ret proc_print_version();
 
 int proc_beep(int argc, struct s_content argv[], struct s_content* ret);
 int proc_beep_reset(int argc, struct s_content argv[], struct s_content* ret);

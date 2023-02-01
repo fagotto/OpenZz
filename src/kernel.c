@@ -43,6 +43,7 @@ OPEN(statlist) GSB(statlist) GSB(stat) M("\n") END
 OPEN(stat) END
 
 set_recovery("statlist","\n;");
+
 set_nt_prompt("statlist",zz_get_prompt());
 set_nt_prompt("stat",zz_get_prompt());
 set_nt_prompt(0,zz_get_prompt());
@@ -232,6 +233,7 @@ OPEN(stat) M("/return") GSB($arg) GSB($argtype) PROC(s_return) END
 OPEN($argtype) END
 OPEN($argtype) M("as") GSB(ident) PASS END
 
+OPEN(stat) M("/version") SPROC(proc_print_version) END
 OPEN(stat) M("/param") SPROC(list_params) END
 
 OPEN(stat) M("/rules") GSB(ident) SPROC(list_rules) END

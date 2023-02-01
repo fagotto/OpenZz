@@ -1436,6 +1436,16 @@ int proc_beep_reset(int argc, struct s_content argv[], struct s_content* ret)
 }
 
 /*---------------------------------------------------------------------------*/
+
+zz_ret proc_print_version()
+{
+    printf("OpenZZ version %s\n",VERSION);
+    return 0;
+}
+
+
+
+/*---------------------------------------------------------------------------*/
 static int bra_ket_defined = 0;
 static struct s_content bra,ket;
 
