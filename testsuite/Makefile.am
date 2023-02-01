@@ -20,7 +20,7 @@ EXTRA_DIST = zz_test.sh \
  tagdtor.zz	 \
  when_del_scope.zz
 
-all: zztest
+## all: zztest
 
 ## test: zztest
 
