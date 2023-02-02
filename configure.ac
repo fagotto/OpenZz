@@ -9,23 +9,16 @@ AM_INIT_AUTOMAKE
 dnl Checks for programs.
 AC_PROG_CC
 
-dnl JSB - need to include libtool for building shared libs.
-dnl _LT_SET_OPTION([LT_INIT],[dlopen])
-
-dnl m4_warn([obsolete],[AC_LIBTOOL_DLOPEN: Remove this warning and the call to _LT_SET_OPTION when you put the 'dlopen' option into LT_INIT's first parameter.])
-
-
 dnl Using 'AC_DISABLE_SHARED([])' is recomended to speed compile times
 dnl  during development but that disables our dynamic lib loading
 dnl  feature so I'm commenting it out.
 dnl AC_DISABLE_SHARED([])
 
-LT_INIT
+LT_INIT([dlopen])
 AC_SUBST([LIBTOOL_DEPS])
 
 AC_CONFIG_HEADERS([config.h])
 
-AC_PROG_RANLIB
 AC_PROG_INSTALL
 AC_PROG_CC
 AC_PROG_CPP
