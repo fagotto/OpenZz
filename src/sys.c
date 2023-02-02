@@ -24,6 +24,7 @@
 #include <dlfcn.h>
 #include <ctype.h>
 #include <sys/times.h>
+#include <sys/resource.h>
 #include "zlex.h"
 #include "list.h"
 #include "rule.h"
