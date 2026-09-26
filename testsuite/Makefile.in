@@ -93,8 +93,8 @@ TESTS = boolean.zz deref_param.zz double.zz foreach.zz integer.zz \
 	listmerge.zz listsplit.zz looptest_do.zz looptest_while.zz \
 	numerictypes.zz popvoidrule.zz setcase.zz setparseeol.zz \
 	setparseeol2.zz tagdtor.zz utilities.zz when_del_scope.zz \
-	robustness$(EXEEXT) cli-smoke.sh
-check_PROGRAMS = robustness$(EXEEXT)
+	robustness$(EXEEXT) cli-smoke.sh checked-context$(EXEEXT)
+check_PROGRAMS = robustness$(EXEEXT) checked-context$(EXEEXT)
 subdir = testsuite
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -118,6 +118,9 @@ am__v_lt_1 =
 libtagdtor_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libtagdtor_la_LDFLAGS) $(LDFLAGS) -o $@
+am_checked_context_OBJECTS = checked-context.$(OBJEXT)
+checked_context_OBJECTS = $(am_checked_context_OBJECTS)
+checked_context_DEPENDENCIES = ../src/libozz.la
 am_robustness_OBJECTS = robustness.$(OBJEXT)
 robustness_OBJECTS = $(am_robustness_OBJECTS)
 robustness_DEPENDENCIES = ../src/libozz.la
@@ -136,8 +139,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/robustness.Po \
-	./$(DEPDIR)/tagdtor.Plo
+am__depfiles_remade = ./$(DEPDIR)/checked-context.Po \
+	./$(DEPDIR)/robustness.Po ./$(DEPDIR)/tagdtor.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -157,8 +160,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libtagdtor_la_SOURCES) $(robustness_SOURCES)
-DIST_SOURCES = $(libtagdtor_la_SOURCES) $(robustness_SOURCES)
+SOURCES = $(libtagdtor_la_SOURCES) $(checked_context_SOURCES) \
+	$(robustness_SOURCES)
+DIST_SOURCES = $(libtagdtor_la_SOURCES) $(checked_context_SOURCES) \
+	$(robustness_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -535,6 +540,8 @@ libtagdtor_la_LDFLAGS = -module -avoid-version -rpath $(abs_builddir)
 robustness_SOURCES = robustness.c
 robustness_LDADD = ../src/libozz.la
 CLEANFILES = noname.err
+checked_context_SOURCES = checked-context.c
+checked_context_LDADD = ../src/libozz.la
 all: all-am
 
 .SUFFIXES:
@@ -585,7 +592,11 @@ clean-checkLTLIBRARIES:
 libtagdtor.la: $(libtagdtor_la_OBJECTS) $(libtagdtor_la_DEPENDENCIES) $(EXTRA_libtagdtor_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libtagdtor_la_LINK)  $(libtagdtor_la_OBJECTS) $(libtagdtor_la_LIBADD) $(LIBS)
 
-robustness$(EXEEXT): $(robustness_OBJECTS) $(robustness_DEPENDENCIES) $(EXTRA_robustness_DEPENDENCIES)
+checked-context$(EXEEXT): $(checked_context_OBJECTS) $(checked_context_DEPENDENCIES) $(EXTRA_checked_context_DEPENDENCIES) 
+	@rm -f checked-context$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(checked_context_OBJECTS) $(checked_context_LDADD) $(LIBS)
+
+robustness$(EXEEXT): $(robustness_OBJECTS) $(robustness_DEPENDENCIES) $(EXTRA_robustness_DEPENDENCIES) 
 	@rm -f robustness$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(robustness_OBJECTS) $(robustness_LDADD) $(LIBS)
 
@@ -595,6 +606,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/checked-context.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/robustness.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tagdtor.Plo@am__quote@ # am--include-marker
 
@@ -859,6 +871,13 @@ robustness.log: robustness$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+checked-context.log: checked-context$(EXEEXT)
+	@p='checked-context$(EXEEXT)'; \
+	b='checked-context'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 .zz.log:
 	@p='$<'; \
 	$(am__set_b); \
@@ -968,6 +987,7 @@ clean-am: clean-checkLTLIBRARIES clean-checkPROGRAMS clean-generic \
 	clean-libtool mostlyclean-am
 
 distclean: distclean-am
+	-rm -f ./$(DEPDIR)/checked-context.Po
 	-rm -f ./$(DEPDIR)/robustness.Po
 	-rm -f ./$(DEPDIR)/tagdtor.Plo
 	-rm -f Makefile
@@ -1015,6 +1035,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
+	-rm -f ./$(DEPDIR)/checked-context.Po
 	-rm -f ./$(DEPDIR)/robustness.Po
 	-rm -f ./$(DEPDIR)/tagdtor.Plo
 	-rm -f Makefile

@@ -3,5 +3,5 @@
 ##   run the "autogen.sh" script.
 
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = BUGS ChangeLog autogen.sh build.sh test.sh openzz.spec BUILDING.md
+EXTRA_DIST = BUGS ChangeLog autogen.sh build.sh test.sh openzz.spec BUILDING.md docs/GRAMMATICHE_DINAMICHE_ESTENSIONI_ZZ.md
 SUBDIRS = src doc testsuite

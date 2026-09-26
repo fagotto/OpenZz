@@ -34,3 +34,8 @@ robustness_SOURCES = robustness.c
 robustness_LDADD = ../src/libozz.la
 TESTS += robustness cli-smoke.sh
 CLEANFILES = noname.err
+
+check_PROGRAMS += checked-context
+checked_context_SOURCES = checked-context.c
+checked_context_LDADD = ../src/libozz.la
+TESTS += checked-context
