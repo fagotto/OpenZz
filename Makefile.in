@@ -355,7 +355,9 @@ EXTRA_DIST = BUGS ChangeLog autogen.sh build.sh test.sh openzz.spec \
 	examples/zzpy/syntax/control.zzpy.json \
 	tools/zzpy-native/base.zz tools/zzpy-native/embed.py \
 	examples/zzpy-native/grammar.zz \
-	examples/zzpy-native/dynamic.zzpy docs/ZZPY_LEGACY.md
+	examples/zzpy-native/dynamic.zzpy docs/ZZPY_LEGACY.md \
+	docs/ZZ_MANUALE_RIFERIMENTO.md docs/zz-reference/examples.json \
+	docs/zz-reference/native-rules.txt
 SUBDIRS = src doc testsuite
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

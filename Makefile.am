@@ -9,3 +9,5 @@ EXTRA_DIST += docs/ZZPY_PROTOTIPO.md docs/C_PRIMA_DEL_PREPROCESSORE.md tools/zzp
 SUBDIRS = src doc testsuite
 
 EXTRA_DIST += tools/zzpy-native/base.zz tools/zzpy-native/embed.py examples/zzpy-native/grammar.zz examples/zzpy-native/dynamic.zzpy docs/ZZPY_LEGACY.md
+
+EXTRA_DIST += docs/ZZ_MANUALE_RIFERIMENTO.md docs/zz-reference/examples.json docs/zz-reference/native-rules.txt

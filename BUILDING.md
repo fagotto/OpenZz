@@ -76,3 +76,9 @@ embeds its base grammar; Python is only needed to run generated programs and
 validate the optional integration tests. See [ZZPY_PROTOTIPO.md](docs/ZZPY_PROTOTIPO.md)
 for native grammar imports and inline extensions. The earlier Python/JSON driver
 remains an explicitly historical prototype, covered by separate regression tests.
+
+## Native ZZ language reference
+
+The Italian [reference manual](docs/ZZ_MANUALE_RIFERIMENTO.md) covers native slash
+commands and action semantics. Its 59 examples and the inventory of registered
+commands are checked by `make check` through `zz-reference.sh`.

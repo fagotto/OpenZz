@@ -53,3 +53,6 @@ TESTS += checked-stress
 TESTS += zzpy.sh
 
 TESTS += zzpy-native.sh
+
+TESTS += zz-reference.sh
+EXTRA_DIST += zz-reference-tests.py
