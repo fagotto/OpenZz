@@ -32,9 +32,13 @@
 /py_not -> py_cmp^a :pass
 /py_not -> "not" py_not^a { /return "[\"not\"," & a & "]" }
 /py_and -> py_not^a :pass
-/py_and -> py_and^a "and" py_not^b { /return "[\"and\"," & a & "," & b & "]" }
+/py_and_items -> py_not^a "and" py_not^b { /return a & "," & b }
+/py_and_items -> py_and_items^a "and" py_not^b { /return a & "," & b }
+/py_and -> py_and_items^a { /return "[\"and_chain\",[" & a & "]]" }
 /py_expr -> py_and^a :pass
-/py_expr -> py_expr^a "or" py_and^b { /return "[\"or\"," & a & "," & b & "]" }
+/py_or_items -> py_and^a "or" py_and^b { /return a & "," & b }
+/py_or_items -> py_or_items^a "or" py_and^b { /return a & "," & b }
+/py_expr -> py_or_items^a { /return "[\"or_chain\",[" & a & "]]" }
 /py_simple -> py_name^a "ASSIGN" py_expr^b { /return "[\"assign\"," & a & "," & b & "]" }
 /py_simple -> py_expr^a { /return "[\"expr\"," & a & "]" }
 /py_simple -> "pass" { /return "[\"pass\"]" }

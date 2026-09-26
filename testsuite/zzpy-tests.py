@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """End-to-end tests: ZZ recognition, AST lowering, and ordinary Python runtime."""
+import ast
 import contextlib
 import io
 import json
@@ -91,6 +92,28 @@ pass
     def test_short_circuit_and_native_python_integers(self):
         source = "x = 9223372036854775807 + 1\nprint(x)\nprint(False and missing())\nprint(True or missing())\n"
         self.assertEqual(execute(self.trans(source).code)[0], execute(source)[0])
+
+    def test_boolean_chains_preserve_stateful_truth_tests(self):
+        class Value:
+            def __init__(self, name, truth, events):
+                self.name, self.truth, self.events = name, truth, events
+            def __bool__(self):
+                self.events.append(self.name)
+                return self.truth
+        for source in ("x = a and b and c\n", "x = a or b or c\n",
+                       "x = (a and b) and c\n", "x = a and (b and c)\n",
+                       "x = (a or b) or c\n", "if a and b and c:\n    pass\n"):
+            generated = self.trans(source).code
+            self.assertEqual(ast.dump(ast.parse(source)), ast.dump(ast.parse(generated)))
+            for mask in range(8):
+                observed = []
+                for code in (source, generated):
+                    events = []
+                    env = {name: Value(name, bool(mask & (1 << i)), events)
+                           for i, name in enumerate("abc")}
+                    _, result = execute(code, env)
+                    observed.append((events, result["x"].name if "x" in result else None))
+                self.assertEqual(observed[0], observed[1], (source, mask))
 
     def test_string_payload_cannot_inject_zz(self):
         text = '\"; /print 999; /include "evil"\nü # unless until'

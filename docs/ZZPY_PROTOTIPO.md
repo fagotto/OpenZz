@@ -210,13 +210,13 @@ Python 3.9+. Il compilatore C continua a funzionare senza Python; il solo test Z
 viene marcato SKIP in sua assenza. I runner CI devono avere Python per eseguire la
 prova invece di saltarla.
 
-Risultati locali: **22/22 test Python**, **24/24 test Automake**, build statica
+Risultati locali: **23/23 test Python**, **24/24 test Automake**, build statica
 **23 passati e 1 skip** previsto per il modulo dinamico; `make distcheck` passato.
 È verificato anche lo skip del solo test Python quando l'interprete non è disponibile.
 
 La suite copre confronto con Python ordinario, moduli nuovi definiti dai test,
 ordine degli import, isolamento fra traduzioni, tipi dei template, precedenze,
-short-circuit, singola valutazione della condizione, stringhe ostili, indentazione,
+short-circuit e catene booleane con `__bool__` osservabile, singola valutazione della condizione, stringhe ostili, indentazione,
 versioni, assenza di esecuzione durante la traduzione, file di output preservato
 su errore e budget di espansione per template duplicanti.
 

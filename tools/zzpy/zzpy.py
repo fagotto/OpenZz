@@ -339,6 +339,11 @@ class Frontend:
             return ast.Constant(value=args[0])
         if kind == "none":
             return ast.Constant(value=None)
+        if kind in ("and_chain", "or_chain"):
+            # Python chains are n-ary. Flattening explicit parentheses or nesting
+            # a flat chain can change calls to an operand's stateful __bool__.
+            return ast.BoolOp(op=ast.And() if kind == "and_chain" else ast.Or(),
+                              values=[self.lower(a, depth + 1) for a in args[0]])
         if kind == "extension":
             rule, captures = self.rules[args[0]]
             values = {}
