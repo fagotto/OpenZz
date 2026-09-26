@@ -25,3 +25,6 @@ ozz
 *.log
 *.trs
 /build*/
+
+__pycache__/
+*.pyc

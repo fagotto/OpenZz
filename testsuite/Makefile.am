@@ -17,11 +17,11 @@ TESTS = boolean.zz \
  tagdtor.zz \
  utilities.zz \
  when_del_scope.zz
-EXTRA_DIST = $(TESTS) checked-sanitizers.sh zz_test.sh list_in_cond.zz.SKIPPED
+EXTRA_DIST = zzpy-tests.py $(TESTS) checked-sanitizers.sh zz_test.sh list_in_cond.zz.SKIPPED
 TEST_EXTENSIONS = .zz .sh
 SH_LOG_COMPILER = $(SHELL)
 ZZ_LOG_COMPILER = $(SHELL) $(srcdir)/zz_test.sh
-AM_TESTS_ENVIRONMENT = ZZ='$(abs_top_builddir)/src/ozz'; export ZZ; TEST_BUILDDIR='$(abs_builddir)'; export TEST_BUILDDIR; CHECKED_EXAMPLES='$(abs_top_srcdir)/examples/checked'; export CHECKED_EXAMPLES; CC='$(CC)'; export CC;
+AM_TESTS_ENVIRONMENT = ZZ='$(abs_top_builddir)/src/ozz'; export ZZ; TEST_BUILDDIR='$(abs_builddir)'; export TEST_BUILDDIR; CHECKED_EXAMPLES='$(abs_top_srcdir)/examples/checked'; export CHECKED_EXAMPLES; CC='$(CC)'; export CC; PYTHON3='$(PYTHON3)'; export PYTHON3; PYTHONDONTWRITEBYTECODE=1; export PYTHONDONTWRITEBYTECODE;
 check_LTLIBRARIES = libtagdtor.la
 libtagdtor_la_SOURCES = tagdtor.c
 libtagdtor_la_LIBADD = ../src/libozz.la
@@ -49,3 +49,5 @@ check_PROGRAMS += checked-stress
 checked_stress_SOURCES = checked-stress.c
 checked_stress_LDADD = ../src/libozz.la
 TESTS += checked-stress
+
+TESTS += zzpy.sh

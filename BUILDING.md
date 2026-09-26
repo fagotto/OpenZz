@@ -58,3 +58,13 @@ The CI matrix also exercises Linux arm64 and macOS Intel, and separately compile
 the checked profile with strict C11, ASan, UBSan and Linux leak detection. Runner
 labels follow the GitHub-hosted runner reference:
 https://docs.github.com/en/actions/reference/runners/github-hosted-runners
+
+## ZZPy source-to-source experiment
+
+With Python 3.9+ and a built `ozz`, `tools/zzpy/zzpy.py` translates the explicitly
+limited Python dialect described in `docs/ZZPY_PROTOTIPO.md`. The host grammar
+and imported syntax rules are parsed by the legacy ZZ engine in a fresh process;
+this does not extend the separate `--checked` i64 parser. No external Python
+packages are needed. `configure` detects Python optionally; `make check` skips
+only the ZZPy test when Python 3.9+ is unavailable. Ordinary C builds do not
+require Python. Example modules and generated Python are in `examples/zzpy/`.

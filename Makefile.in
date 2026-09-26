@@ -278,6 +278,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PYTHON3 = @PYTHON3@
 RANLIB = @RANLIB@
 READLINE_LIBS = @READLINE_LIBS@
 SED = @SED@
@@ -343,7 +344,15 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = BUGS ChangeLog autogen.sh build.sh test.sh openzz.spec BUILDING.md docs/CHECKED_PROFILE.md docs/IMPLEMENTAZIONE_PROFILO_CONTROLLATO.md docs/GRAMMATICHE_DINAMICHE_ESTENSIONI_ZZ.md examples/checked/increment.zz examples/checked/modules.zz
+EXTRA_DIST = BUGS ChangeLog autogen.sh build.sh test.sh openzz.spec \
+	BUILDING.md docs/CHECKED_PROFILE.md \
+	docs/IMPLEMENTAZIONE_PROFILO_CONTROLLATO.md \
+	docs/GRAMMATICHE_DINAMICHE_ESTENSIONI_ZZ.md \
+	examples/checked/increment.zz examples/checked/modules.zz \
+	docs/ZZPY_PROTOTIPO.md docs/C_PRIMA_DEL_PREPROCESSORE.md \
+	tools/zzpy/base.zz tools/zzpy/zzpy.py \
+	examples/zzpy/dynamic.zzpy examples/zzpy/dynamic.py \
+	examples/zzpy/syntax/control.zzpy.json
 SUBDIRS = src doc testsuite
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

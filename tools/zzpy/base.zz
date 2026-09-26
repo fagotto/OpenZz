@@ -1,0 +1,48 @@
+!! ZZPy: tokens have already been lexed, values are opaque safe keys.
+/zlex_set_case_sensitive 1
+/py_name -> "ID" qstring^key { /return "[\"name\",\"" & key & "\"]" }
+/py_atom -> py_name^a :pass
+/py_atom -> "INT" qstring^key { /return "[\"literal\",\"" & key & "\"]" }
+/py_atom -> "STR" qstring^key { /return "[\"literal\",\"" & key & "\"]" }
+/py_atom -> "True" { /return "[\"bool\",true]" }
+/py_atom -> "False" { /return "[\"bool\",false]" }
+/py_atom -> "None" { /return "[\"none\"]" }
+/py_atom -> "LP" py_expr^a "RP" :pass
+/py_atom -> py_name^f "LP" "RP" { /return "[\"call\"," & f & ",[]]" }
+/py_atom -> py_name^f "LP" py_args^a "RP" { /return "[\"call\"," & f & ",[" & a & "]]" }
+/py_args -> py_expr^a :pass
+/py_args -> py_args^a "COMMA" py_expr^b { /return a & "," & b }
+/py_factor -> py_atom^a :pass
+/py_factor -> "SUB" py_factor^a { /return "[\"neg\"," & a & "]" }
+/py_term -> py_factor^a :pass
+/py_term -> py_term^a "MUL" py_factor^b { /return "[\"mul\"," & a & "," & b & "]" }
+/py_term -> py_term^a "DIV" py_factor^b { /return "[\"div\"," & a & "," & b & "]" }
+/py_term -> py_term^a "FLOORDIV" py_factor^b { /return "[\"floordiv\"," & a & "," & b & "]" }
+/py_term -> py_term^a "MOD" py_factor^b { /return "[\"mod\"," & a & "," & b & "]" }
+/py_sum -> py_term^a :pass
+/py_sum -> py_sum^a "ADD" py_term^b { /return "[\"add\"," & a & "," & b & "]" }
+/py_sum -> py_sum^a "SUB" py_term^b { /return "[\"sub\"," & a & "," & b & "]" }
+/py_cmp -> py_sum^a :pass
+/py_cmp -> py_sum^a "LT" py_sum^b { /return "[\"lt\"," & a & "," & b & "]" }
+/py_cmp -> py_sum^a "LE" py_sum^b { /return "[\"le\"," & a & "," & b & "]" }
+/py_cmp -> py_sum^a "GT" py_sum^b { /return "[\"gt\"," & a & "," & b & "]" }
+/py_cmp -> py_sum^a "GE" py_sum^b { /return "[\"ge\"," & a & "," & b & "]" }
+/py_cmp -> py_sum^a "EQ" py_sum^b { /return "[\"eq\"," & a & "," & b & "]" }
+/py_cmp -> py_sum^a "NE" py_sum^b { /return "[\"ne\"," & a & "," & b & "]" }
+/py_not -> py_cmp^a :pass
+/py_not -> "not" py_not^a { /return "[\"not\"," & a & "]" }
+/py_and -> py_not^a :pass
+/py_and -> py_and^a "and" py_not^b { /return "[\"and\"," & a & "," & b & "]" }
+/py_expr -> py_and^a :pass
+/py_expr -> py_expr^a "or" py_and^b { /return "[\"or\"," & a & "," & b & "]" }
+/py_simple -> py_name^a "ASSIGN" py_expr^b { /return "[\"assign\"," & a & "," & b & "]" }
+/py_simple -> py_expr^a { /return "[\"expr\"," & a & "]" }
+/py_simple -> "pass" { /return "[\"pass\"]" }
+/py_body -> py_simple^a "NL" :pass
+/py_body -> "if" py_expr^a "COLON" py_suite^b { /return "[\"if\"," & a & "," & b & "]" }
+/py_body -> "while" py_expr^a "COLON" py_suite^b { /return "[\"while\"," & a & "," & b & "]" }
+/py_stmt -> "LOC" qstring^where py_body^body { /return "[\"at\",\"" & where & "\"," & body & "]" }
+/py_stmts -> py_stmt^s :pass
+/py_stmts -> py_stmts^a py_stmt^b { /return a & "," & b }
+/py_suite -> "NL" "IN" py_stmts^s "OUT" { /return "[" & s & "]" }
+/stat -> "__ZZPY_BEGIN" py_stmts^s "__ZZPY_END" { /print "[" & s & "]" }
