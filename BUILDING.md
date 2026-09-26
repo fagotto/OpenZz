@@ -68,3 +68,11 @@ this does not extend the separate `--checked` i64 parser. No external Python
 packages are needed. `configure` detects Python optionally; `make check` skips
 only the ZZPy test when Python 3.9+ is unavailable. Ordinary C builds do not
 require Python. Example modules and generated Python are in `examples/zzpy/`.
+
+## Native Python preprocessor
+
+`make` also builds `src/zzpy`, installed by `make install`. It links libozz and
+embeds its base grammar; Python is only needed to run generated programs and
+validate the optional integration tests. See [ZZPY_PROTOTIPO.md](docs/ZZPY_PROTOTIPO.md)
+for native grammar imports and inline extensions. The earlier Python/JSON driver
+remains an explicitly historical prototype, covered by separate regression tests.

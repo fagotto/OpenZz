@@ -38,3 +38,8 @@ ozz_LDADD = libozzi.la libozz.la
 
 # zz_LDFLAGS =
 # zz_DEPENDENCIES=libzz
+
+# Standalone native frontend; no Python interpreter dependency.
+bin_PROGRAMS += zzpy
+zzpy_SOURCES = zzpy.c zzpy_base.h
+zzpy_LDADD = libozz.la

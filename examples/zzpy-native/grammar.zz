@@ -1,0 +1,10 @@
+!! User extensions: no C callbacks specific to until or tozero.
+/p_stmt -> "until" p_expr^c ":" p_suite^b {
+    pylower while not ( c ) : b
+}
+/p_stmt -> "tozero" ident^id ":" p_suite^b {
+    pylower until id == 0 : {
+        id = id - 1 __NL
+        b
+    }
+}

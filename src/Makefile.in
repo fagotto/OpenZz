@@ -92,7 +92,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = ozz$(EXEEXT)
+bin_PROGRAMS = ozz$(EXEEXT) zzpy$(EXEEXT)
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -161,6 +161,9 @@ libozzi_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 am_ozz_OBJECTS = zz.$(OBJEXT) zz_checked_cli.$(OBJEXT)
 ozz_OBJECTS = $(am_ozz_OBJECTS)
 ozz_DEPENDENCIES = libozzi.la libozz.la
+am_zzpy_OBJECTS = zzpy.$(OBJEXT)
+zzpy_OBJECTS = $(am_zzpy_OBJECTS)
+zzpy_DEPENDENCIES = libozz.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -189,7 +192,7 @@ am__depfiles_remade = ./$(DEPDIR)/action.Plo ./$(DEPDIR)/avl.Plo \
 	./$(DEPDIR)/zsys.Plo ./$(DEPDIR)/zz.Po \
 	./$(DEPDIR)/zz_checked_cli.Po ./$(DEPDIR)/zz_checked_eval.Plo \
 	./$(DEPDIR)/zz_checked_parse.Plo ./$(DEPDIR)/zz_context.Plo \
-	./$(DEPDIR)/zzi.Plo
+	./$(DEPDIR)/zzi.Plo ./$(DEPDIR)/zzpy.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -209,9 +212,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libozz_la_SOURCES) $(libozzi_la_SOURCES) $(ozz_SOURCES)
+SOURCES = $(libozz_la_SOURCES) $(libozzi_la_SOURCES) $(ozz_SOURCES) \
+	$(zzpy_SOURCES)
 DIST_SOURCES = $(libozz_la_SOURCES) $(libozzi_la_SOURCES) \
-	$(ozz_SOURCES)
+	$(ozz_SOURCES) $(zzpy_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -382,6 +386,8 @@ openzzincludedir = $(includedir)/ozz
 openzzinclude_HEADERS = zz_checked.h zz.h zzbind.h zlex.h
 ozz_SOURCES = zz.c zz_checked_cli.c
 ozz_LDADD = libozzi.la libozz.la
+zzpy_SOURCES = zzpy.c zzpy_base.h
+zzpy_LDADD = libozz.la
 all: all-am
 
 .SUFFIXES:
@@ -503,6 +509,10 @@ ozz$(EXEEXT): $(ozz_OBJECTS) $(ozz_DEPENDENCIES) $(EXTRA_ozz_DEPENDENCIES)
 	@rm -f ozz$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(ozz_OBJECTS) $(ozz_LDADD) $(LIBS)
 
+zzpy$(EXEEXT): $(zzpy_OBJECTS) $(zzpy_DEPENDENCIES) $(EXTRA_zzpy_DEPENDENCIES)
+	@rm -f zzpy$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(zzpy_OBJECTS) $(zzpy_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -536,6 +546,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zz_checked_parse.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zz_context.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zzi.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zzpy.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -752,6 +763,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/zz_checked_parse.Plo
 	-rm -f ./$(DEPDIR)/zz_context.Plo
 	-rm -f ./$(DEPDIR)/zzi.Plo
+	-rm -f ./$(DEPDIR)/zzpy.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -824,6 +836,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/zz_checked_parse.Plo
 	-rm -f ./$(DEPDIR)/zz_context.Plo
 	-rm -f ./$(DEPDIR)/zzi.Plo
+	-rm -f ./$(DEPDIR)/zzpy.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -864,9 +877,6 @@ uninstall-am: uninstall-binPROGRAMS uninstall-libLTLIBRARIES \
 
 .PRECIOUS: Makefile
 
-
-# zz_LDFLAGS =
-# zz_DEPENDENCIES=libzz
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -98,6 +98,9 @@ per forme esterne al profilo. I moduli non scaricano pacchetti né caricano file
 I budget sono per collezione, non un limite globale di memoria o di tempo.
 
 I contratti completi, i comandi di riproduzione, la durata dei riferimenti restituiti
-dalle API e le condizioni di errore sono in `CHECKED_PROFILE.md`. Il prossimo passo
-tecnico raccomandato è generalizzare l'IR e le produzioni mantenendo questi test,
-prima di introdurre lexer complessi o ottimizzazioni per il decoding.
+dalle API e le condizioni di errore sono in `CHECKED_PROFILE.md`. Per i preprocessori Python e C la direzione successiva è invece il motore
+storico e la composizione delle azioni native, già disponibile in ZZ. Questo
+profilo resta un esperimento separato per grammatica numerica controllata e
+backend C; non è una traduzione Python → C né il motore generale delle estensioni.
+Isolamento e atomicità del profilo non si trasferiscono automaticamente alle
+azioni native. Vedere `ZZPY_PROTOTIPO.md`.

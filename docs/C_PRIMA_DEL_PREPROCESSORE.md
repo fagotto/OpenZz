@@ -150,5 +150,43 @@ L'output verrà pubblicato soltanto dopo una traduzione ZZ riuscita.
 - [GCC: condizioni `#if`](https://gcc.gnu.org/onlinedocs/cpp/If.html).
 
 Il passo immediato resta il prototipo Python ridotto: permette di verificare
-moduli di sintassi, espansione in AST e riuso del runtime di destinazione prima
+moduli di sintassi, composizione delle azioni ed emissione di frammenti Python prima
 di affrontare l'interazione fra due fasi di trasformazione propria del C.
+
+## Aggiornamento: composizione nativa delle estensioni
+
+La verifica delle azioni del motore storico e il frontend Python in C hanno
+confermato che un'estensione può richiamare altre estensioni nelle proprie azioni.
+Per il futuro frontend C questo diventa un requisito: una regola utente può
+esprimere la trasformazione con altri costrutti C estesi, fino alle produzioni
+che generano C ordinario, senza una callback C specifica per ciascuna regola.
+
+L'host sarà un programma C collegato a libozz, con grammatica di base e
+metagrammatica per caricare file `.zz` e definizioni inline. Le primitive generiche
+potranno costruire frammenti o nodi; non saranno l'unico vocabolario disponibile
+agli autori delle estensioni. Le azioni native sono codice fidato eseguito durante
+la traduzione, mentre il C ospite non viene eseguito dal traduttore.
+
+La grammatica delle azioni è quella attiva al loro utilizzo, anche dopo una
+ridefinizione: scope, importazioni e conflitti vanno documentati e testati. Non
+si presume un significato fissato alla dichiarazione né il rollback del profilo
+`--checked`. L'igiene dei temporanei e la singola valutazione restano requisiti
+separati; la composizione nativa non li garantisce automaticamente.
+
+Restano valide tutte le decisioni precedenti su ZZ prima del preprocessore,
+regioni riconoscibili, macro opache, rami condizionali, header e diagnostiche.
+La composizione non rende disponibili i valori delle macro prima del CPP e non
+risolve la grammatica del C non ancora preprocessato. Le regioni marcate sono
+una scelta iniziale di riconoscimento, non un limite alla composizione delle azioni.
+
+Ai criteri di prova del futuro frontend C aggiungere:
+
+- due estensioni concatenate, la seconda definita usando la prima, senza nuove
+  callback C specifiche;
+- definizione inline e caricamento da file, con verifica dell'ordine;
+- macro conservata attraverso entrambe le espansioni fino al CPP;
+- corpo annidato inserito una volta e argomenti valutati il numero previsto;
+- ridefinizioni e scope controllati con esempi espliciti.
+
+Il frontend C → C resta progettuale: in questa fase è implementato il frontend
+Python ridotto → Python standard in C, documentato in `ZZPY_PROTOTIPO.md`.
