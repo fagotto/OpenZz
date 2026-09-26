@@ -1,0 +1,8 @@
+/atom -> ident^x :pass
+/expr -> atom^x :pass
+/expr -> expr^a "EQ" atom^b :pass
+/target -> ident^x :pass
+/stat -> "go" target^a "ASSIGN" expr^b { /print "assign" }
+/stat -> "go" expr^a { /print "expr" }
+go x ASSIGN y
+go x EQ y

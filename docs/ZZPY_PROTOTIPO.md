@@ -211,3 +211,10 @@ Risultati locali macOS ARM64 di questa revisione:
   disabilitando solo `-Wstrict-prototypes` per le dichiarazioni legacy negli
   header della libreria. Queste prove non certificano assenza di problemi
   nel motore storico né compatibilità con Python completo.
+
+## Percorso verso Python completo
+
+Lo [studio della sintassi completa](ZZPY_PYTHON_COMPLETO.md) confronta questo
+prototipo con Python 3.14, raccoglie prove esplorative e propone l'API tokenizzata,
+la gestione contestuale delle parole chiave e l'emissione strutturata. È una
+proposta di sviluppo: non estende la copertura implementata descritta sopra.

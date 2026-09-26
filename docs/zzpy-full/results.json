@@ -1,0 +1,315 @@
+{
+  "python": "3.14.7",
+  "cases": [
+    {
+      "name": "baseline",
+      "source": "x = 2 + 3 * 4\nprint(x)\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 0,
+      "diagnostic": "",
+      "generated": "x = 2 + 3 * 4\nprint(x)\n",
+      "generated_compiles": true,
+      "ast_equal": true
+    },
+    {
+      "name": "nested_blocks",
+      "source": "x = 2\nwhile x > 0:\n    if x == 1:\n        print(x)\n    x = x - 1\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 0,
+      "diagnostic": "",
+      "generated": "x = 2\nwhile x > 0:\n    if x == 1:\n        print(x)\n    x = x - 1\n",
+      "generated_compiles": true,
+      "ast_equal": true
+    },
+    {
+      "name": "soft_names",
+      "source": "match = 1\ncase = 2\ntype = 3\nprint(match, case, type)\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 0,
+      "diagnostic": "",
+      "generated": "match = 1\ncase = 2\ntype = 3\nprint(match, case, type)\n",
+      "generated_compiles": true,
+      "ast_equal": true
+    },
+    {
+      "name": "dunder_name",
+      "source": "__name__ = \"module\"\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "zzpy: probe.zzpy:1: reserved or overlong identifier\n"
+    },
+    {
+      "name": "unicode_name",
+      "source": "caffè = 1\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "zzpy: probe.zzpy:1: unsupported character\n"
+    },
+    {
+      "name": "multiline_expr",
+      "source": "x = (1 +\n     2)\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "zzpy: probe.zzpy:1: multiline expressions are not supported\n"
+    },
+    {
+      "name": "explicit_join",
+      "source": "x = 1 + \\\n    2\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "zzpy: probe.zzpy:1: unsupported character\n"
+    },
+    {
+      "name": "tabs",
+      "source": "if True:\n\tpass\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "zzpy: probe.zzpy:2: tabs are not supported\n"
+    },
+    {
+      "name": "triple_string",
+      "source": "if True:\n    s = \"\"\"a\nb\"\"\"\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "zzpy: probe.zzpy:2: unterminated string\n"
+    },
+    {
+      "name": "raw_bytes",
+      "source": "a = r\"C:\\temp\"\nb = b\"abc\"\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: '__string'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' \n|     '=' '!' '>' '<' '+' '-' 'and' '__NL' 'or'\n| __emit a = r __string \"C:\\temp\" __NL \n|              ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:2: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "adjacent_strings",
+      "source": "s = \"a\" \"b\"\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: '__string'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' \n|     '=' '!' '>' '<' '+' '-' 'and' '__NL' 'or'\n| __emit s = __string \"a\" __string \"b\" __NL \n|                         ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "fstring",
+      "source": "x = 1\ns = f\"{x + 1!r:>10}\"\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: '__string'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' \n|     '=' '!' '>' '<' '+' '-' 'and' '__NL' 'or'\n| __emit s = f __string \"{x + 1!r:>10}\" __NL \n|              ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:2: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "tstring",
+      "source": "x = 1\ns = t\"{x}\"\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: '__string'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' \n|     '=' '!' '>' '<' '+' '-' 'and' '__NL' 'or'\n| __emit s = t __string \"{x}\" __NL \n|              ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:2: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "numeric_forms",
+      "source": "a = 0xFF\nb = 1_000\nc = 1.5e-3\nd = 2j\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: 'xFF'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' \n|     '!' '>' '<' '+' '-' 'and' '__NL' 'or'\n| __emit a = __number 0 xFF __NL \n|                       ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:2: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "power",
+      "source": "a = -2**2\nb = 2**-1\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: '*'\n| expected one of:  p_factor '-' p_atom '__number' '__string' \n|     '(' '{' '[' int ident qstring '/' 'tag_of' 'pycat'\n| __emit a = - __number 2 * * __number 2 __NL \n|                           ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:2: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "tuple",
+      "source": "a = (1,)\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: ','\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' '!' \n|     '>' '<' '+' '-' 'and' ')' 'or'\n| __emit a = ( __number 1 , ) __NL \n|                         ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "dict_set_list",
+      "source": "a = {\"x\": 1}\nb = {1, 2}\nc = [1, 2]\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: '__string'\n| expected one of:  '}'\n| __emit a = { __string \"x\" : __number 1 } __NL \n|              ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:2: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "comprehension",
+      "source": "a = [x * 2 for x in range(4) if x % 2]\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: 'x'\n| expected one of:  ']'\n| __emit a = [ x * __number 2 for x in range ( __number 4 ) if x % __number 2 ] __NL \n|              ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "generator",
+      "source": "a = sum(x for x in range(4))\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: 'for'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' \n|     '!' '>' '<' '+' '-' 'and' 'or' ')' ','\n| __emit a = sum ( x for x in range ( __number 4 ) ) __NL \n|                    ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "call_arguments",
+      "source": "f(1, x=2, *args, **kw)\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: '__number'\n| expected one of:  '='\n| __emit f ( __number 1 , x = __number 2 , * args , * * kw ) __NL \n|                             ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "attribute_slice",
+      "source": "a = obj.value[1:5:2]\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "zzpy: probe.zzpy:1: unsupported character\n"
+    },
+    {
+      "name": "assignment",
+      "source": "a, *rest = values\na = b = 1\na += 1\nx: int = 2\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: ','\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' '+' \n|     '-' '<' '!' '>' 'and' '__NL' 'or'\n| __emit a , * rest = values __NL \n|          ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:2: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "chained_comparison",
+      "source": "a = 0 < f() < 3\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: '<'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '+' '-' \n|     'and' '__NL' 'or'\n| __emit a = __number 0 < f ( ) < __number 3 __NL \n|                               ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "walrus",
+      "source": "if (x := f()):\n    pass\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: ':'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' '!' \n|     '>' '<' '+' '-' 'and' ')' 'or'\n| __emit if ( x : = f ( ) ) : __NL __IN pass __NL __OUT \n|               ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:2: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "conditional_lambda",
+      "source": "f = lambda x: x if x else 0\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: 'x'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' '!' \n|     '>' '<' '+' '-' 'and' '__NL' 'or'\n| __emit f = lambda x : x if x else __number 0 __NL \n|                   ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "inline_suite",
+      "source": "if True: x = 1; print(x)\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "zzpy: probe.zzpy:1: unsupported character\n"
+    },
+    {
+      "name": "if_else",
+      "source": "if True:\n    pass\nelif False:\n    pass\nelse:\n    pass\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: 'False'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' \n|     '+' '-' '!' '>' '<' 'and' '__NL' 'or'\n| __emit elif False : __NL __IN pass __NL __OUT \n|             ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:5: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "loop_else",
+      "source": "for x in values:\n    if x:\n        break\nelse:\n    pass\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: 'x'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' '+' \n|     '-' '!' '>' '<' 'and' '__NL' 'or'\n| __emit for x in values : __NL __IN if x : __NL __IN break __NL __OUT __OUT \n|            ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:4: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "decorator_def",
+      "source": "@decorate\ndef f(a, /, b=1, *, c=2, **kw):\n    return a + b\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "zzpy: probe.zzpy:1: unsupported character\n"
+    },
+    {
+      "name": "class",
+      "source": "class C(Base, metaclass=Meta):\n    pass\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: 'C'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' '+' \n|     '-' '!' '>' '<' 'and' '__NL' 'or'\n| __emit class C ( Base , metaclass = Meta ) : __NL __IN pass __NL __OUT \n|              ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:2: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "async",
+      "source": "async def f():\n    async with resource() as r:\n        await r.read()\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "zzpy: probe.zzpy:3: unsupported character\n"
+    },
+    {
+      "name": "try_except_star",
+      "source": "try:\n    f()\nexcept* ValueError:\n    pass\nfinally:\n    pass\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: ':'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' '+' \n|     '-' '!' '>' '<' 'and' '__NL' 'or'\n| __emit try : __NL __IN f ( ) __NL __OUT \n|            ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:3: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "match",
+      "source": "match value:\n    case {\"x\": x} if x > 0:\n        pass\n    case _:\n        pass\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: 'value'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' \n|     '+' '-' '!' '>' '<' 'and' '__NL' 'or'\n| __emit match value : __NL __IN case { __string \"x\" : x } if x > __number 0 : __NL __IN pass __NL __OUT case _ : __NL __IN pass __NL __OUT __OUT \n|              ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:5: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "type_parameters",
+      "source": "type Pair[T] = tuple[T, T]\ndef identity[T](x: T) -> T:\n    return x\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: 'Pair'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' \n|     '+' '-' '!' '>' '<' 'and' '__NL' 'or'\n| __emit type Pair [ T ] = tuple [ T , T ] __NL \n|             ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:2: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "ordinary_import",
+      "source": "import os\nfrom sys import version as v\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: 'os'\n| expected one of:  'syntax'\n| import os ; \n|        ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "syntax_module_import",
+      "source": "import syntax\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** ERROR: File grammar.zz not found ****\n| import syntax ; \n|               ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "context_invalid_return",
+      "source": "return 1\n",
+      "cpython_accepts": false,
+      "cpython_error": "'return' outside function (<probe>, line 1)",
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: '__number'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' \n|     '=' '+' '-' '!' '>' '<' 'and' '__NL' 'or'\n| __emit return __number 1 __NL \n|               ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "context_invalid_break",
+      "source": "break\n",
+      "cpython_accepts": false,
+      "cpython_error": "'break' outside loop (<probe>, line 1)",
+      "zzpy_exit": 1,
+      "diagnostic": "zzpy: probe.zzpy:1: unsupported Python keyword\n"
+    },
+    {
+      "name": "context_invalid_await",
+      "source": "await f()\n",
+      "cpython_accepts": false,
+      "cpython_error": "'await' outside function (<probe>, line 1)",
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: 'f'\n| expected one of:  '(' '[' '__floordiv' '*' '/' '%' '=' '+' \n|     '-' '!' '>' '<' 'and' '__NL' 'or'\n| __emit await f ( ) __NL \n|              ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "invalid_comparison",
+      "source": "x = 1 < < 2\n",
+      "cpython_accepts": false,
+      "cpython_error": "invalid syntax (<probe>, line 1)",
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** SYNTAX ERROR ****\n| got: '<'\n| expected one of:  '=' p_sum p_term p_factor '-' p_atom \n|     '__number' '__string' '(' '{' '[' int ident qstring '/' 'tag_of' \n|     'pycat'\n| __emit x = __number 1 < < __number 2 __NL \n|                         ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    },
+    {
+      "name": "long_literal_300",
+      "source": "s = \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n",
+      "cpython_accepts": true,
+      "zzpy_exit": 1,
+      "diagnostic": "+ **** LEXICAL ERROR: qstring not terminated or too long /\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ ****\n| no active input stream\n+ **** SYNTAX ERROR ****\n| got: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'\n| expected one of:  \n|     '(' '[' '__floordiv' '*' '/' '%' '=' '!' '>' '<' '+' '-' 'and' \n|     '__NL' 'or'\n| ... aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \\  __NL \n|     ^\n| line 1 of ZZ-action\nzzpy: probe.zzpy:1: ZZ rejected source or grammar (line denotes end of current unit)\n"
+    }
+  ],
+  "indentation_probe": {
+    "naive": "if True:\n    s = \"\"\"a\n    b\"\"\"\n",
+    "correct": "if True:\n    s = \"\"\"a\nb\"\"\"\n",
+    "naive_constants": [
+      "a\n    b"
+    ],
+    "correct_constants": [
+      "a\nb"
+    ]
+  }
+}

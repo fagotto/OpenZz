@@ -1,0 +1,4 @@
+/stat -> "word" ident^x { /print "name", x }
+/stat -> "word" "match" ident^x ":" { /print "match", x }
+word match
+word match subject :
