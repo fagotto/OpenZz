@@ -1,0 +1,7 @@
+/atom -> ident^x :pass
+/expr -> atom^x :pass
+/expr -> expr^a "==" atom^b :pass
+/target -> ident^x :pass
+/stat -> "go" target^a "=" expr^b { /print "assign" }
+/stat -> "go" expr^a { /print "expr" }
+go x = y

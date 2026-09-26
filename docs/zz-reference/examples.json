@@ -1,0 +1,834 @@
+[
+  {
+    "id": "rule",
+    "title": "Definizione di produzione",
+    "syntax": "/nonterminale -> sequenza [azione]",
+    "text": "Installa una produzione nello scope grammaticale corrente. I terminali si scrivono preferibilmente tra virgolette; `int^n` è un nonterminale con parametro formale. Un nome senza `^` è un terminale, non un riferimento a un'altra produzione. La stessa sequenza nello stesso scope sostituisce la regola precedente. Un'azione omessa restituisce `NONE`, non il testo riconosciuto.",
+    "code": "/stat -> \"saluta\" ident^nome { /print \"ciao\", nome }\nsaluta anna\n",
+    "expected": [
+      "ciao anna"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "named-rule",
+    "title": "Produzione in uno scope nominato",
+    "syntax": "/(scope) nonterminale -> sequenza [azione]",
+    "text": "Inserisce la regola nello scope indicato, anche se non è attivo. Attivarlo con `/push scope`. Non crea uno scope di variabili.",
+    "code": "/(dialetto) stat -> \"saluta\" { /print \"ciao\" }\n/push scope dialetto\nsaluta\n/pop scope\n",
+    "expected": [
+      "ciao"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "local",
+    "title": "Assegnazione locale",
+    "syntax": "/lvalue = valore [as tag]",
+    "text": "Scrive nello scope corrente dei parametri; a livello principale questo è lo scope di base. Un'azione crea un proprio scope. `as` cambia il tag del valore: non è una conversione numerica generale. Non ri-etichettare interi come liste o puntatori. Le variabili locali visibili possono essere sostituite con il loro valore durante la costruzione di azioni/liste.",
+    "code": "/x = 4\n/x = x + 1\n/print x\n",
+    "expected": [
+      "5"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "global",
+    "title": "Assegnazione globale",
+    "syntax": "/lvalue := valore [as tag]",
+    "text": "Scrive nello scope dei parametri di base e marca il parametro globale. I riferimenti globali nei corpi delle azioni possono essere risolti al loro utilizzo, anziché catturati come quelli locali. Non confondere questo scope con `/push scope`.",
+    "code": "/g := 1\n/stat -> \"mostra\" { /print g }\n/g := 2\nmostra\n",
+    "expected": [
+      "2"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "outer",
+    "title": "Assegnazione a un livello superiore",
+    "syntax": "/lvalue delta = valore [as tag]",
+    "text": "`delta` è un intero non negativo: 0 indica il livello corrente, 1 il chiamante. Se delta supera i livelli disponibili, il codice corrente scrive nel livello di base; un delta negativo causa un errore interno. Preferire delta piccoli ed espliciti.",
+    "code": "/stat -> \"esporta\" { /risultato 1 = 42 }\nesporta\n/print risultato\n",
+    "expected": [
+      "42"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "indirect",
+    "title": "Nome indiretto nella lvalue",
+    "syntax": "/*nome = valore",
+    "text": "È una forma di lvalue, utilizzabile dove la grammatica richiede una lvalue. La variabile contiene il nome da assegnare. Non è dereferenziazione di memoria C né commento C.",
+    "code": "/dest = bersaglio\n/*dest = 7\n/print bersaglio\n",
+    "expected": [
+      "7"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "return",
+    "title": "Restituire il valore di una produzione",
+    "syntax": "/return valore [as tag]",
+    "text": "Imposta il registro di ritorno dell'azione. NON esce dal blocco e NON interrompe un ciclo. Una successiva `/return` può sovrascriverlo. Usarlo dentro un'azione con un chiamante che consumi il risultato.",
+    "code": "/numero -> \"prova\" { /return 1; /print \"continua\"; /return 2 }\n/stat -> \"mostra\" numero^n { /print n }\nmostra prova\n",
+    "expected": [
+      "continua",
+      "2"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "print",
+    "title": "Output",
+    "syntax": "/print valore [, valore ...]",
+    "text": "Scrive i valori, separati da spazi, e un accapo. È presente anche uno spazio finale. Usa il canale output ZZ; non assumere che tutti i comandi diagnostici usino quel canale.",
+    "code": "/print \"valore\", 2 + 3\n",
+    "expected": [
+      "valore 5"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "error",
+    "title": "Segnalazione di errore",
+    "syntax": "/error valore [, valore ...]",
+    "text": "Segnala un errore del programma ZZ; non è un'eccezione recuperabile con try/catch. Il CLI termina con esito di errore; il parser può continuare a recuperare altri statement prima di terminare.",
+    "code": "/error \"errore intenzionale\"\n",
+    "expected": null,
+    "contains": "errore intenzionale",
+    "status": 1,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "max-errors",
+    "title": "Soglia degli errori",
+    "syntax": "/max_error_n numero",
+    "text": "Configura la soglia di errori del motore. Usare un piccolo intero positivo; non è un limite di tempo, ricorsione o memoria.",
+    "code": "/max_error_n 5\n/print \"configurato\"\n",
+    "expected": [
+      "configurato"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "execute",
+    "title": "Interpretare una lista di token",
+    "syntax": "/execute lista",
+    "text": "Analizza la lista come `root` con la grammatica attiva. È esecuzione di ZZ, non parsing di una stringa. Una stringa con codice non è una lista. Non introduce lo scope di parametri di una nuova azione di regola; la lista stessa può avere già catturato valori alla costruzione.",
+    "code": "/programma = { /print \"eseguito\"; }\n/execute programma\n",
+    "expected": [
+      "eseguito"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "if",
+    "title": "Condizione",
+    "syntax": "/if condizione { statement } [else { statement }]",
+    "text": "Esegue uno dei blocchi. Condizioni numeriche: `== != < <= > >=`; stringhe: `== !=`. `&&` e `||` sono allo stesso livello grammaticale e non hanno la gerarchia di C/Python: usare parentesi esplicite. Non promettono corto circuito: gli operandi sono ridotti prima della callback. `else` appartiene allo stesso statement.",
+    "code": "/x = 2\n/if (x < 3) { /print \"si\" } else { /print \"no\" }\n",
+    "expected": [
+      "si"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "for",
+    "title": "Ciclo con contatore",
+    "syntax": "/for nome = inizio to fine [step passo] { statement }",
+    "text": "Nel codice corrente il contatore e i limiti vengono trattati come int C; usare piccoli interi. Il test è sempre `i <= fine`: il limite è incluso, passo predefinito 1. Usare solo passi positivi: step 0 può non terminare, uno step negativo non implementa un ciclo discendente. Evitare overflow. Preferire un nome di contatore nuovo.",
+    "code": "/for k = 1 to 5 step 2 { /print k }\n",
+    "expected": [
+      "1",
+      "3",
+      "5"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "foreach",
+    "title": "Iterazione su lista",
+    "syntax": "/foreach nome in lista { statement }",
+    "text": "Assegna ciascun elemento al contatore ed esegue il corpo. Un contatore creato dal ciclo viene rimosso al termine. Evitare nomi già usati, specialmente se il loro valore è un identificatore: sostituzioni e lvalue possono alterare il significato.",
+    "code": "/foreach elemento in { \"uno\" \"due\" } { /print elemento }\n",
+    "expected": [
+      "uno",
+      "due"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "while",
+    "title": "Ciclo con test iniziale",
+    "syntax": "/while condizione { statement }",
+    "text": "La condizione viene conservata e rivalutata a ogni iterazione. Ha una grammatica numerica distinta da `/if`, non è un predicato ZZ arbitrario. **Difetto verificato della revisione documentata:** `>` e `>=` in questa grammatica sono associati alla ricostruzione `!=`. Per codice corretto usare `<` e `<=` con operandi invertiti, oppure `==`/`!=`; non copiare `>`/`>=` in un ciclo. Il corpo non introduce lo scope di un'azione.",
+    "code": "/i = 0\n/while (i < 3) { /print i; /i = i + 1 }\n",
+    "expected": [
+      "0",
+      "1",
+      "2"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "do",
+    "title": "Ciclo con test finale",
+    "syntax": "/do { statement } /while condizione",
+    "text": "Esegue almeno una volta. La coda è `/while`, con slash. Condivide la grammatica della condizione e il difetto su `>`/`>=` descritto sopra. Nessun `/break` o `/continue` nativo.",
+    "code": "/i = 0\n/do { /i = i + 1; /print i } /while (i < 2)\n",
+    "expected": [
+      "1",
+      "2"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "push",
+    "title": "Attivare uno scope grammaticale",
+    "syntax": "/push scope nome",
+    "text": "Attiva lo scope e le sue produzioni. Uno scope superiore può oscurare una regola con la stessa sequenza; non risolve automaticamente tutte le ambiguità tra sequenze differenti. Non inserire due volte uno scope già attivo.",
+    "code": "/stat -> \"voce\" { /print \"base\" }\n/push scope locale\n/stat -> \"voce\" { /print \"locale\" }\nvoce\n/pop scope\nvoce\n",
+    "expected": [
+      "locale",
+      "base"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "pop",
+    "title": "Disattivare lo scope superiore",
+    "syntax": "/pop scope",
+    "text": "Disattiva senza cancellare le produzioni: un push successivo le ripristina. Non elimina i parametri e non equivale a `/delete scope`. Non si può rimuovere lo scope kernel.",
+    "code": "/push scope locale\n/stat -> \"voce\" { /print \"presente\" }\n/pop scope\n/push scope locale\nvoce\n",
+    "expected": [
+      "presente"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "delete",
+    "title": "Cancellare uno scope",
+    "syntax": "/delete scope nome",
+    "text": "Elimina le regole dello scope e chiama gli hook di cancellazione associati alle regole. Usare scope creati dall'applicazione. Per semplice sospensione usare pop.",
+    "code": "/push scope locale\n/stat -> \"voce\" { /print \"presente\" }\n/when delete scope { /print \"rimosso\" }\n/delete scope locale\n",
+    "expected": [
+      "rimosso"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "delpush",
+    "title": "Ricreare uno scope vuoto",
+    "syntax": "/delpush scope nome",
+    "text": "Cancella lo scope omonimo e lo attiva nuovamente vuoto; gli hook di cancellazione possono essere eseguiti.",
+    "code": "/push scope locale\n/stat -> \"voce\" { /print \"vecchio\" }\n/delpush scope locale\n/stat -> \"voce\" { /print \"nuovo\" }\nvoce\n",
+    "expected": [
+      "nuovo"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "change-hook",
+    "title": "Hook di sostituzione",
+    "syntax": "/when change action lista",
+    "text": "Si applica all'ULTIMA regola definita, non a un nome passato al comando. L'hook della vecchia regola viene eseguito quando quella regola viene sostituita nello stesso scope. Il nuovo hook va dichiarato nuovamente se deve sopravvivere alla sostituzione.",
+    "code": "/stat -> \"voce\" { /print \"vecchio\" }\n/when change action { /print \"cambio\" }\n/stat -> \"voce\" { /print \"nuovo\" }\nvoce\n",
+    "expected": [
+      "cambio",
+      "nuovo"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "delete-hook",
+    "title": "Hook di cancellazione",
+    "syntax": "/when delete scope lista",
+    "text": "Si associa all'ultima regola definita; più regole nello stesso scope possono avere hook distinti. Non è un unico distruttore globale dello scope. La normale disattivazione con pop non è cancellazione.",
+    "code": "/push scope locale\n/stat -> \"voce\"\n/when delete scope { /print \"fine\" }\n/pop scope\n/print \"disattivo\"\n/delete scope locale\n",
+    "expected": [
+      "disattivo",
+      "fine"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "include",
+    "title": "Includere un file",
+    "syntax": "/include \"percorso.zz\"",
+    "text": "Interpreta il file come ZZ nel contesto corrente. Non crea automaticamente un modulo isolato. Nel CLI il prefisso dipende da `ZZ_INCLUDES` (default `./`); il percorso non è automaticamente relativo al file includente. Usare stringhe quotate e percorsi corti: le routine legacy hanno buffer fissi. La grammatica accetta anche ident e ident.ident, ma la callback assume qstring: la forma quotata è quella raccomandata.",
+    "code": "/include \"parte.zz\"\n",
+    "expected": [
+      "incluso"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {
+      "parte.zz": "/print \"incluso\"\n"
+    },
+    "plugin": false
+  },
+  {
+    "id": "include-default",
+    "title": "Includere dalla lista di directory",
+    "syntax": "/include <\"nome.zz\">",
+    "text": "Cerca nelle directory aggiunte al motore, in ordine. Può aggiungere l'estensione predefinita se manca; nell'esempio il suffisso è esplicito. Non equivale a una include del preprocessore C.",
+    "code": "/add_includedir \"moduli\"\n/include <\"parte.zz\">\n",
+    "expected": [
+      "incluso"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {
+      "moduli/parte.zz": "/print \"incluso\"\n"
+    },
+    "plugin": false
+  },
+  {
+    "id": "include-dir",
+    "title": "Aggiungere una directory",
+    "syntax": "/add_includedir \"directory\"",
+    "text": "Aggiunge una directory alla ricerca con parentesi angolari. Non cambia la directory di lavoro. Esiste un limite fisso al numero di directory.",
+    "code": "/add_includedir \"moduli\"\n/print_includedirs\n",
+    "expected": null,
+    "contains": "moduli/",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "include-dirs",
+    "title": "Elencare le directory",
+    "syntax": "/print_includedirs",
+    "text": "Mostra la lista delle directory di include predefinite; non è la stessa impostazione del prefisso `ZZ_INCLUDES`.",
+    "code": "/print_includedirs\n",
+    "expected": null,
+    "contains": "Default Include Directories:",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "readonce",
+    "title": "Guardia di inclusione",
+    "syntax": "/readonce identificatore",
+    "text": "Registra una chiave globale al processo. Se la chiave era già registrata, imposta EOF sulla sorgente corrente e ne salta il resto. Usare una chiave unica per modulo; non deduce l'identità del file dal percorso.",
+    "code": "/include \"una.zz\"\n/include \"una.zz\"\n",
+    "expected": [
+      "una volta"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {
+      "una.zz": "/readonce modulo_unico\n/print \"una volta\"\n"
+    },
+    "plugin": false
+  },
+  {
+    "id": "load",
+    "title": "Caricare un modulo nativo",
+    "syntax": "/handle = /load_lib \"./modulo.so\"",
+    "text": "È una produzione di `int`, NON uno statement `stat` autonomo: usarla come espressione. Il modulo deve esportare `void zz_ext_init(void)` e usare l'ABI di questa build. Il loader chiama l'entry point. Il risultato contiene un handle nativo etichettato int: non usarlo per aritmetica né interpretarlo come booleano portabile. Suffisso/percorso dipendono dalla piattaforma. L'esempio usa il modulo di test distribuito, copiato nel runner come `modulo.so`; non è un file già installato.",
+    "code": "/handle = /load_lib \"./modulo.so\"\n",
+    "expected": null,
+    "contains": "registered foo tag",
+    "status": 0,
+    "files": {},
+    "plugin": true
+  },
+  {
+    "id": "subtag",
+    "title": "Copiare callback di gestione di un tag",
+    "syntax": "/subtag \"figlio\" \"padre\"",
+    "text": "Copia solo le callback delete/param_on/param_off dal padre. NON definisce ereditarietà del parser, conversioni o compatibilità di rappresentazione. I valori devono avere una rappresentazione compatibile; il tag si può usare con `as`.",
+    "code": "/subtag \"mia_lista\" \"list\"\n/x = { 1 2 } as mia_lista\n/print tag_of(x)\n",
+    "expected": [
+      "mia_lista"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "case",
+    "title": "Sensibilità alle maiuscole",
+    "syntax": "/zlex_set_case_sensitive intero",
+    "text": "0 usa la normalizzazione storica; un valore nonzero abilita distinzione. Impostare 1 all'inizio del file se si vuole preservare il caso. Nel CLI storico anche il testo quotato può essere normalizzato in modalità predefinita: non assumere la semantica di stringhe di Python.",
+    "code": "/zlex_set_case_sensitive 1\n/aa = 22\n/print AA\n/zlex_set_case_sensitive 0\n/print AA\n",
+    "expected": [
+      "AA",
+      "22"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "eol",
+    "title": "Gestione dei fine riga",
+    "syntax": "/zlex_set_parse_eol intero",
+    "text": "1 rende l'accapo un separatore; 0 lo ignora e richiede `;`. Terminare esplicitamente con `;` il comando che cambia modalità; l'effetto sui token già letti dipende dalla sorgente. Non abilita una gestione dell'indentazione.",
+    "code": "/zlex_set_parse_eol 0 ;;\n/x =\n  22 ;\n/print x ;\n/zlex_set_parse_eol 1 ;\n",
+    "expected": [
+      "22"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "real",
+    "title": "Tipo predefinito dei reali",
+    "syntax": "/zlex_set_default_real_as_double intero",
+    "text": "Nonzero seleziona double per i successivi reali senza suffisso, 0 float. Non cambia retroattivamente valori esistenti. Impostare prima dei dati interessati.",
+    "code": "/zlex_set_default_real_as_double 1\n/x = 1.5\n/print tag_of(x)\n",
+    "expected": [
+      "double"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "integer",
+    "title": "Tipo predefinito degli interi",
+    "syntax": "/zlex_set_default_integer_as_int64 intero",
+    "text": "Nonzero seleziona int64 per i successivi interi, 0 ripristina int. Le direttive che richiedono il nonterminale int possono poi non accettare un letterale diventato int64: non cambiare modalità a metà di una metagrammatica che presume int.",
+    "code": "/zlex_set_default_integer_as_int64 1\n/x = 42\n/print tag_of(x)\n",
+    "expected": [
+      "int64"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "prec",
+    "title": "Precedenza: comando inattivo",
+    "syntax": "/prec token [numero | right numero]",
+    "text": "Le tre forme sono registrate ma le callback sono commentate. Nella revisione documentata NON impostano né mostrano precedenze. Definire livelli distinti nella grammatica (espressione/termine/fattore); non basare il parsing su questo comando.",
+    "code": "/prec \"+\"\n/prec \"+\" 10\n/prec \"*\" right 20\n/print \"nessuna precedenza configurata\"\n",
+    "expected": [
+      "nessuna precedenza configurata"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "version",
+    "title": "Versione",
+    "syntax": "/version",
+    "text": "Mostra la versione compilata di OpenZz; non identifica da sola il commit o le modifiche locali.",
+    "code": "/version\n",
+    "expected": null,
+    "contains": "OpenZZ version",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "param",
+    "title": "Parametri visibili",
+    "syntax": "/param",
+    "text": "Stampa parametri, livelli, tag e valori. Indirizzi e dettagli del formato non sono una API stabile.",
+    "code": "/x = 3\n/param\n",
+    "expected": null,
+    "contains": "x",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "rules",
+    "title": "Regole utente",
+    "syntax": "/rules [nonterminale]",
+    "text": "Elenca le regole non kernel, tutte oppure del nonterminale indicato. Utile per diagnosticare ridefinizioni; non è una prova di non ambiguità.",
+    "code": "/stat -> \"ciao\"\n/rules stat\n/rules\n",
+    "expected": null,
+    "contains": "ciao",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "krules",
+    "title": "Regole kernel",
+    "syntax": "/krules [nonterminale]",
+    "text": "Elenca le produzioni INCLUDENDO quelle kernel, tutte o filtrate. Serve anche a controllare la grammatica effettivamente presente nel processo.",
+    "code": "/krules stat\n/krules\n",
+    "expected": null,
+    "contains": "/ print",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "write-rules",
+    "title": "Esportare le regole",
+    "syntax": "/write rules \"file.zz\"",
+    "text": "Scrive le regole tramite il serializzatore diagnostico. Non presumere un checkpoint completo: stato dei parametri, librerie e risorse esterne non vengono salvati. Controllare il round trip prima di usarlo per persistenza.",
+    "code": "/stat -> \"ciao\"\n/write rules \"regole.zz\"\n",
+    "expected": null,
+    "contains": "",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "trace",
+    "title": "Traccia del parser",
+    "syntax": "/trace maschera",
+    "text": "Bit pubblici: 1 riduzioni, 2 azioni ZZ, 4 scope, 8 stack LR; si combinano per somma/OR. 0 disabilita. Output molto verboso e dipendente dall’implementazione.",
+    "code": "/trace 1\n/print \"traccia\"\n/trace 0\n",
+    "expected": null,
+    "contains": "traccia",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "dumpnet",
+    "title": "Rete di un nonterminale",
+    "syntax": "/dumpnet nome",
+    "text": "Diagnostica della rete di parsing del nonterminale. Non è una definizione grammaticale e non deve essere usata come formato dati stabile.",
+    "code": "/stat -> \"ciao\"\n/dumpnet stat\n",
+    "expected": null,
+    "contains": "",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "memory",
+    "title": "Statistiche della memoria",
+    "syntax": "/memory",
+    "text": "Stampa contatori interni. Non è un garbage collector, un limite di memoria o una misura completa della memoria del processo.",
+    "code": "/memory\n",
+    "expected": null,
+    "contains": "Memory usage",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "report",
+    "title": "Statistiche del parser",
+    "syntax": "/report",
+    "text": "Stampa contatori accumulati dal parser. Formato e valori dipendono dall’esecuzione.",
+    "code": "/report\n",
+    "expected": null,
+    "contains": "",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "lazy",
+    "title": "Statistiche delle valutazioni lazy",
+    "syntax": "/lazy",
+    "text": "Stampa il report interno lazy. Non attiva/disattiva la strategia di valutazione.",
+    "code": "/lazy\n",
+    "expected": null,
+    "contains": "",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "beep",
+    "title": "Marcatori temporali",
+    "syntax": "/beep [etichetta] | /beep reset",
+    "text": "Stampa un marcatore temporale, file e linea; non è un suono. `reset` riavvia il riferimento interno. Usare come diagnostica, non come misura di benchmark portabile.",
+    "code": "/beep reset\n/beep \"fase\"\n/beep\n",
+    "expected": null,
+    "contains": "TIME",
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "bye",
+    "title": "Terminare il processo",
+    "syntax": "/bye",
+    "text": "Chiama exit(0), anche quando ZZ è incorporato in un host C. Non significa uscire dal solo include o ritornare da una funzione. Eseguire l’esempio in un processo dedicato.",
+    "code": "/print \"prima\"\n/bye\n/print \"dopo\"\n",
+    "expected": [
+      "prima"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false
+  },
+  {
+    "id": "action-late",
+    "title": "Azioni e grammatica al momento dell’uso",
+    "syntax": "",
+    "text": "Un corpo può contenere una frase non ancora definita. La grammatica attiva al momento dell’uso deve riconoscerla. Ridefinire la regola richiamata modifica le successive esecuzioni.",
+    "code": "/stat -> \"esterno\" { interno }\n/stat -> \"interno\" { /print \"primo\" }\nesterno\n/stat -> \"interno\" { /print \"secondo\" }\nesterno\n",
+    "expected": [
+      "primo",
+      "secondo"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false,
+    "section": "actions"
+  },
+  {
+    "id": "action-capture",
+    "title": "Cattura locale e riferimento globale",
+    "syntax": "",
+    "text": "Il valore locale è catturato nella definizione; il parametro globale conserva il riferimento. Questo comportamento è distinto dal binding tardivo della grammatica.",
+    "code": "/locale = 1\n/globale := 1\n/stat -> \"mostra\" { /print locale, globale }\n/locale = 2\n/globale := 2\nmostra\n",
+    "expected": [
+      "1 2"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false,
+    "section": "actions"
+  },
+  {
+    "id": "action-nested",
+    "title": "Definire una regola dentro un’azione",
+    "syntax": "",
+    "text": "La definizione interna può catturare il valore del parametro dell’azione esterna, e può essere usata immediatamente. La regola appartiene allo scope grammaticale corrente, non scompare necessariamente al termine dell’azione.",
+    "code": "/stat -> \"crea\" ident^nome {\n /stat -> nome { /print \"costrutto creato\" }\n nome\n}\ncrea saluto\nsaluto\n",
+    "expected": [
+      "costrutto creato",
+      "costrutto creato"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false,
+    "section": "actions"
+  },
+  {
+    "id": "action-pass",
+    "title": "Azione :pass",
+    "syntax": "",
+    "text": "Restituisce il PRIMO valore dei nonterminali della produzione. Non restituisce tutti i parametri né un AST implicito. Usare solo con almeno un nonterminale.",
+    "code": "/coppia -> int^a \",\" int^b :pass\n/stat -> \"prima\" coppia^v { /print v }\nprima 4, 9\n",
+    "expected": [
+      "4"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false,
+    "section": "actions"
+  },
+  {
+    "id": "action-constant",
+    "title": "Azione :return",
+    "syntax": "",
+    "text": "Associa un valore alla regola, senza reinterpretare un corpo ZZ al suo uso. Il valore viene determinato nella dichiarazione. Non è equivalente a `{ /return parametro }`.",
+    "code": "/x = 9\n/numero -> \"nove\" :return x\n/x = 10\n/stat -> \"mostra\" numero^n { /print n }\nmostra nove\n",
+    "expected": [
+      "9"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false,
+    "section": "actions"
+  },
+  {
+    "id": "action-rreturn",
+    "title": "Azione :rreturn",
+    "syntax": "",
+    "text": "Scrive il primo valore dei nonterminali nel registro di ritorno dell'azione chiamante. Serve per direttive che propagano un risultato; NON equivale a :pass. Questo è il meccanismo usato da `pylower` nel frontend Python.",
+    "code": "/numero -> \"sette\" :return 7\n/stat -> \"inoltra\" numero^v :rreturn\n/risultato -> \"calcola\" { inoltra sette }\n/stat -> \"mostra\" risultato^v { /print v }\nmostra calcola\n",
+    "expected": [
+      "7"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false,
+    "section": "actions"
+  },
+  {
+    "id": "action-assign",
+    "title": "Azione :assign",
+    "syntax": "",
+    "text": "Forma speciale interna: richiede ESATTAMENTE tre valori nonterminali: identificatore, valore, tag opzionale (o NONE). Scrive un parametro locale. Non usare :assign con una normale regola a uno o due argomenti. `$argtype` fornisce il terzo valore anche quando manca `as`.",
+    "code": "/stat -> \"memorizza\" ident^n \"=\" int^v $argtype^t :assign\nmemorizza quantita = 7\n/print quantita\n",
+    "expected": [
+      "7"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false,
+    "section": "actions"
+  },
+  {
+    "id": "action-list",
+    "title": "Azione fornita come lista",
+    "syntax": "",
+    "text": "Una lista già costruita può essere associata a una regola e reinterpretata al suo riconoscimento. Le eventuali catture avvenute quando la lista è stata creata non vengono annullate.",
+    "code": "/corpo = { /print \"lista azione\"; }\n/stat -> \"esegui\" corpo\nesegui\n",
+    "expected": [
+      "lista azione"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false,
+    "section": "actions"
+  },
+  {
+    "id": "action-empty",
+    "title": "Regola senza azione",
+    "syntax": "",
+    "text": "Riconosce la frase ma non produce automaticamente un valore utile. È adatta a statement di sola sintassi; non usarla come funzione che dovrebbe restituire un int o una lista.",
+    "code": "/stat -> \"nessuna_operazione\"\nnessuna_operazione\n/print \"ok\"\n",
+    "expected": [
+      "ok"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false,
+    "section": "actions"
+  },
+  {
+    "id": "action-compose",
+    "title": "Composizione nativa e generazione di testo",
+    "syntax": "",
+    "text": "Il livello più basso restituisce testo; un costrutto successivo usa la sintassi del livello precedente dentro l'azione. Non viene eseguito il Python generato. Questo esempio non implementa l'indentazione Python: il frontend `zzpy` documenta la variante con blocchi.",
+    "code": "/codice -> \"scrivi\" ident^id { /return \"print(\" & id & \")\" }\n/stat -> \"inoltra\" codice^v :rreturn\n/codice -> \"mostra\" ident^id { inoltra scrivi id }\n/stat -> \"emetti\" codice^v { /print v }\nemetti mostra risultato\n",
+    "expected": [
+      "print(risultato)"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false,
+    "section": "actions"
+  },
+  {
+    "id": "lists",
+    "title": "Liste, elementi e lunghezza",
+    "syntax": "",
+    "text": "Liste di token, non array Python: elementi separati da spazi, indice da UNO. `&` concatena liste. La valutazione dei nomi durante la costruzione può catturare i valori già associati.",
+    "code": "/a = { 10 20 }\n/b = a & { 30 }\n/print b . 1\n/print b.length\n",
+    "expected": [
+      "10",
+      "3"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false,
+    "section": "actions"
+  },
+  {
+    "id": "eof",
+    "title": "Terminare solo la sorgente corrente",
+    "syntax": "",
+    "text": "`$pretend_eof` è uno statement nativo senza slash. Termina la sorgente attuale, non il processo; un include può così restituire il controllo al chiamante.",
+    "code": "/include \"fine.zz\"\n/print \"chiamante\"\n",
+    "expected": [
+      "interno",
+      "chiamante"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {
+      "fine.zz": "/print \"interno\"\n$pretend_eof\n/print \"non eseguito\"\n"
+    },
+    "plugin": false,
+    "section": "actions"
+  },
+  {
+    "id": "loop-defect",
+    "title": "Prova del difetto > nei cicli",
+    "syntax": "",
+    "text": "Caso di caratterizzazione, NON esempio da imitare: matematicamente `0 > 1` è falso, ma il motore di questa revisione ricostruisce `!=` ed entra nel corpo una volta. Il test documenta il difetto e segnalerà quando il comportamento cambierà.",
+    "code": "/i = 0\n/while (i > 1) { /print \"difetto\"; /i = 1 }\n",
+    "expected": [
+      "difetto"
+    ],
+    "contains": null,
+    "status": 0,
+    "files": {},
+    "plugin": false,
+    "section": "actions"
+  }
+]

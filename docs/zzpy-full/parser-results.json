@@ -1,0 +1,20 @@
+[
+  {
+    "name": "assignment-conflict.zz",
+    "exit": 1,
+    "stdout": "1 error(s) \nlisted in <temporary>/probe.err\n",
+    "stderr": "+ **** ERROR: Ambiguous syntax (2) ****\n| go x = y\n|      ^\n| line 7 of <temporary>/probe.zz\n  (0) reduce target -> ident^x\n  (1) reduce atom -> ident^x\n"
+  },
+  {
+    "name": "assignment-tokens.zz",
+    "exit": 0,
+    "stdout": "assign \nexpr \n",
+    "stderr": ""
+  },
+  {
+    "name": "soft-keyword.zz",
+    "exit": 1,
+    "stdout": "match subject \n1 error(s) \nlisted in <temporary>/probe.err\n",
+    "stderr": "+ **** SYNTAX ERROR ****\n| got: 'EOL'\n| expected one of:  ident\n| word match\n|           ^\n| line 3 of <temporary>/probe.zz\n"
+  }
+]

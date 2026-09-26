@@ -1,0 +1,56 @@
+!! Native grammar. Values are Python fragments, never executed Python.
+/zlex_set_case_sensitive 1
+/$arg -> pyblock^x :pass
+/stat -> "pylower" p_stmt^s :rreturn
+/p_atom -> qstring^x :pass
+/p_atom -> "__number" qstring^x :pass
+/p_atom -> "__string" qstring^x :pass
+/p_atom -> "(" p_expr^x ")" { /return pycat "(" x ")" }
+/p_atom -> "{" "}" { /return "{}" }
+/p_atom -> "[" "]" { /return "[]" }
+/p_atom -> p_atom^a "[" p_expr^i "]" { /return pycat a "[" pycat i "]" "" }
+/p_atom -> p_atom^f "(" ")" { /return pycat f "()" "" }
+/p_atom -> p_atom^f "(" p_args^a ")" { /return pycat f "(" pycat a ")" "" }
+/p_args -> p_expr^x :pass
+/p_args -> p_args^a "," p_expr^b { /return pycat a ", " b }
+/p_factor -> p_atom^x :pass
+/p_factor -> "-" p_factor^x { /return pycat "-" x "" }
+/p_term -> p_factor^x :pass
+/p_term -> p_term^a "*" p_factor^b { /return pycat a " * " b }
+/p_term -> p_term^a "/" p_factor^b { /return pycat a " / " b }
+/p_term -> p_term^a "__floordiv" p_factor^b { /return pycat a " // " b }
+/p_term -> p_term^a "%" p_factor^b { /return pycat a " % " b }
+/p_sum -> p_term^x :pass
+/p_sum -> p_sum^a "+" p_term^b { /return pycat a " + " b }
+/p_sum -> p_sum^a "-" p_term^b { /return pycat a " - " b }
+/p_cmp -> p_sum^x :pass
+/p_cmp -> p_sum^a "==" p_sum^b { /return pycat a " == " b }
+/p_cmp -> p_sum^a "!=" p_sum^b { /return pycat a " != " b }
+/p_cmp -> p_sum^a "<" p_sum^b { /return pycat a " < " b }
+/p_cmp -> p_sum^a ">" p_sum^b { /return pycat a " > " b }
+/p_cmp -> p_sum^a "<=" p_sum^b { /return pycat a " <= " b }
+/p_cmp -> p_sum^a ">=" p_sum^b { /return pycat a " >= " b }
+/p_not -> p_cmp^x :pass
+/p_not -> "not" p_not^x { /return pycat "not " x "" }
+/p_and -> p_not^x :pass
+/p_and -> p_and^a "and" p_not^b { /return pycat a " and " b }
+/p_expr -> p_and^x :pass
+/p_expr -> p_expr^a "or" p_and^b { /return pycat a " or " b }
+/p_stmt -> p_sum^a "=" p_expr^b "__NL" { /return pyassign a b }
+/p_stmt -> p_expr^x "__NL" { /return pyline x }
+/p_stmt -> "pass" "__NL" { /return pyline "pass" }
+/p_stmt -> "if" p_expr^c ":" p_suite^b { /return pycompound pycat "if " c ":" b }
+/p_stmt -> "while" p_expr^c ":" p_suite^b { /return pycompound pycat "while " c ":" b }
+/p_stmt -> pyblock^b :pass
+/p_stmts -> p_stmt^s :pass
+/p_leading ->
+/p_leading -> p_leading^$ "\n"
+/p_stmts -> p_stmts^s "\n" :pass
+/p_stmts -> p_stmts^a p_stmt^b { /return pysequence a b }
+/p_suite -> "__NL" "__IN" p_stmts^s "__OUT" :pass
+/p_suite -> "{" p_leading^$ p_stmts^s "}" { /return s }
+/p_suite -> pyblock^s :pass
+/stat -> "__emit" p_stmt^s { pypublish s }
+/stat -> "import" "syntax" qstring^path { /include path }
+/stat -> "import" "syntax" { /include "grammar.zz" }
+/stat -> "syntax" "zz" "{" $ablock^body "}" { /execute body }

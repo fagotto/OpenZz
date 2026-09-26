@@ -56,5 +56,7 @@ AC_SUBST([READLINE_LIBS])
 LT_LIB_M
 AC_SUBST([LIBM])
 AC_CHECK_FUNCS([strdup strtol])
+dnl Python is optional: only the source-tree ZZPy prototype test uses it.
+AC_PATH_PROG([PYTHON3], [python3])
 AC_CONFIG_FILES([Makefile src/Makefile doc/Makefile doc/src/Makefile testsuite/Makefile])
 AC_OUTPUT

@@ -39,6 +39,8 @@ jobs:
         run: brew install autoconf automake libtool
       - name: Record platform
         run: uname -a
+      - name: Require Python for the ZZPy integration test
+        run: python3 -c 'import sys; assert sys.version_info >= (3, 9)'
       - name: Regenerate build system
         run: ./autogen.sh
       - name: Configure and test out of tree

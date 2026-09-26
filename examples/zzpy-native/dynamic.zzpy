@@ -1,0 +1,7 @@
+import syntax
+
+i = 10
+v = {}
+tozero i:
+    v[i] = i
+print(i, v)

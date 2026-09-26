@@ -1,0 +1,17 @@
+{
+  "format": 1,
+  "name": "control",
+  "version": "1",
+  "rules": [
+    {
+      "name": "unless",
+      "pattern": ["unless", {"capture": "condition", "type": "expr"}, ":", {"capture": "body", "type": "suite"}],
+      "expand": ["if", ["not", {"capture": "condition"}], {"capture": "body"}]
+    },
+    {
+      "name": "until",
+      "pattern": ["until", {"capture": "condition", "type": "expr"}, ":", {"capture": "body", "type": "suite"}],
+      "expand": ["while", ["not", {"capture": "condition"}], {"capture": "body"}]
+    }
+  ]
+}

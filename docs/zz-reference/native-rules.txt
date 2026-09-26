@@ -1,0 +1,53 @@
+kernel.c: OPEN(stat) M("/while") GSB($loop_cond_e) M("{") GSB($flow_block) M("}") PROC(s_while) END
+kernel.c: OPEN(stat) M("/do") M("{") GSB($flow_block) M("}") M("/while") GSB($loop_cond_e) PROC(s_do) END
+kernel.c: OPEN(stat) M("/print") GSB($arglist) SPROC(s_print) END
+kernel.c: OPEN(stat) M("/error") GSB($arglist) SPROC(s_error) END
+kernel.c: OPEN(stat) M("/max_error_n") GSB(num_e) PROC(set_max_error_n) END
+kernel.c: OPEN(stat) M("/") GSB(lvalue) M("=") GSB($arg) GSB($argtype) PROC(s_param_assign) END
+kernel.c: OPEN(stat) M("/") GSB(lvalue) M(":=") GSB($arg) GSB($argtype) PROC(s_param_g_assign) END
+kernel.c: OPEN(stat) M("/") GSB(lvalue) GSB(int) M("=") GSB($arg) GSB($argtype) PROC(s_param_gn_assign) END
+kernel.c: OPEN(stat) M("/return") GSB($arg) GSB($argtype) PROC(s_return) END
+kernel.c: OPEN(stat) M("/version") SPROC(proc_print_version) END
+kernel.c: OPEN(stat) M("/param") SPROC(list_params) END
+kernel.c: OPEN(stat) M("/rules") GSB(ident) SPROC(list_rules) END
+kernel.c: OPEN(stat) M("/krules") GSB(ident) SPROC(list_krules) END
+kernel.c: OPEN(stat) M("/rules") SPROC(list_all_rules) END
+kernel.c: OPEN(stat) M("/krules") SPROC(list_all_krules) END
+kernel.c: OPEN(stat) M("/write rules") GSB(filename) SPROC(write_rules) END
+kernel.c: OPEN(stat) M("/trace") GSB(num_e) SPROC(s_trace) END
+kernel.c: OPEN(stat) M("/dumpnet") GSB(ident) PROC(s_dumpnet) END
+kernel.c: OPEN(stat) M("/execute") GSB(list_e) PROC(s_exec) END
+kernel.c: OPEN(stat) M("/include") GSB(filename) PROC(s_include) END
+kernel.c: OPEN(stat) M("/include") M("<") GSB(filename) M(">") PROC(s_include_default) END
+kernel.c: OPEN(stat) M("/add_includedir") GSB(filename) PROC(s_add_includedir) END
+kernel.c: OPEN(stat) M("/print_includedirs") PROC(s_print_includedirs) END
+kernel.c: OPEN(int) M("/load_lib") GSB(qstring) PROC(s_load_lib) END
+kernel.c: OPEN(stat) M("/foreach") GSB(lvalue) M("in") GSB(list_e) M("{") GSB($flow_block) M("}") PROC(s_foreach) END
+kernel.c: OPEN(stat) M("/for") GSB(lvalue) M("=") GSB(num_e) M("to") GSB(num_e) M("{") GSB($flow_block) M("}") PROC(s_for) END
+kernel.c: OPEN(stat) M("/for") GSB(lvalue) M("=") GSB(num_e) M("to") GSB(num_e) M("step") GSB(num_e) M("{") GSB($flow_block) M("}") PROC(s_for) END
+kernel.c: OPEN(stat) M("/if") GSB($cond_e) M("{") GSB($flow_block) M("}") PROC(s_if) END
+kernel.c: OPEN(stat) M("/if") GSB($cond_e) M("{") GSB($flow_block) M("}") M("else") M("{") GSB($flow_block) M("}") PROC(s_ifelse) END
+kernel.c: OPEN(stat) M("/memory") PROC(show_memory) END
+kernel.c: OPEN(stat) M("/report") PROC(print_report) END
+kernel.c: OPEN(stat) M("/lazy") PROC(print_lazy_report) END
+kernel.c: OPEN(stat) M("/subtag") GSB(string_e) GSB(string_e) SPROC(subtag) END
+kernel.c: OPEN(stat) M("/beep") PROC(proc_beep) END
+kernel.c: OPEN(stat) M("/beep") GSB(string_e) PROC(proc_beep) END
+kernel.c: OPEN(stat) M("/beep") M("reset") PROC(proc_beep_reset) END
+kernel.c: OPEN(stat) M("/bye") PROC(proc_quit) END
+kernel.c: OPEN(stat) M("/readonce") GSB(ident) SPROC(read_once_only) END
+zkernel.c: OPEN(stat) M("/") GSB(lvalue) M("->") GSB($thread) GSB($action) PROC(z_link_rule_default) END
+zkernel.c: OPEN(stat) M("/(") GSB(lvalue) M(")") GSB(ident) M("->") GSB($thread) GSB($action) PROC(z_link_rule) END
+zkernel.c: OPEN(stat) M("/when change action") GSB(list_e) PROC(z_set_when_change_action) END
+zkernel.c: OPEN(stat) M("/when delete scope") GSB(list_e) PROC(z_set_when_exit_scope) END
+zkernel.c: OPEN(stat) M("/prec") GSB(any) END
+zkernel.c: OPEN(stat) M("/prec") GSB(any) GSB(num_e) END
+zkernel.c: OPEN(stat) M("/prec") GSB(any) M("right") GSB(num_e) END
+zkernel.c: OPEN(stat) M("/push scope") GSB(ident) SPROC(zz_push_scope) END
+zkernel.c: OPEN(stat) M("/delpush scope") GSB(ident) SPROC(delete_and_push_scope) END
+zkernel.c: OPEN(stat) M("/pop scope") SPROC(zz_pop_scope) END
+zkernel.c: OPEN(stat) M("/delete scope") GSB(ident) SPROC(delete_scope) END
+zkernel.c: OPEN(stat) M("/zlex_set_case_sensitive") GSB(int) SPROC(zlex_set_case_sensitive) END
+zkernel.c: OPEN(stat) M("/zlex_set_parse_eol") GSB(int) SPROC(zlex_set_parse_eol) END
+zkernel.c: OPEN(stat) M("/zlex_set_default_real_as_double") GSB(int) SPROC(zlex_set_default_real_as_double) END
+zkernel.c: OPEN(stat) M("/zlex_set_default_integer_as_int64") GSB(int) SPROC(zlex_set_default_integer_as_int64) END
