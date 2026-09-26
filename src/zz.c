@@ -27,6 +27,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+int zz_checked_main(int argc, char **argv);
 
 #include "zz.h"
 
@@ -47,6 +49,9 @@ int main(argc,argv,env)
   int ret;
   int debug_flag;
   /* /k/kit/lib/ */
+
+  if(argc > 1 && !strcmp(argv[1], "--checked"))
+    return zz_checked_main(argc, argv);
 
   /* DEFAULT VALUES */
   pipe_flag=0;
@@ -171,6 +176,7 @@ int main(argc,argv,env)
 int print_usage() {
   fprintf(stderr, 
 	  "usage: ozz [params] [filein [fileout]]\n"
+          "       ozz --checked [--emit-c] source.zz\n"
 	  "  -q        quiet\n"
 	  "  -v        verbose\n"
 	  "  -p        get input from stdin\n"

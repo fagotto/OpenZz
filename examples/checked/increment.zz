@@ -1,0 +1,15 @@
+# The candidate changes grammar and names; parsing builds a pure AST.
+/patch begin "increment" base "g0"
+/symbol total : i64 mutable
+/slot int_ref : Symbol<i64> from visible_symbols
+/rule increment : Stmt -> "bump" int_ref^x "by" expr<i64>^n
+  => Assign(x, CheckedAdd(Load(x), n))
+/test accepts "bump total by 3"
+/test rejects "bump missing by 3"
+/patch check
+/patch commit
+
+total = 2 + 3 * 4
+bump total by 5
+print(total)
+print(total - 4)

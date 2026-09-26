@@ -1,0 +1,14 @@
+/patch begin "finance"
+/symbol balance : i64 mutable
+/slot account : Symbol<i64> from visible_symbols
+/module finance version "1"
+/rule credit : Stmt -> "credit" account^x "with" expr<i64>^n => Assign(x, CheckedAdd(Load(x), n))
+/export syntax credit
+/end module
+/import syntax finance version "1"
+/test accepts "credit balance with 3"
+/patch check
+/patch commit
+balance = 10
+credit balance with 7
+print(balance)
