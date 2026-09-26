@@ -1,4 +1,4 @@
 #!/bin/sh
-
-cd testsuite
-./zz_test.sh
+set -eu
+# Run from the configured build directory (source or out-of-tree).
+exec make check "$@"

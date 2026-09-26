@@ -1154,7 +1154,7 @@ int s_include_default(int argc, struct s_content argv[], struct s_content* ret)
 int s_load_lib(int argc, struct s_content argv[], struct s_content* ret)
 {
   void *handle;
-  void (*init)();
+  void (*init)(void);
   char *error, *lib_name;
 
   if (argc != 1) {
@@ -1189,10 +1189,11 @@ int s_load_lib(int argc, struct s_content argv[], struct s_content* ret)
   // The library has been loaded so now try to execute the "init()" 
   // function if it exists:
 
-  init = dlsym(handle, "zz_ext_init");
+  dlerror(); /* Clear any previous loader error before inspecting dlsym. */
+  init = (void (*)(void))dlsym(handle, "zz_ext_init");
 
-  if ((error = dlerror()) != NULL) {
-      zz_error(ERROR, "Error in /load_lib while trying to execute zz_ext_init() function of '%s': %s.", lib_name, error);
+  if ((error = dlerror()) != NULL || init == NULL) {
+      zz_error(ERROR, "Error in /load_lib while trying to execute zz_ext_init() function of '%s': %s.", lib_name, error ? error : "null initialization function");
       dlclose(handle);
       return 0;
     }

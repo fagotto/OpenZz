@@ -29,8 +29,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef HAVE_READLINE
 #include <readline/readline.h>
 #include <readline/history.h>
+#endif
 
 #include "zz.h"
 #include "zlex.h"
@@ -38,6 +40,7 @@
 #include "source.h"
 #include "parse.h"
 #include "rule.h"
+#include "err.h"
 
 void next_token_tt(struct s_source *);
 
@@ -97,37 +100,45 @@ void next_token_tt(cur_source)
       (*find_prompt_proc)(&(cur_source->src.tt.prompt));
 
     s = cur_source->src.tt.row;
+    /* Error reporting may inspect the current row before lexing begins. */
+    cur_source->src.tt.row[0] = '\0';
+    cur_source->src.tt.old = cur_source->src.tt.row;
 
-    // Read a line from tty input using gnu libreadline
+#ifdef HAVE_READLINE
     line_read = readline(cur_source->src.tt.prompt);
-
-    // If some non-empty input was read, store it in the history
+#else
+    /* fgets fallback uses one extra byte to detect oversized logical lines. */
+    line_read = malloc(sizeof(cur_source->src.tt.row) + 1);
+    if (!line_read) {
+      zz_error(FATAL_ERROR, "Out of memory reading interactive input");
+      exit(EXIT_FAILURE);
+    }
+    fputs(cur_source->src.tt.prompt, stdout);
+    fflush(stdout);
+    if (!fgets(line_read, sizeof(cur_source->src.tt.row) + 1, stdin)) {
+      free(line_read);
+      line_read = NULL;
+    } else {
+      size_t len = strlen(line_read);
+      if (len && line_read[len - 1] == '\n')
+        line_read[len - 1] = '\0';
+      else if (len >= sizeof(cur_source->src.tt.row)) {
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF) { }
+      }
+    }
+#endif
     if (line_read) {
-      if (*line_read) {
-
-	if (strlen(line_read) >= MAX_INPUT_LINE_LENGTH) {
-	  printf("ERROR: Input line (len=%lu) exceeded max length, truncated at %i(max) chars.\n",
-		 strlen(line_read), MAX_INPUT_LINE_LENGTH);
-	  line_read[MAX_INPUT_LINE_LENGTH]='\0';
-	}
-
-	add_history (line_read);
-
-	if (strlen(line_read) >= 250) {
-	  exit(0);
-	}
-
-	// Doesn't seem to be used anywhere -
-	// It would force exposure of 'source_sp' so I don't like it either.
-	// if(source_line_routine && source_sp==1)
-	//  (*source_line_routine)(s, cur_source->line_n, "stdin", 8);
-
-	strcpy(cur_source->src.tt.row, line_read);
+      if (strlen(line_read) >= sizeof(cur_source->src.tt.row)) {
+        /* Reject the whole line: never execute a silently truncated command. */
+        zz_error(ERROR, "Interactive input line too long (maximum %d characters)",
+                 (int)sizeof(cur_source->src.tt.row) - 1);
+        line_read[0] = '\0';
       }
-      else {
-	// Have read a blank line - set a default value
-	strcpy(cur_source->src.tt.row, "");
-      }
+#ifdef HAVE_READLINE
+      if (*line_read) add_history(line_read);
+#endif
+      strcpy(cur_source->src.tt.row, line_read);
 
       cur_source->line_n ++;
 

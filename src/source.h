@@ -66,6 +66,7 @@ struct s_source
 
 
 int source_file(char *filename);
+int source_pipe(void);
 void get_source_file(char *buffer);
 int pop_source();
 int get_source_line();

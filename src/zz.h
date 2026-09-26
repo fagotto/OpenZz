@@ -30,40 +30,9 @@
 #include "config.h"
 #endif
 
-#ifdef SIZEOF_VOID_P
-#define _ZZ_RET_SIZE_ SIZEOF_VOID_P
-#else
-// If there is no configure script to help us we assume we are on a 64 bit platform
-#define _ZZ_RET_SIZE_ 8
-#endif
-
-#if _ZZ_RET_SIZE_ == SIZEOF_INT
-
-typedef int zz_ret;
-#warning "typedef zz_ret as int"
-
-#elif _ZZ_RET_SIZE_ == SIZEOF_LONG
-
-typedef long int zz_ret;
-#warning "typedef zz_ret as long"
-
-#elif _ZZ_RET_SIZE_ == SIZEOF_LONG_LONG
-
-typedef long long int zz_ret;
-#warning "typedef zz_ret as long long"
-
-#elif _ZZ_RET_SIZE_ == 8
-
-// Default case
-typedef u_int64_t zz_ret;
-#warning "typedef zz_ret as u_int64_t"
-
-#elif _ZZ_RET_SIZE_ == 4
-
-typedef u_int32_t zz_ret;
-#warning "typedef zz_ret as u_int32_t"
-
-#endif
+/* Public ABI: signed integer capable of holding a pointer, also without config.h. */
+#include <stdint.h>
+typedef intptr_t zz_ret;
 
 //#include "zlex.h"
 //#include "trace.h"
@@ -144,7 +113,7 @@ int zz_lex_add_new_tag(const char* tag_name,
 		       zz_tag_cdtor pdtor, 
 		       zz_tag_cast cst);
 
-#define zz_lex_add_new_tag2(TAG_NAME, TAG_SP, TAG_FP) zz_lex_add_new_tag(TAG_NAME, TAG_SP, TAG_FP, 0, 0)
+#define zz_lex_add_new_tag2(TAG_NAME, TAG_SP, TAG_FP) zz_lex_add_new_tag(TAG_NAME, TAG_SP, TAG_FP, 0, 0, 0)
 
 int zz_lex_remove_tag(const char* tag_name);
 

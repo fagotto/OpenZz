@@ -41,6 +41,7 @@
 #include "rule.h"
 #include "action.h"
 #include "sys.h"
+#include "err.h"
 
 int (*find_prompt_proc)()=0;
 int (*source_line_routine)()=0;
@@ -158,8 +159,11 @@ struct s_source *next;
 if(!cur_source) return 0;
 if(cur_source->type == SOURCE_FILE)
   {
-   fclose(cur_source->src.file.chan);
-   free(cur_source->src.file.filename);
+   /* stdin and its literal name are borrowed by source_pipe(). */
+   if (cur_source->src.file.chan != stdin) {
+     fclose(cur_source->src.file.chan);
+     free(cur_source->src.file.filename);
+   }
   }
 cur_source->type = NO_SOURCE;
 source_sp--;
@@ -568,11 +572,28 @@ int zz_parse_file(const char* filename)
 {
   int ret;
   char full[256],type[40];
+  const char *base, *dot;
   type[0] = '\0';
 
   if(!zz_chanout) 
     zz_set_output(0);
 
+  if (!filename || strlen(filename) >= sizeof(full)) {
+    zz_error(ERROR, "Input filename is missing or too long");
+    return 0;
+  }
+  base = strrchr(filename, '/');
+  base = base ? base + 1 : filename;
+  dot = strchr(base, '.');
+  if (dot && strlen(dot) >= sizeof(type)) {
+    zz_error(ERROR, "Input filename extension is too long");
+    return 0;
+  }
+  if (!dot && strcmp(filename, "/dev/tty") &&
+      (!in_ext || strlen(filename) + strlen(in_ext) + 2 > sizeof(full))) {
+    zz_error(ERROR, "Input filename with default extension is too long");
+    return 0;
+  }
   strcpy(full,filename);
 
   get_extension(full,type);

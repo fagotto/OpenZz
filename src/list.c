@@ -100,6 +100,7 @@ for(i=j=0;i<source_lst->n;i++)
     copy_list(& (target_lst->array[j++]), & (source_lst->array[i]));
   else if(source_lst->array[i].tag!=tag_none)
     target_lst->array[j++] = source_lst->array[i];
+target_lst->n = j;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -147,12 +148,14 @@ struct s_content *s_concat_list(struct s_content *cnt1,struct s_content *cnt2)
  n=lst1->n+lst2->n;
  create_list(cnt,n);
  lst  = (struct s_list *) s_content_value(*cnt);
+ j = 0;
  for(i=0;i<lst1->n;i++)
    if(lst1->array[i].tag!=tag_none)
-     lst->array[i] = lst1->array[i];
- for(i=lst1->n,j=0;i<n;j++)
-   if(lst2->array[j].tag!=tag_none)
-     lst->array[i++] = lst2->array[j];
+     lst->array[j++] = lst1->array[i];
+ for(i=0;i<lst2->n;i++)
+   if(lst2->array[i].tag!=tag_none)
+     lst->array[j++] = lst2->array[i];
+ lst->n = j;
  return cnt;
 }
 
@@ -187,7 +190,7 @@ void merge_list(struct s_content *cnt1, struct s_content *cnt2)
     zz_assert(lst1->array);
   }
 
-  for(i=lst1->n,j=0;i<n;j++) {
+  for(i=lst1->n,j=0;j<lst2->n;j++) {
     /*
       if(lst2->array[j].tag==tag_list)
       copy_list(&(lst1->array[i++]),&(lst2->array[j]) );
@@ -197,7 +200,7 @@ void merge_list(struct s_content *cnt1, struct s_content *cnt2)
       lst1->array[i++] = lst2->array[j];
   }
 
-  lst1->n=n;
+  lst1->n=i;
 }
 
 

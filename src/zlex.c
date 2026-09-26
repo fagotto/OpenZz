@@ -901,15 +901,16 @@ switch(**ptr)
        {
         /* INT/FLOAT/DOUBLE */
 	 i=0;
-	 while( i<255 && isdigit(**ptr))
-	   buffer[i++] = *((*ptr) ++);
+         int too_long = 0;
+	 while(isdigit((unsigned char)**ptr))
+	   { if (i < MAX_TOKEN_LENGTH) buffer[i++] = **ptr; else too_long = 1; (*ptr)++; }
 
 	 if(**ptr=='.')
 	   {
 	     /* FLOAT||DOUBLE */
-	     buffer[i++] = *((*ptr) ++);
-	     while( i<39 && isdigit(**ptr))
-	       buffer[i++] = *((*ptr) ++);
+	     { if (i < MAX_TOKEN_LENGTH) buffer[i++] = **ptr; else too_long = 1; (*ptr)++; }
+	     while(isdigit((unsigned char)**ptr))
+	       { if (i < MAX_TOKEN_LENGTH) buffer[i++] = **ptr; else too_long = 1; (*ptr)++; }
 	     
 	     if ((**ptr=='e' || **ptr=='E') &&
 		 ( (*(*ptr+1)=='-' && isdigit(*(*ptr+2)) ) ||
@@ -918,17 +919,18 @@ switch(**ptr)
 		   )
 		 )
 	       {
-		 buffer[i++] = *((*ptr) ++);
+		 { if (i < MAX_TOKEN_LENGTH) buffer[i++] = **ptr; else too_long = 1; (*ptr)++; }
 		 
 		 if(**ptr=='-' || **ptr=='+')
-		   buffer[i++] = *((*ptr) ++);
+		   { if (i < MAX_TOKEN_LENGTH) buffer[i++] = **ptr; else too_long = 1; (*ptr)++; }
 		 
-		 while(isdigit(**ptr))
-		   buffer[i++] = *((*ptr) ++);
+		 while(isdigit((unsigned char)**ptr))
+                   { if (i < MAX_TOKEN_LENGTH) buffer[i++] = **ptr; else too_long = 1; (*ptr)++; }
 	       }
 	     
-	   zz_assert(i<MAX_TOKEN_LENGTH);
+	   zz_assert(i<=MAX_TOKEN_LENGTH);
            buffer[i]='\0';
+           if (too_long) lexical_error("Numeric constant too long");
            sscanf(buffer,"%lf",&df);
 	   if(**ptr=='d' || (zlex_realconst_double && (**ptr!='f'))) {
 	     if(**ptr=='d') (*ptr) ++;
@@ -946,6 +948,7 @@ switch(**ptr)
           {
            /* INT */
            buffer[i]='\0';
+           if (too_long) lexical_error("Numeric constant too long");
 	   if(**ptr=='l' || (zlex_intconst_int64 && **ptr!='i')) {
 	     if (i > 30) {
 	       lexical_error("too long integer constant /%s/ truncated",buffer);
@@ -1033,6 +1036,7 @@ switch(**ptr)
        if (**ptr == '\\')
          {
           (*ptr)++;
+          if (!**ptr) break; /* Trailing backslash must not advance past NUL. */
           buffer[i++] = esc_tran(*(*ptr)++);
 	 }
        else

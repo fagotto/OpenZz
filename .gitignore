@@ -1,6 +1,7 @@
 /Makefile
-/configure
-/config.*
+/config.log
+/config.status
+/config.h
 /doc/Makefile
 /doc/src/Makefile
 /libtool
@@ -17,3 +18,10 @@ ozz
 *.lo
 *.zz.diff
 *.err
+
+.deps/
+/stamp-h1
+*~
+*.log
+*.trs
+/build*/

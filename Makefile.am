@@ -2,10 +2,6 @@
 ## If the 'configure' file is missing
 ##   run the "autogen.sh" script.
 
-EXTRA_DIST = BUGS ChangeLog autogen.sh openzz.spec
+ACLOCAL_AMFLAGS = -I m4
+EXTRA_DIST = BUGS ChangeLog autogen.sh build.sh test.sh openzz.spec BUILDING.md
 SUBDIRS = src doc testsuite
-
-LIBTOOL_DEPS = @LIBTOOL_DEPS@
-
-libtool: $(LIBTOOL_DEPS)
-	$(SHELL) ./config.status libtool

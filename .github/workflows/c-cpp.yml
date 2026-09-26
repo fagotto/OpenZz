@@ -1,20 +1,50 @@
-name: C/C++ CI
+name: C build and regression tests
 
 on:
   push:
-    branches: [ "master" ]
   pull_request:
-    branches: [ "master" ]
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cc: gcc
+            options: --with-readline
+          - os: ubuntu-latest
+            cc: clang
+            options: --without-readline
+          - os: macos-latest
+            cc: clang
+            options: --without-readline
+          - os: ubuntu-latest
+            cc: gcc
+            options: --disable-shared --without-readline
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-
+      - uses: actions/checkout@v3
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y autoconf automake libtool libreadline-dev
+      - name: Install macOS build dependencies
+        if: runner.os == 'macOS'
+        run: brew install autoconf automake libtool
+      - name: Regenerate build system
+        run: ./autogen.sh
+      - name: Configure and test out of tree
+        env:
+          CC: ${{ matrix.cc }}
+        run: |
+          mkdir build
+          cd build
+          ../configure ${{ matrix.options }}
+          make -j2
+          make -j2 check
+      - name: Verify release archive
+        if: matrix.os == 'ubuntu-latest' && matrix.cc == 'gcc' && matrix.options == '--with-readline'
+        run: cd build && make distcheck
+      - name: Print test diagnostics on failure
+        if: failure()
+        run: cat build/testsuite/test-suite.log

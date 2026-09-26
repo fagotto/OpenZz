@@ -30,10 +30,8 @@
 !!foo_remove_tag called
 !!END OUTPUT
 
-!! Dynamic link librery extension depends from platform. You should change this to your platform specific extension
-!! (e.g. *nix is .so, Win is .dll, dylib is Darwin, etc.)
-
-/aa=/load_lib "libtagdtor.dylib"
+!! zz_test.sh resolves this marker using the module name recorded by Libtool.
+/aa=/load_lib "@OPENZZ_TEST_MODULE@"
 
 !!/print "lib handle=", $zz$hexify(aa)
 

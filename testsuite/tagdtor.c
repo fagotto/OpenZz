@@ -18,12 +18,12 @@
 
 static int foo_sprint(char *s, struct s_content *foo)
 {
-  sprintf(s, "foo(%p)", foo);
+  return sprintf(s, "foo(%p)", (void *)foo);
 }
 
 static int foo_fprint(FILE *fd, struct s_content *foo)
 {
-  fprintf(fd, "foo(%p)", foo);
+  return fprintf(fd, "foo(%p)", (void *)foo);
 }
 
 static int foo_ctor(struct s_content *foo, const char *pname)
@@ -31,12 +31,14 @@ static int foo_ctor(struct s_content *foo, const char *pname)
   assert(foo);
   //printf("foo param ctor (%p, tag=%s) name=%s invoked\n", foo, zz_scnt_get_tag_name(foo), pname);
   printf("invoked param ctor (tag=%s name=%s)\n", zz_scnt_get_tag_name(foo), pname);
+  return 1;
 }
 
 static int foo_dtor(struct s_content *foo, const char *pname)
 {
   //printf("foo param dtor (%p, tag=%s) name=%s invoked\n", foo, zz_scnt_get_tag_name(foo), pname);
   printf("invoked param dtor (tag=%s name=%s)\n", zz_scnt_get_tag_name(foo), pname);
+  return 1;
 }
 
 int foo_new()
@@ -46,17 +48,16 @@ int foo_new()
   return 0;
 }
 
-int foo_remove_tag()
+void foo_remove_tag(int argc)
 {
+  (void)argc;
   printf("foo_remove_tag called\n");
   
   zz_lex_remove_tag("foo");
 
-  // should be useless...
-  return 0;
 }
 
-void zz_ext_init()
+void zz_ext_init(void)
 {
   int ret;
   ret = zz_lex_add_new_tag("foo", foo_sprint, foo_fprint, foo_ctor, foo_dtor, 0);

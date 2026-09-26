@@ -1,3 +1,10 @@
+* 2026-09-26: build e verifica locale *
+
+Le istruzioni aggiornate sono in BUILDING.md. Il sistema di build usa
+Autoconf/Automake/Libtool, supporta build fuori dall'albero sorgente e
+`make check`. Readline e opzionale (--without-readline). Le note storiche
+seguenti descrivono versioni precedenti e non sostituiscono BUILDING.md.
+
 * 2023-01-28 *
 
 This is openzz 1.0.4-5, a fork from the catseye github repository.
