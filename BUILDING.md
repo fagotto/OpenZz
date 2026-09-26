@@ -46,3 +46,15 @@ a successful ordinary suite is not a sanitizer-clean or thread-safety claim.
 
 GNU C11 is selected explicitly: the legacy callback ABI is incompatible with
 C23. This is a compatibility measure, not a completed modernization of that ABI.
+
+## Experimental checked profile
+
+`ozz --checked source.zz` selects the isolated numerical DSL. Use
+`ozz --checked --emit-c source.zz` for standalone C11 output. The ordinary command
+line and legacy API keep their previous behavior. See `docs/CHECKED_PROFILE.md`
+for implemented directives, transaction contracts, embedding and explicit limits.
+
+The CI matrix also exercises Linux arm64 and macOS Intel, and separately compiles
+the checked profile with strict C11, ASan, UBSan and Linux leak detection. Runner
+labels follow the GitHub-hosted runner reference:
+https://docs.github.com/en/actions/reference/runners/github-hosted-runners

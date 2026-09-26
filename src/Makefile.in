@@ -139,10 +139,11 @@ am__uninstall_files_from_dir = { \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libozz_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
-am_libozz_la_OBJECTS = zz_context.lo err.lo source.lo zlex.lo list.lo \
-	rule.lo scope.lo table.lo dumpnet.lo parse.lo param.lo \
-	action.lo lazy.lo zkernel.lo zsys.lo kernel.lo sys.lo \
-	interface.lo defopen.lo avl.lo printz.lo util.lo
+am_libozz_la_OBJECTS = zz_context.lo zz_checked_parse.lo \
+	zz_checked_eval.lo err.lo source.lo zlex.lo list.lo rule.lo \
+	scope.lo table.lo dumpnet.lo parse.lo param.lo action.lo \
+	lazy.lo zkernel.lo zsys.lo kernel.lo sys.lo interface.lo \
+	defopen.lo avl.lo printz.lo util.lo
 libozz_la_OBJECTS = $(am_libozz_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -157,7 +158,7 @@ libozzi_la_OBJECTS = $(am_libozzi_la_OBJECTS)
 libozzi_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libozzi_la_LDFLAGS) $(LDFLAGS) -o $@
-am_ozz_OBJECTS = zz.$(OBJEXT)
+am_ozz_OBJECTS = zz.$(OBJEXT) zz_checked_cli.$(OBJEXT)
 ozz_OBJECTS = $(am_ozz_OBJECTS)
 ozz_DEPENDENCIES = libozzi.la libozz.la
 AM_V_P = $(am__v_P_@AM_V@)
@@ -186,7 +187,9 @@ am__depfiles_remade = ./$(DEPDIR)/action.Plo ./$(DEPDIR)/avl.Plo \
 	./$(DEPDIR)/table.Plo ./$(DEPDIR)/util.Plo \
 	./$(DEPDIR)/zkernel.Plo ./$(DEPDIR)/zlex.Plo \
 	./$(DEPDIR)/zsys.Plo ./$(DEPDIR)/zz.Po \
-	./$(DEPDIR)/zz_context.Plo ./$(DEPDIR)/zzi.Plo
+	./$(DEPDIR)/zz_checked_cli.Po ./$(DEPDIR)/zz_checked_eval.Plo \
+	./$(DEPDIR)/zz_checked_parse.Plo ./$(DEPDIR)/zz_context.Plo \
+	./$(DEPDIR)/zzi.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -363,20 +366,20 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CFLAGS = $(ZZ_CFLAGS)
 lib_LTLIBRARIES = libozz.la libozzi.la
-libozz_la_SOURCES = zz_context.c zz_checked_internal.h err.c source.c zlex.c list.c rule.c scope.c table.c dumpnet.c \
+libozz_la_SOURCES = zz_context.c zz_checked_parse.c zz_checked_eval.c zz_checked_internal.h err.c source.c zlex.c list.c rule.c scope.c table.c dumpnet.c \
 	      parse.c param.c action.c lazy.c zkernel.c zsys.c kernel.c \
               sys.c interface.c defopen.c avl.c printz.c util.c \
 	      avl.h kernel.h mem.h rule.h sys.h zlex.h \
 	      err.h list.h param.h printz.h source.h trace.h table.h parse.h action.h scope.h
 
 libozz_la_LIBADD = $(LIBM) $(DL_LIBS)
-libozz_la_LDFLAGS = -version-info 1:4:1 -export-dynamic
+libozz_la_LDFLAGS = -version-info 2:0:2 -export-dynamic
 libozzi_la_SOURCES = zzi.c
 libozzi_la_LIBADD = libozz.la $(READLINE_LIBS)
 libozzi_la_LDFLAGS = -version-info 1:4:1 -export-dynamic
 openzzincludedir = $(includedir)/ozz
 openzzinclude_HEADERS = zz_checked.h zz.h zzbind.h zlex.h
-ozz_SOURCES = zz.c
+ozz_SOURCES = zz.c zz_checked_cli.c
 ozz_LDADD = libozzi.la libozz.la
 all: all-am
 
@@ -527,6 +530,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zlex.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zsys.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zz.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zz_checked_cli.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zz_checked_eval.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zz_checked_parse.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zz_context.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zzi.Plo@am__quote@ # am--include-marker
 
@@ -740,6 +746,9 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/zlex.Plo
 	-rm -f ./$(DEPDIR)/zsys.Plo
 	-rm -f ./$(DEPDIR)/zz.Po
+	-rm -f ./$(DEPDIR)/zz_checked_cli.Po
+	-rm -f ./$(DEPDIR)/zz_checked_eval.Plo
+	-rm -f ./$(DEPDIR)/zz_checked_parse.Plo
 	-rm -f ./$(DEPDIR)/zz_context.Plo
 	-rm -f ./$(DEPDIR)/zzi.Plo
 	-rm -f Makefile
@@ -809,6 +818,9 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/zlex.Plo
 	-rm -f ./$(DEPDIR)/zsys.Plo
 	-rm -f ./$(DEPDIR)/zz.Po
+	-rm -f ./$(DEPDIR)/zz_checked_cli.Po
+	-rm -f ./$(DEPDIR)/zz_checked_eval.Plo
+	-rm -f ./$(DEPDIR)/zz_checked_parse.Plo
 	-rm -f ./$(DEPDIR)/zz_context.Plo
 	-rm -f ./$(DEPDIR)/zzi.Plo
 	-rm -f Makefile

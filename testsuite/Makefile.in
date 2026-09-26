@@ -93,8 +93,11 @@ TESTS = boolean.zz deref_param.zz double.zz foreach.zz integer.zz \
 	listmerge.zz listsplit.zz looptest_do.zz looptest_while.zz \
 	numerictypes.zz popvoidrule.zz setcase.zz setparseeol.zz \
 	setparseeol2.zz tagdtor.zz utilities.zz when_del_scope.zz \
-	robustness$(EXEEXT) cli-smoke.sh checked-context$(EXEEXT)
-check_PROGRAMS = robustness$(EXEEXT) checked-context$(EXEEXT)
+	robustness$(EXEEXT) cli-smoke.sh checked-context$(EXEEXT) \
+	checked-grammar$(EXEEXT) checked-cli.sh \
+	checked-stress$(EXEEXT)
+check_PROGRAMS = robustness$(EXEEXT) checked-context$(EXEEXT) \
+	checked-grammar$(EXEEXT) checked-stress$(EXEEXT)
 subdir = testsuite
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -121,6 +124,12 @@ libtagdtor_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 am_checked_context_OBJECTS = checked-context.$(OBJEXT)
 checked_context_OBJECTS = $(am_checked_context_OBJECTS)
 checked_context_DEPENDENCIES = ../src/libozz.la
+am_checked_grammar_OBJECTS = checked-grammar.$(OBJEXT)
+checked_grammar_OBJECTS = $(am_checked_grammar_OBJECTS)
+checked_grammar_DEPENDENCIES = ../src/libozz.la
+am_checked_stress_OBJECTS = checked-stress.$(OBJEXT)
+checked_stress_OBJECTS = $(am_checked_stress_OBJECTS)
+checked_stress_DEPENDENCIES = ../src/libozz.la
 am_robustness_OBJECTS = robustness.$(OBJEXT)
 robustness_OBJECTS = $(am_robustness_OBJECTS)
 robustness_DEPENDENCIES = ../src/libozz.la
@@ -140,6 +149,7 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/checked-context.Po \
+	./$(DEPDIR)/checked-grammar.Po ./$(DEPDIR)/checked-stress.Po \
 	./$(DEPDIR)/robustness.Po ./$(DEPDIR)/tagdtor.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -161,8 +171,10 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(libtagdtor_la_SOURCES) $(checked_context_SOURCES) \
+	$(checked_grammar_SOURCES) $(checked_stress_SOURCES) \
 	$(robustness_SOURCES)
 DIST_SOURCES = $(libtagdtor_la_SOURCES) $(checked_context_SOURCES) \
+	$(checked_grammar_SOURCES) $(checked_stress_SOURCES) \
 	$(robustness_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -528,11 +540,11 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CFLAGS = $(ZZ_CFLAGS)
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)
-EXTRA_DIST = $(TESTS) zz_test.sh list_in_cond.zz.SKIPPED
+EXTRA_DIST = $(TESTS) checked-sanitizers.sh zz_test.sh list_in_cond.zz.SKIPPED
 TEST_EXTENSIONS = .zz .sh
 SH_LOG_COMPILER = $(SHELL)
 ZZ_LOG_COMPILER = $(SHELL) $(srcdir)/zz_test.sh
-AM_TESTS_ENVIRONMENT = ZZ='$(abs_top_builddir)/src/ozz'; export ZZ; TEST_BUILDDIR='$(abs_builddir)'; export TEST_BUILDDIR;
+AM_TESTS_ENVIRONMENT = ZZ='$(abs_top_builddir)/src/ozz'; export ZZ; TEST_BUILDDIR='$(abs_builddir)'; export TEST_BUILDDIR; CHECKED_EXAMPLES='$(abs_top_srcdir)/examples/checked'; export CHECKED_EXAMPLES; CC='$(CC)'; export CC;
 check_LTLIBRARIES = libtagdtor.la
 libtagdtor_la_SOURCES = tagdtor.c
 libtagdtor_la_LIBADD = ../src/libozz.la
@@ -542,6 +554,10 @@ robustness_LDADD = ../src/libozz.la
 CLEANFILES = noname.err
 checked_context_SOURCES = checked-context.c
 checked_context_LDADD = ../src/libozz.la
+checked_grammar_SOURCES = checked-grammar.c
+checked_grammar_LDADD = ../src/libozz.la
+checked_stress_SOURCES = checked-stress.c
+checked_stress_LDADD = ../src/libozz.la
 all: all-am
 
 .SUFFIXES:
@@ -596,6 +612,14 @@ checked-context$(EXEEXT): $(checked_context_OBJECTS) $(checked_context_DEPENDENC
 	@rm -f checked-context$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(checked_context_OBJECTS) $(checked_context_LDADD) $(LIBS)
 
+checked-grammar$(EXEEXT): $(checked_grammar_OBJECTS) $(checked_grammar_DEPENDENCIES) $(EXTRA_checked_grammar_DEPENDENCIES) 
+	@rm -f checked-grammar$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(checked_grammar_OBJECTS) $(checked_grammar_LDADD) $(LIBS)
+
+checked-stress$(EXEEXT): $(checked_stress_OBJECTS) $(checked_stress_DEPENDENCIES) $(EXTRA_checked_stress_DEPENDENCIES) 
+	@rm -f checked-stress$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(checked_stress_OBJECTS) $(checked_stress_LDADD) $(LIBS)
+
 robustness$(EXEEXT): $(robustness_OBJECTS) $(robustness_DEPENDENCIES) $(EXTRA_robustness_DEPENDENCIES) 
 	@rm -f robustness$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(robustness_OBJECTS) $(robustness_LDADD) $(LIBS)
@@ -607,6 +631,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/checked-context.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/checked-grammar.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/checked-stress.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/robustness.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tagdtor.Plo@am__quote@ # am--include-marker
 
@@ -878,6 +904,20 @@ checked-context.log: checked-context$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+checked-grammar.log: checked-grammar$(EXEEXT)
+	@p='checked-grammar$(EXEEXT)'; \
+	b='checked-grammar'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+checked-stress.log: checked-stress$(EXEEXT)
+	@p='checked-stress$(EXEEXT)'; \
+	b='checked-stress'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 .zz.log:
 	@p='$<'; \
 	$(am__set_b); \
@@ -988,6 +1028,8 @@ clean-am: clean-checkLTLIBRARIES clean-checkPROGRAMS clean-generic \
 
 distclean: distclean-am
 	-rm -f ./$(DEPDIR)/checked-context.Po
+	-rm -f ./$(DEPDIR)/checked-grammar.Po
+	-rm -f ./$(DEPDIR)/checked-stress.Po
 	-rm -f ./$(DEPDIR)/robustness.Po
 	-rm -f ./$(DEPDIR)/tagdtor.Plo
 	-rm -f Makefile
@@ -1036,6 +1078,8 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/checked-context.Po
+	-rm -f ./$(DEPDIR)/checked-grammar.Po
+	-rm -f ./$(DEPDIR)/checked-stress.Po
 	-rm -f ./$(DEPDIR)/robustness.Po
 	-rm -f ./$(DEPDIR)/tagdtor.Plo
 	-rm -f Makefile
