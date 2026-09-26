@@ -55,9 +55,10 @@ il C generato e confronta gli output. Il secondo esempio dimostra i moduli.
 
 ## Verifiche
 
-- Suite completa: test storici più contesti, API della grammatica, CLI/backend C
-  e stress deterministico; risultati finali riportati nella PR e nella CI.
-- Configurazione statica: stessi test, con skip esplicito del solo modulo dinamico.
+- Suite completa: **23/23 test passati** su macOS ARM64 locale e sulle build
+  condivise della CI. Comprende regressioni storiche, contesti, grammatica,
+  CLI/backend C e stress deterministico.
+- Configurazione statica: **22 passati, 1 skip** esplicito del modulo dinamico.
 - Nuovo profilo compilato separatamente in C11 con `-Wall -Wextra -Wpedantic -Werror`.
 - AddressSanitizer e UndefinedBehaviorSanitizer sui test del nuovo profilo.
 - Stress riproducibile: 3.000 input troncati/alterati, rollback dei fallimenti;
@@ -67,7 +68,13 @@ il C generato e confronta gli output. Il secondo esempio dimostra i moduli.
   check invalidato da mutazioni, conflitti, import di versione errata, prefissi,
   limiti lessicali e ricorsivi, letterali fuori intervallo e overflow runtime.
 - Test dell'assenza di output su errore sintattico o overflow, anche nel C generato.
-- CI ampliata a Linux ARM64 e macOS Intel; job separato Linux con leak detection.
+- [CI del commit di implementazione](https://github.com/fagotto/OpenZz/actions/runs/36248984371):
+  **7 job passati**, sei configurazioni macOS/Linux su ARM64/x86_64 e un job
+  sanitizer con leak detection. Le architetture sono confermate dai log `uname`.
+- `make distcheck` passato localmente e su Linux.
+- Installazione in directory temporanea e consumer esterni C11/C++11: passati.
+  Il controllo C++ ha individuato un campo pubblico con nome riservato, corretto
+  in `is_mutable`; la verifica dell'header è stata aggiunta al job sanitizer.
 
 Lo stress finito non è una dimostrazione universale né una campagna di fuzzing
 esaustiva. Il test sanitizer del nuovo profilo non certifica il runtime storico.

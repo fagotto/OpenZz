@@ -173,6 +173,7 @@ zz_context_free(ctx);
 `zz_context_probe` recognizes **one statement** against committed grammar:
 `ZZ_OK` = complete, `ZZ_INCOMPLETE` = potentially extendible, `ZZ_INVALID` =
 rejected. A complete statement can still be extended (e.g. an expression).
+Incomplete recognition is not a proof that a semantically valid completion exists.
 Other statuses must be handled as failures/unknown, not accepted continuations.
 Prefix input is replayed on a deep copy; this is a correctness baseline, not an
 optimized incremental LR continuation or a ready-made LLM token mask. The caller

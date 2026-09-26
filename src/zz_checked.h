@@ -31,7 +31,7 @@ typedef struct {
     size_t id;
     const char *name; /* borrowed until next successful apply/free */
     unsigned scope;
-    int mutable;
+    int is_mutable;
     uint64_t revision;
 } zz_symbol_info;
 /* Committed visible bindings, including provenance usable by /explain clients. */

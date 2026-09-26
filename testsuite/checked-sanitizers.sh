@@ -12,3 +12,14 @@ for test in checked-context checked-grammar checked-stress; do
         "$root/testsuite/$test.c" -o "$work/$test"
     "$work/$test"
 done
+
+# Public headers advertise C++ linkage as well as C.
+cat > "$work/header.cc" <<'CPP'
+#include "zz_checked.h"
+int main() {
+    zz_symbol_info info = {};
+    return info.is_mutable;
+}
+CPP
+${CXX:-c++} -std=c++11 -Wall -Wextra -Wpedantic -Werror \
+    -I"$root/src" -fsyntax-only "$work/header.cc"
