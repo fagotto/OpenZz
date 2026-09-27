@@ -24,6 +24,9 @@
 #define SOURCE_FILE   1
 #define SOURCE_TT     2
 #define SOURCE_LIST   3
+#define SOURCE_TOKENS 4
+
+#include "zz_tokens.h"
 
 // Size of input buffer:
 #define MAX_INPUT_LINE_LENGTH 256
@@ -61,10 +64,18 @@ struct s_source
     struct s_source_file file;
     struct s_source_tt tt;
     struct s_source_list list;
+    struct {
+      zz_token_reader reader;
+      void *user;
+      const char *name;
+      struct zz_token token;
+      int failed;
+    } tokens;
   } src;
 };
 
 
+int source_substitutes_params(void);
 int source_file(char *filename);
 int source_pipe(void);
 void get_source_file(char *buffer);

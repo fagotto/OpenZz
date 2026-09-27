@@ -161,7 +161,7 @@ am__define_uniq_tagged_files = \
 DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config.h.in AUTHORS \
 	COPYING ChangeLog INSTALL NEWS README compile config.guess \
-	config.sub install-sh ltmain.sh missing mkinstalldirs
+	config.sub depcomp install-sh ltmain.sh missing mkinstalldirs
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -343,7 +343,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = BUGS ChangeLog autogen.sh build.sh test.sh openzz.spec BUILDING.md
+EXTRA_DIST = BUGS ChangeLog autogen.sh build.sh test.sh openzz.spec \
+	BUILDING.md docs/NATIVE_TOKEN_API.md docs/PARSER_DECISIONS.md
 SUBDIRS = src doc testsuite
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

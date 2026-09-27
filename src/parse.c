@@ -84,7 +84,8 @@ struct s_cur_token {
 #define LR_NextToken {\
    cur_token.is_eof= !next_token(&(cur_token.cnt));\
    cur_token.is_param=\
-     param_substitute(&(cur_token.cnt),&(cur_token.param_name));\
+     source_substitutes_params() ?\
+     param_substitute(&(cur_token.cnt),&(cur_token.param_name)) : 0;\
    cur_token.nt=find_nt(cur_token.cnt.tag->name);\
   }
 

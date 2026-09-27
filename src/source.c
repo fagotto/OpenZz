@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <limits.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -480,6 +481,9 @@ switch(source->type)
   case SOURCE_TT:
     s="stdin";
     break;
+  case SOURCE_TOKENS:
+    s=(char *)source->src.tokens.name;
+    break;
   case SOURCE_LIST:
     s="ZZ-action";
     break;
@@ -649,6 +653,12 @@ while(sp>=0)
     source = &source_stack[sp--];
     switch(source->type)
       {
+       case SOURCE_TOKENS:
+         fprintf(chan, "%scolumn %zu (byte %zu)\n", prompt,
+                 source->src.tokens.token.span.column,
+                 source->src.tokens.token.span.byte_start);
+         row[0]=0; errpos=-1;
+         break;
        case SOURCE_TT:
          strcpy(row,source->src.tt.row);
 	 t = source->src.tt.old;while(*t==' ' || *t=='\t')t++;
@@ -752,3 +762,74 @@ void zz_set_default_extension(const char *ext)
 
 
 static char rcsid[] = "$Id: source.c,v 1.15 2002/05/09 17:23:49 kibun Exp $ ";
+
+
+/* External token streams deliberately bypass native parameter substitution. */
+int source_substitutes_params(void)
+{
+  return !cur_source || cur_source->type != SOURCE_TOKENS;
+}
+
+static void next_token_external(struct s_source *src)
+{
+  int status;
+  struct zz_token *token = &src->src.tokens.token;
+  memset(token, 0, sizeof(*token));
+  status = src->src.tokens.reader(src->src.tokens.user, token);
+  if (status == ZZ_TOKEN_END) {
+    src->eof = 1;
+    memset(&curToken, 0, sizeof(curToken));
+    curToken.tag = tag_eof;
+    return;
+  }
+  if (status != ZZ_TOKEN_OK || !token->value.tag ||
+      token->value.tag == tag_eof || token->value.tag == tag_cont ||
+      token->value.tag == tag_param ||
+      token->span.line > INT_MAX ||
+      token->span.byte_end < token->span.byte_start) {
+    src->src.tokens.failed = 1;
+    src->eof = 1;
+    memset(&curToken, 0, sizeof(curToken));
+    curToken.tag = tag_eof;
+    zz_error(ERROR, "invalid token or external token reader failure");
+    return;
+  }
+  src->line_n = (int)token->span.line;
+  curToken = token->value;
+  if (curToken.tag == tag_eol)
+    curToken.val.llvalue = 0;
+  /* Literal terminals compare interned identifiers by identity. */
+  if (curToken.tag == tag_ident) {
+    if (!curToken.val.svalue) {
+      src->src.tokens.failed = 1;
+      src->eof = 1;
+      curToken.tag = tag_eof;
+      zz_error(ERROR, "external identifier has no spelling");
+      return;
+    }
+    curToken.val.svalue = zlex_strsave(curToken.val.svalue);
+  }
+}
+
+int zz_parse_tokens(const char *name, zz_token_reader reader, void *user)
+{
+  struct s_source *src;
+  int result, errors;
+  if (!reader || source_sp >= SOURCE_N - 1)
+    return 0;
+  if (!init_zlex_done)
+    return 0;
+  errors = zz_get_error_number();
+  src = new_source(next_token_external);
+  src->type = SOURCE_TOKENS;
+  memset(&src->src.tokens, 0, sizeof(src->src.tokens));
+  src->src.tokens.reader = reader;
+  src->src.tokens.user = user;
+  src->src.tokens.name = name ? name : "external tokens";
+  /* Legacy parse returns failure for any historical error. This entry point
+   * reports only errors raised during this invocation. */
+  parse(find_nt("root"));
+  result = !src->src.tokens.failed && zz_get_error_number() == errors;
+  pop_source();
+  return result;
+}
