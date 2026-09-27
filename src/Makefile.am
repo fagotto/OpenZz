@@ -16,7 +16,7 @@ libozz_la_SOURCES=err.c source.c zlex.c list.c rule.c scope.c table.c dumpnet.c 
 	      err.h list.h param.h printz.h source.h trace.h table.h parse.h action.h scope.h
 libozz_la_LIBADD = $(LIBM) $(DL_LIBS)
 
-libozz_la_LDFLAGS = -version-info 1:4:1 -export-dynamic
+libozz_la_LDFLAGS = -version-info 2:0:2 -export-dynamic
 
 ## ZZ Interactive library
 libozzi_la_SOURCES= zzi.c
@@ -28,7 +28,7 @@ libozzi_la_LDFLAGS = -version-info 1:4:1 -export-dynamic
 
 ## headers to be installed
 openzzincludedir = $(includedir)/ozz
-openzzinclude_HEADERS= zz.h zzbind.h zlex.h
+openzzinclude_HEADERS= zz_tokens.h zz.h zzbind.h zlex.h
 
 
 bin_PROGRAMS=ozz

@@ -34,3 +34,8 @@ robustness_SOURCES = robustness.c
 robustness_LDADD = ../src/libozz.la
 TESTS += robustness cli-smoke.sh
 CLEANFILES = noname.err
+
+check_PROGRAMS += token-input
+token_input_SOURCES = token-input.c
+token_input_LDADD = ../src/libozz.la
+TESTS += token-input

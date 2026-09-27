@@ -369,12 +369,12 @@ libozz_la_SOURCES = err.c source.c zlex.c list.c rule.c scope.c table.c dumpnet.
 	      err.h list.h param.h printz.h source.h trace.h table.h parse.h action.h scope.h
 
 libozz_la_LIBADD = $(LIBM) $(DL_LIBS)
-libozz_la_LDFLAGS = -version-info 1:4:1 -export-dynamic
+libozz_la_LDFLAGS = -version-info 2:0:2 -export-dynamic
 libozzi_la_SOURCES = zzi.c
 libozzi_la_LIBADD = libozz.la $(READLINE_LIBS)
 libozzi_la_LDFLAGS = -version-info 1:4:1 -export-dynamic
 openzzincludedir = $(includedir)/ozz
-openzzinclude_HEADERS = zz.h zzbind.h zlex.h
+openzzinclude_HEADERS = zz_tokens.h zz.h zzbind.h zlex.h
 ozz_SOURCES = zz.c
 ozz_LDADD = libozzi.la libozz.la
 all: all-am
