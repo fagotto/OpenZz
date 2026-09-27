@@ -344,7 +344,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = BUGS ChangeLog autogen.sh build.sh test.sh openzz.spec \
-	BUILDING.md docs/NATIVE_TOKEN_API.md
+	BUILDING.md docs/NATIVE_TOKEN_API.md docs/PARSER_DECISIONS.md
 SUBDIRS = src doc testsuite
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

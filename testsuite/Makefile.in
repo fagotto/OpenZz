@@ -93,8 +93,10 @@ TESTS = boolean.zz deref_param.zz double.zz foreach.zz integer.zz \
 	listmerge.zz listsplit.zz looptest_do.zz looptest_while.zz \
 	numerictypes.zz popvoidrule.zz setcase.zz setparseeol.zz \
 	setparseeol2.zz tagdtor.zz utilities.zz when_del_scope.zz \
-	robustness$(EXEEXT) cli-smoke.sh token-input$(EXEEXT)
-check_PROGRAMS = robustness$(EXEEXT) token-input$(EXEEXT)
+	robustness$(EXEEXT) cli-smoke.sh token-input$(EXEEXT) \
+	parser-decisions.sh
+check_PROGRAMS = robustness$(EXEEXT) token-input$(EXEEXT) \
+	parser-decisions$(EXEEXT)
 subdir = testsuite
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -118,6 +120,9 @@ am__v_lt_1 =
 libtagdtor_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libtagdtor_la_LDFLAGS) $(LDFLAGS) -o $@
+am_parser_decisions_OBJECTS = parser-decisions.$(OBJEXT)
+parser_decisions_OBJECTS = $(am_parser_decisions_OBJECTS)
+parser_decisions_DEPENDENCIES = ../src/libozz.la
 am_robustness_OBJECTS = robustness.$(OBJEXT)
 robustness_OBJECTS = $(am_robustness_OBJECTS)
 robustness_DEPENDENCIES = ../src/libozz.la
@@ -139,8 +144,9 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/robustness.Po \
-	./$(DEPDIR)/tagdtor.Plo ./$(DEPDIR)/token-input.Po
+am__depfiles_remade = ./$(DEPDIR)/parser-decisions.Po \
+	./$(DEPDIR)/robustness.Po ./$(DEPDIR)/tagdtor.Plo \
+	./$(DEPDIR)/token-input.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -160,10 +166,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libtagdtor_la_SOURCES) $(robustness_SOURCES) \
-	$(token_input_SOURCES)
-DIST_SOURCES = $(libtagdtor_la_SOURCES) $(robustness_SOURCES) \
-	$(token_input_SOURCES)
+SOURCES = $(libtagdtor_la_SOURCES) $(parser_decisions_SOURCES) \
+	$(robustness_SOURCES) $(token_input_SOURCES)
+DIST_SOURCES = $(libtagdtor_la_SOURCES) $(parser_decisions_SOURCES) \
+	$(robustness_SOURCES) $(token_input_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -542,6 +548,8 @@ robustness_LDADD = ../src/libozz.la
 CLEANFILES = noname.err
 token_input_SOURCES = token-input.c
 token_input_LDADD = ../src/libozz.la
+parser_decisions_SOURCES = parser-decisions.c
+parser_decisions_LDADD = ../src/libozz.la
 all: all-am
 
 .SUFFIXES:
@@ -592,6 +600,10 @@ clean-checkLTLIBRARIES:
 libtagdtor.la: $(libtagdtor_la_OBJECTS) $(libtagdtor_la_DEPENDENCIES) $(EXTRA_libtagdtor_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libtagdtor_la_LINK)  $(libtagdtor_la_OBJECTS) $(libtagdtor_la_LIBADD) $(LIBS)
 
+parser-decisions$(EXEEXT): $(parser_decisions_OBJECTS) $(parser_decisions_DEPENDENCIES) $(EXTRA_parser_decisions_DEPENDENCIES)
+	@rm -f parser-decisions$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(parser_decisions_OBJECTS) $(parser_decisions_LDADD) $(LIBS)
+
 robustness$(EXEEXT): $(robustness_OBJECTS) $(robustness_DEPENDENCIES) $(EXTRA_robustness_DEPENDENCIES)
 	@rm -f robustness$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(robustness_OBJECTS) $(robustness_LDADD) $(LIBS)
@@ -606,6 +618,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser-decisions.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/robustness.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tagdtor.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/token-input.Po@am__quote@ # am--include-marker
@@ -987,6 +1000,7 @@ clean-am: clean-checkLTLIBRARIES clean-checkPROGRAMS clean-generic \
 	clean-libtool mostlyclean-am
 
 distclean: distclean-am
+	-rm -f ./$(DEPDIR)/parser-decisions.Po
 	-rm -f ./$(DEPDIR)/robustness.Po
 	-rm -f ./$(DEPDIR)/tagdtor.Plo
 	-rm -f ./$(DEPDIR)/token-input.Po
@@ -1035,6 +1049,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
+	-rm -f ./$(DEPDIR)/parser-decisions.Po
 	-rm -f ./$(DEPDIR)/robustness.Po
 	-rm -f ./$(DEPDIR)/tagdtor.Plo
 	-rm -f ./$(DEPDIR)/token-input.Po

@@ -89,8 +89,9 @@ per introdurre alternative speculative.
 
 ## Incrementi successivi, ancora da implementare
 
-1. Prove generiche di terminali contestuali e disambiguazione, indipendenti
-   da Python; definizione del contratto puro dei predicati di riconoscimento.
+1. Le prove generiche sono ora disponibili in [PARSER_DECISIONS.md](PARSER_DECISIONS.md):
+   22 scenari indipendenti da Python. Resta da implementare il supporto
+   generale ai terminali contestuali; il documento propone il contratto dei predicati.
 2. Catture con gestione esplicita della durata, posizioni delle riduzioni
    e catene di origine delle espansioni.
 3. Limiti configurabili e fallimenti recuperabili delle strutture interne.

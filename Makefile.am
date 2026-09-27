@@ -7,3 +7,5 @@ EXTRA_DIST = BUGS ChangeLog autogen.sh build.sh test.sh openzz.spec BUILDING.md
 SUBDIRS = src doc testsuite
 
 EXTRA_DIST += docs/NATIVE_TOKEN_API.md
+
+EXTRA_DIST += docs/PARSER_DECISIONS.md
